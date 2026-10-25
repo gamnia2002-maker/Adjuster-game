@@ -1,0 +1,2605 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="保險公證人人生模擬:從 23 歲入行到 65 歲退休,在每個十字路口做出選擇,邊玩邊學保險理賠。">
+<style>html{-webkit-text-size-adjust:100%}body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>冒險公證人</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<style>
+/* 版面:案件卷宗。窄欄單列:像素場景與時間條在上,十字路口卡片緊接其後,下方是屬性、控制與逐年日誌。色票:安全帽黃、鋼藍墨、冷灰紙。 */
+:root{
+  --bg:#e8ecef; --card:#f8fafb; --ink:#14212c; --mute:#5a6a77; --line:#c9d3da;
+  --accent:#f2b705; --accent-ink:#1b1500; --steel:#2f5d7c;
+  --good:#23794a; --bad:#b53a29; --track:#d6dee4;
+  --s-pro:#2f5d7c; --s-rep:#b8860b; --s-net:#6a4fa3; --s-hp:#1f8a7a; --s-fam:#c0507a;
+  --f-display:'Noto Serif TC','Songti TC','PMingLiU',serif;
+  --f-body:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1923; --card:#16242f; --ink:#e7eef3; --mute:#97a8b5; --line:#2b3d4b;
+    --accent:#f4c430; --accent-ink:#1b1500; --steel:#7fb2d6;
+    --good:#4fbf86; --bad:#ee7b68; --track:#243543;
+    --s-pro:#6fa8d1; --s-rep:#f2c14e; --s-net:#a98be0; --s-hp:#4fcbb4; --s-fam:#ee8aa8;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1923; --card:#16242f; --ink:#e7eef3; --mute:#97a8b5; --line:#2b3d4b;
+  --accent:#f4c430; --accent-ink:#1b1500; --steel:#7fb2d6;
+  --good:#4fbf86; --bad:#ee7b68; --track:#243543;
+  --s-pro:#6fa8d1; --s-rep:#f2c14e; --s-net:#a98be0; --s-hp:#4fcbb4; --s-fam:#ee8aa8;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink);
+  font:400 16px/1.75 var(--f-body);
+  padding-block:20px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.3}
+p{margin:0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.mute{color:var(--mute)}
+.mast{display:flex;justify-content:space-between;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.mast b{font:900 20px/1.2 var(--f-display);letter-spacing:.06em}
+.code{font:500 12px var(--f-mono);color:var(--mute);letter-spacing:.04em}
+
+.hero{display:flex;flex-direction:column;gap:14px;padding-top:8px}
+.hero h1{font-size:clamp(34px,10vw,48px);font-weight:900;letter-spacing:.04em}
+.hero .lede{font-size:17px;max-width:34em}
+.stamp{align-self:flex-start;font:700 12px var(--f-mono);letter-spacing:.14em;background:var(--accent);color:var(--accent-ink);padding:4px 10px;border-radius:3px}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.facts div{border-top:2px solid var(--ink);padding-top:6px;line-height:1.3}
+.facts b{display:block;font:700 22px var(--f-mono)}
+.facts span{font-size:12px;color:var(--mute)}
+
+.tab{display:inline-block;background:var(--accent);color:var(--accent-ink);font:700 12px var(--f-mono);letter-spacing:.1em;padding:5px 12px;border-radius:5px 5px 0 0;margin-bottom:-1px;position:relative}
+.tab.dark{background:var(--ink);color:var(--bg)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:0 6px 6px 6px;padding:18px 16px;display:flex;flex-direction:column;gap:14px}
+.card.ev{border:2px solid var(--accent)}
+.card.br{border:2px solid var(--steel)}
+.tab.br{background:var(--steel);color:var(--card)}
+.card h2{font-size:22px}
+.last{font:500 13px/1.6 var(--f-mono);color:var(--mute);border-left:3px solid var(--line);padding-left:10px}
+
+/* 場景與時間 */
+.stage{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px;display:flex;flex-direction:column;gap:10px}
+canvas.scene{display:block;width:100%;height:auto;aspect-ratio:120/56;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:4px;background:#a8dcff}
+.cap{font-size:12px;color:var(--mute);line-height:1.5}
+.yb{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;color:var(--mute)}
+.yb b{font:700 12px var(--f-mono);color:var(--ink)}
+.ytrack{height:10px;background:var(--track);border-radius:3px;overflow:hidden}
+.ytrack u{display:block;height:100%;background:var(--accent);transform-origin:left center;transform:scaleX(0)}
+.ytrack u.run{animation-name:yfill;animation-timing-function:linear;animation-fill-mode:forwards}
+.ytrack u.pz{animation-play-state:paused}
+.ytrack u.hold{transform:scaleX(1);background:var(--steel)}
+@keyframes yfill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.life{display:flex;flex-direction:column;gap:4px}
+.ltrack{position:relative;height:14px;background:var(--track);border-radius:3px}
+.ltrack>u{position:absolute;left:0;top:0;bottom:0;background:var(--ink);opacity:.82;border-radius:3px 0 0 3px;transition:width .4s}
+.ltrack i{position:absolute;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;transform:rotate(45deg);border:2px solid var(--steel);background:var(--card)}
+.ltrack i.done{background:var(--steel)}
+.ltrack em{position:absolute;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:var(--accent)}
+.lscale{position:relative;height:14px;font:500 11px/14px var(--f-mono);color:var(--mute)}
+.lscale span{position:absolute;transform:translateX(-50%)}
+.lscale span:first-child{transform:none}
+.lscale span:last-child{transform:translateX(-100%)}
+
+.hdr{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+.kvs{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px 12px}
+.kv{display:flex;flex-direction:column;line-height:1.3;min-width:0}
+.kv span{font-size:12px;color:var(--mute)}
+.kv b{font:700 16px var(--f-mono)}
+.kv b.zh{font:700 15px var(--f-body)}
+.sts{display:flex;flex-direction:column;gap:6px}
+.st{display:grid;grid-template-columns:2.6em 1fr 2.4em;align-items:center;gap:10px;font-size:13px}
+.st i{display:block;height:8px;background:var(--track);border-radius:2px;overflow:hidden}
+.st u{display:block;height:100%;border-radius:2px;transition:width .4s}
+.st b{text-align:right;font:700 13px var(--f-mono)}
+.st b.low{color:var(--bad)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.prof{display:flex;flex-direction:column;gap:2px}
+.var.warn{border-left-color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,transparent)}
+.linkbtn{all:unset;cursor:pointer;font-size:13px;color:var(--steel);text-decoration:underline;align-self:flex-start}
+.linkbtn:focus-visible{outline:3px solid var(--steel);outline-offset:2px}
+.prof b{color:var(--ink);font-weight:700}
+
+.ctrl{display:flex;flex-direction:column;gap:10px}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.lbl{font-size:12px;color:var(--mute);letter-spacing:.06em}
+.auto{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mute);cursor:pointer}
+.auto input{width:18px;height:18px;accent-color:var(--steel)}
+
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg.s3{grid-template-columns:repeat(3,1fr)}
+.seg.s4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:460px){.seg.s4{grid-template-columns:1fr 1fr}.facts{grid-template-columns:1fr 1fr}}
+.seg button{all:unset;box-sizing:border-box;text-align:center;padding:9px 6px;border:1px solid var(--line);border-radius:6px;cursor:pointer;font-size:14px;line-height:1.35;background:var(--bg)}
+.seg button.on{border-color:var(--ink);background:var(--ink);color:var(--bg);font-weight:700}
+.pbtn{all:unset;box-sizing:border-box;padding:8px 14px;border-radius:6px;border:1px solid var(--ink);font:700 14px var(--f-body);cursor:pointer;min-width:6em;text-align:center}
+.pbtn.go{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{all:unset;box-sizing:border-box;display:flex;flex-direction:column;gap:6px;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:6px;background:var(--bg);cursor:pointer;line-height:1.55}
+.opt:hover{border-color:var(--steel)}
+.opt[disabled]{cursor:not-allowed;opacity:.5}
+.opt[disabled]:hover{border-color:var(--line)}
+.opt:focus-visible,.btn:focus-visible,.seg button:focus-visible,.pbtn:focus-visible{outline:3px solid var(--steel);outline-offset:2px}
+.opt b{font-weight:700;font-size:16px}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{font:500 12px/1.2 var(--f-mono);padding:4px 7px;border-radius:3px;border:1px solid var(--line)}
+.chip.up{color:var(--good);border-color:currentColor}
+.chip.dn{color:var(--bad);border-color:currentColor}
+.chip.pr{color:var(--steel);border-color:currentColor}
+.chip.hk{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.lk{color:var(--mute);border-style:dashed}
+.btn{all:unset;box-sizing:border-box;display:block;text-align:center;padding:13px 18px;border-radius:6px;background:var(--accent);color:var(--accent-ink);font:700 16px var(--f-body);cursor:pointer;letter-spacing:.06em}
+.btn:hover{filter:brightness(.95)}
+.btn.sec{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:13px;color:var(--mute)}
+.field input,.field textarea{font:500 16px var(--f-mono);background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px 12px;width:100%}
+.field textarea{font:400 14px/1.6 var(--f-body);resize:none;height:84px}
+
+.rowkv{display:flex;flex-direction:column;gap:2px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.rowkv:last-of-type{border-bottom:0;padding-bottom:0}
+.rowkv .k{font-size:12px;color:var(--mute)}
+.rowkv .v{font-weight:700}
+.rowkv .p{font:500 12px var(--f-mono);color:var(--steel)}
+
+.feed{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.feed li{display:grid;grid-template-columns:3.4em 1fr;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;line-height:1.6}
+.feed li:last-child{border-bottom:0}
+.feed li>span{font:700 12px/1.9 var(--f-mono);color:var(--mute)}
+.feed li div{min-width:0;display:flex;flex-direction:column;gap:4px}
+.feed li.up b,.feed li.up>div>span:first-child{color:var(--good)}
+.feed li.bad b{color:var(--bad)}
+.feed li.ev b{color:var(--steel)}
+.feed li.new{animation:fresh .6s ease-out}
+@keyframes fresh{from{background:color-mix(in srgb,var(--accent) 30%,transparent)}to{background:transparent}}
+@media (prefers-reduced-motion:reduce){.feed li.new{animation:none}.st u,.ltrack>u{transition:none}}
+
+.score{display:flex;align-items:baseline;gap:10px}
+.score b{font:900 56px/1 var(--f-display)}
+.score span{color:var(--mute);font:500 13px var(--f-mono)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+svg.ch{width:100%;height:auto;display:block}
+svg .gl{stroke:var(--line);stroke-width:1}
+svg .tx{fill:var(--mute);font:9px var(--f-mono)}
+
+details{border:1px solid var(--line);border-radius:6px;background:var(--card)}
+summary{cursor:pointer;padding:12px 14px;font-weight:700;font-size:15px}
+.dbody{padding:0 14px 14px;display:flex;flex-direction:column;gap:12px;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:5px 6px 5px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-size:12px;color:var(--mute);font-weight:500}
+td.r,th.r{text-align:right;font-family:var(--f-mono);white-space:nowrap}
+.tbl{overflow-x:auto}
+.foot{font-size:12px;color:var(--mute);text-align:center}
+.know{border:1px dashed var(--steel);border-radius:6px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;background:var(--bg)}
+.know .kt{font:700 11px var(--f-mono);letter-spacing:.12em;color:var(--steel)}
+.know b{font-size:15px}
+.know p{font-size:14px;line-height:1.75}
+.var{font-size:13px;line-height:1.6;background:color-mix(in srgb,var(--accent) 20%,transparent);border-left:3px solid var(--accent);padding:6px 10px;border-radius:0 4px 4px 0}
+.tier{font:700 14px var(--f-mono);letter-spacing:.08em}
+.tier.g{color:var(--good)}.tier.b{color:var(--bad)}.tier.m{color:var(--steel)}
+.twist{font-size:14px;color:var(--mute);border-left:3px solid var(--line);padding-left:10px}
+.feed li.mk>div>span:first-child{color:var(--s-rep);font-weight:700}
+</style>
+</head>
+<body>
+
+<main class="wrap" id="app"></main>
+
+<script>
+/* ===================== 基本設定 ===================== */
+const KEYS=['pro','rep','net','hp','fam'];
+const KN={pro:'專業',rep:'信譽',net:'人脈',hp:'健康',fam:'家庭',gov:'公司治理'};
+const RANK=[
+ {m:4.2},
+ {m:6,y:3,pro:45,rep:0,net:0},
+ {m:9,y:8,pro:60,rep:50,net:0},
+ {m:13,y:14,pro:63,rep:0,net:50},
+ {m:18,y:20,pro:70,rep:62,net:62},
+ {m:28,y:28,pro:82,rep:78,net:72}
+];
+/* 職涯路線:職稱、月薪倍率、健康耗損(null = 依任職公司)、升遷門檻調整 */
+const ROUTES={
+ adj:{n:'公證主線',r:['助理公證人','公證人','資深公證人','理賠經理','協理','合夥人'],m:1,d:null,off:{},x:'全方位發展,門檻均衡'},
+ exp:{n:'技術專家線',r:['助理公證人','公證人','資深公證人','技術顧問','首席專家','鑑識權威'],m:.95,d:null,off:{pro:5,net:-20},x:'重專業,幾乎不看人脈'},
+ mgr:{n:'管理線',r:['助理公證人','公證人','資深公證人','團隊主管','部門經理','總經理'],m:1.1,d:null,off:{pro:-8,net:5},x:'重人脈與帶人,薪水較高'},
+ brk:{n:'保險經紀業',r:['理賠專員','理賠顧問','資深理賠顧問','理賠經理','副總監','理賠總監'],m:1.1,d:1.2,off:{net:3},x:'站在客戶這一側主導理賠'},
+ ins:{n:'保險公司',r:['理賠專員','理賠襄理','理賠經理','理賠部協理','理賠部副總','副總經理'],m:1,d:.6,off:{pro:-5,rep:-5},x:'穩定,健康耗損低'},
+ rei:{n:'再保險',r:['再保專員','理賠分析師','資深分析師','亞洲區理賠經理','亞太理賠主管','全球理賠總監'],m:1.25,d:1.4,off:{pro:5},x:'國際舞台,高薪高壓'},
+ own:{n:'自營公證行',r:['工作室負責人','工作室負責人','公證行負責人','公證行負責人','區域公證行老闆','公證集團董事長'],m:1.3,d:1.6,off:{net:5},x:'收入最高,風險最高'},
+ edu:{n:'講師與學界',r:['兼任講師','兼任講師','專任講師','助理教授','副教授','教授'],m:.75,d:.4,off:{net:-10},x:'收入較低,身心最平衡'}
+};
+const BG=[
+ {n:'理工背景',w:30,fx:{pro:8,net:-2},d:'看得懂圖面與設備'},
+ {n:'法律商管背景',w:22,fx:{rep:5,pro:3},d:'條款與程序是你的母語'},
+ {n:'船務海事背景',w:12,fx:{pro:4,net:4},d:'熟悉貨物與運輸鏈'},
+ {n:'保險公司轉職',w:20,fx:{net:8,pro:2},d:'知道對岸怎麼想'},
+ {n:'社會新鮮人',w:16,fx:{hp:8,fam:4,pro:-3},d:'體力好,什麼都得學'}
+];
+const SP=[
+ {id:'fire',n:'財產險(火災、爆炸)',w:30},
+ {id:'cargo',n:'貨物與海事險',w:22},
+ {id:'eng',n:'工程險',w:14},
+ {id:'re',n:'再生能源(太陽能、風電)',w:10},
+ {id:'semi',n:'半導體與高科技',w:10},
+ {id:'motor',n:'汽車與責任險',w:14}
+];
+const FM=[
+ {n:'外商公證公司',w:30,m:1.15,d:1.5,x:'薪水高,壓力大'},
+ {n:'本土公證行',w:45,m:1,d:1,x:'節奏中等'},
+ {n:'保險公司理賠部',w:25,m:0.92,d:0.5,x:'穩定,天花板較低'}
+];
+const FOCUS=[
+ {id:'study',n:'苦讀專業',fx:{pro:5,hp:-2,fam:-1},ph:['你把週末泡在條款與判例裡。','你啃完一整套損失計算教材。','你開始習慣在報告後面附上推算依據。','你把十年來的舊案重新讀了一遍。']},
+ {id:'field',n:'衝現場',fx:{pro:2,rep:2,hp:-2,fam:-3},inc:1.15,ph:['你一年跑了上百個案場。','你的安全鞋換了第二雙。','你在國道休息站吃了太多次晚餐。','你的車上永遠放著雨鞋和捲尺。']},
+ {id:'net',n:'經營人脈',fx:{net:5,rep:1,hp:-1,fam:-1},ph:['你和幾家保險公司的窗口吃了不少頓飯。','你的名片夾又厚了一層。','你在公會活動認識了不少新面孔。','經紀人開始會主動打電話給你。']},
+ {id:'rest',n:'休養陪家人',fx:{hp:5,fam:5,pro:-1},ph:['你準時下班,週末陪家人。','你開始規律運動。','你把年假真的休完了。','你學會在晚上十點後不看手機。']}
+];
+const SPD={slow:[2200,'慢'],mid:[1300,'中'],fast:[600,'快']};
+
+/* ===================== 事件庫 =====================
+   c:判定(成功率 = b + (數值 − 50) × s,限 5–95%)。gr:大成功(擲點 ≤ 成功率 × 0.2)。
+   a:自動模式權重。show:選項是否出現。req/lk:選項門檻與說明。
+   sched:數年後必定觸發的後續。route:轉換職涯路線。end:直接進入特殊結局。 */
+const E=[
+/* ---- 職涯分岔(固定年齡觸發) ---- */
+{id:'br1',n:'職涯的十字路口',w:3,br:1,job:1,once:1,when:s=>s.age>=27&&s.age<=36&&s.rank>=1&&s.track==='adj',t:'你已經能獨當一面。幾個方向同時向你招手,接下來的十年要往哪裡走?',ch:[
+ {l:'留在公證主線,一步一步往上升',ok:{t:'你選擇最熟悉的路。前輩說:「穩,才走得遠。」',fx:{rep:2,pro:1}}},
+ {l:'走技術專家線,專攻鑑識與損失計算',req:s=>s.pro>=55,lk:'專業 ≥ 55',ok:{t:'你開始只接最難的技術案。報告越來越厚,名聲越來越硬。',fx:{route:'exp',pro:4,net:-2}}},
+ {l:'走管理線,帶團隊、扛業績',req:s=>s.net>=50,lk:'人脈 ≥ 50',ok:{t:'你第一次有了自己的團隊,也第一次為別人的錯誤道歉。',fx:{route:'mgr',net:3,hp:-2}}},
+ {l:'轉往保險公司理賠部',c:{k:'net',b:55,s:.6},ok:{t:'你換到桌子的另一邊。工時正常了,視野也不一樣了。',fx:{route:'ins',raise:.05,hp:3}},ng:{t:'你進去了,但職位不如預期,得重新證明自己。',fx:{route:'ins',net:-2,hp:1}}},
+ {l:'轉往保險經紀公司',req:s=>s.net>=45,lk:'人脈 ≥ 45',c:{k:'net',b:50,s:.8},ok:{t:'你從勘查損失的人,變成替客戶主導理賠的人。',fx:{route:'brk',raise:.12,net:3}},ng:{t:'經紀業的節奏比想像中快,你花了兩年才站穩。',fx:{route:'brk',raise:.03,hp:-4}}}
+]},
+{id:'br2',n:'中年轉彎',w:3,br:1,job:1,once:1,when:s=>s.age>=36&&s.age<=46,t:'你在這條路上走了一段時間,眼前又出現幾個岔路。',ch:[
+ {l:s=>'維持目前路線('+ROUTES[s.track].n+')',a:1.8,ok:{t:'你決定把這條路走深。',fx:{rep:2,hp:1}}},
+ {l:'進入再保險公司,站上國際舞台',show:s=>s.track!=='rei',req:s=>s.pro>=65||s.f.eng,lk:'專業 ≥ 65,或上過商業英文課',c:{k:'pro',b:50,s:.8},ok:{t:'你的郵件開始以英文為主,時差成了日常。',fx:{route:'rei',raise:.12,net:3,pro:2}},ng:{t:'你被錄取了,但第一年在倫敦同事面前常常語塞。',fx:{route:'rei',raise:.03,hp:-4}}},
+ {l:'自立門戶,開自己的公證行',show:s=>s.track!=='own',req:s=>s.net>=55&&s.rank>=2,lk:'人脈 ≥ 55 且職級達第 3 階',c:{k:'net',b:40,s:1},ok:{t:'招牌掛上去的那天,幾個老客戶送來花籃。',fx:{route:'own',cash:-100,net:5,rep:2}},ng:{t:'開業半年,案源遠低於預期,你把積蓄都押了進去。',fx:{route:'own',cash:-250,hp:-6,fam:-3}}},
+ {l:'轉往學界,教書與研究',a:.5,show:s=>s.track!=='edu',req:s=>s.pro>=60,lk:'專業 ≥ 60',ok:{t:'你第一次站上講台,底下坐滿未來的公證人。',fx:{route:'edu',fam:5,hp:4,net:2}}},
+ {l:'改走管理線',show:s=>s.track==='adj'||s.track==='exp',req:s=>s.net>=55,lk:'人脈 ≥ 55',ok:{t:'你接下一個團隊。',fx:{route:'mgr',net:2,hp:-1}}},
+ {l:'改走技術專家線',show:s=>s.track==='adj'||s.track==='mgr',req:s=>s.pro>=65,lk:'專業 ≥ 65',ok:{t:'你放下管理職,回到最喜歡的技術工作。',fx:{route:'exp',pro:3,hp:1}}}
+]},
+{id:'br3',n:'人生下半場',w:5,br:1,once:1,when:s=>s.age>=45&&s.age<=56,t:'離退休不算遠了。接下來這段時間,你想怎麼過?',ch:[
+ {l:'全力衝刺最高職位',a:1.6,ok:{t:'你把最後一段職涯當成衝刺。升遷機率提高,身體也更累。',fx:{flag:'sprint',pro:2,net:2,hp:-4}}},
+ {l:'退居二線,當資深顧問',a:.5,ok:{t:'收入減半,你終於有時間陪家人吃晚餐。',fx:{flag:'semi',hp:6,fam:6}}},
+ {l:'轉任講師,傳承經驗',a:.5,show:s=>s.track!=='edu',req:s=>s.rep>=55,lk:'信譽 ≥ 55',ok:{t:'你把三十年的案例整理成課程。',fx:{route:'edu',fam:4,hp:3}}},
+ {l:'離開保險業,開一間咖啡店',a:.12,ok:{t:'你交出了辭呈。',fx:{hp:6,fam:4,end:{t:'咖啡店老闆',d:'店裡的牆上掛著一頂舊安全帽。熟客都知道,問起它的時候,老闆會多送一塊蛋糕。'}}}}
+]},
+/* ---- 入門與一般職涯 ---- */
+{id:'first',n:'第一次獨自出勤',w:40,yrs:[0,1],once:1,t:'入行第一年,凌晨兩點接到電話:工廠火警。帶你的前輩臨時出國,現場只有你。',ch:[
+ {l:'獨自完整蒐證、拍照、丈量',c:{k:'pro',b:50,s:1},ok:{t:'你把起火區域與燃燒路徑整理得一絲不苟,前輩回來後直接把你的報告當範本。',fx:{pro:5,rep:4}},ng:{t:'你漏掉了配電盤附近的關鍵痕跡,被主管退回重勘。',fx:{rep:-4,hp:-2,pro:2}},gr:{t:'你的報告被保險公司轉寄給整個理賠部當教材。',fx:{pro:6,rep:8,net:3}}},
+ {l:'打電話請前輩遠端指導',ok:{t:'前輩在電話那頭指點了兩小時,你學到不少。',fx:{pro:2,net:2,rep:-1}}},
+ {l:'先封鎖現場,等天亮再勘',ok:{t:'安全是安全了,但清晨的雨沖掉了部分痕跡。',fx:{hp:1,rep:-1,pro:1}}}
+]},
+{id:'english',n:'商業英文課',w:8,once:1,yrs:[1,20],t:'公司提供商業英文與國際理賠課程,但每週要占用兩個晚上,為期一年。',ch:[
+ {l:'報名上課',ok:{t:'你開始看得懂倫敦市場的條款原文。這會打開一些門。',fx:{flag:'eng',pro:3,fam:-2,hp:-1}}},
+ {l:'不上,把晚上留給自己',ok:{t:'你的晚上很平靜。',fx:{fam:1,hp:1}}}
+]},
+{id:'emba',n:'EMBA 招生',w:5,once:1,when:s=>s.age>=35&&s.age<=50&&s.rank>=2,t:'一所大學的 EMBA 寄來招生簡章,同班會有很多企業主與保險公司高層。',ch:[
+ {l:'報名就讀',c:{k:'pro',b:55,s:.6},ok:{t:'兩年的週末課程,換來一整個班的企業主人脈。',fx:{net:7,pro:3,cash:-80,fam:-4}},ng:{t:'工作太忙,你讀得斷斷續續,延畢一年。',fx:{net:3,cash:-90,fam:-5,hp:-3}}},
+ {l:'不讀',ok:{t:'你把錢和時間留下來。',fx:{cash:5,fam:1}}}
+]},
+{id:'deadline',n:'三天交報告',w:12,t:'保險公司要求三天內交初步報告,但現場資料只收齊七成。',ch:[
+ {l:'如期交出,並註明資料限制',c:{k:'pro',b:55,s:.8},ok:{t:'邏輯清楚、限制條件寫得明白,保險公司反而更信任你。',fx:{rep:3,net:3}},ng:{t:'缺漏的資料後來被被保險人抓到矛盾,你得重寫並道歉。',fx:{rep:-5,hp:-2}}},
+ {l:'通宵補齊再交',ok:{t:'熬了兩個晚上,品質沒話說,身體付出了代價。',fx:{pro:2,rep:3,hp:-5}}},
+ {l:'坦白說明,爭取延後兩天',ok:{t:'對方勉強同意,但窗口明顯不太高興。',fx:{net:-2,hp:1,rep:1}}}
+]},
+{id:'bribe',n:'厚信封',w:6,yrs:[1,40],t:'被保險人的老闆私下遞來一個厚信封,暗示「報告寫得寬鬆一點,大家好做人」。',ch:[
+ {l:'當場拒絕,並向主管報備',ok:{t:'對方臉色很難看,但主管記下了這件事。幾年後,這件事會回來找你。',fx:{rep:6,net:-2,sched:{id:'trust',in:[3,6]}}}},
+ {l:'收下,報告「從寬認定」',a:.12,ok:{t:'錢進了口袋,報告也交了。這件事看起來就這樣過去了。',fx:{cash:60,rep:-3,flag:'dirty',sched:{id:'audit',in:[2,6]}}}},
+ {l:'婉拒,但不張揚',ok:{t:'對方懂了,你也沒有結仇。',fx:{rep:2,net:1}}}
+]},
+{id:'audit',n:'稽核室來電',w:0,t:'保險公司稽核室來電,要調閱你幾年前的一份報告。就是那個厚信封的案子。',ch:[
+ {l:'坦白一切,主動退還',ok:{t:'你被停職半年,繳回款項,勉強保住執照。',fx:{rep:-30,cash:-80,hp:-5,unflag:'dirty'}}},
+ {l:'堅稱報告無誤',a:.6,c:{k:'rep',b:40,s:.5},ok:{t:'稽核找不到直接證據,案子結了。但你知道他們會記得。',fx:{rep:-6,hp:-3}},ng:{t:'對方拿出了當年的錄音。公會的懲戒函隨後寄到。',fx:{rep:-100}}},
+ {l:'請律師處理',ok:{t:'律師費很貴,案子以「證據不足」收場,但業界傳言四起。',fx:{cash:-50,rep:-12,net:-5}}}
+]},
+{id:'trust',n:'只信得過你',w:0,t:'某家保險公司的理賠部協理打電話來:「那件大案,我只信得過你。」你當年的誠實,他一直記得。',ch:[
+ {l:'接下大案',c:{k:'pro',b:55,s:.9},ok:{t:'你漂亮地結了案,從此成為這家保險公司的指定人選。',fx:{pro:4,rep:6,net:4,cash:40}},ng:{t:'案子太複雜,你多花了半年,但對方仍然信任你。',fx:{pro:3,hp:-5,rep:1}},gr:{t:'這個案子讓你在整個產險圈一戰成名。',fx:{pro:5,rep:10,net:8,cash:60}}},
+ {l:'推薦後輩接手,從旁協助',ok:{t:'後輩做得不錯,協理覺得你很會帶人。',fx:{net:5,rep:3}}}
+]},
+{id:'typhoon',n:'颱風後湧入案件',w:12,t:'颱風過後三天,公司同時湧進三百件案子,每個人都被要求「多接一點」。',ch:[
+ {l:'全力衝量,每天跑現場',ok:{t:'一週跑了四十個案場,業績亮眼,腰和小腿也跟著抗議。',fx:{cash:25,rep:2,pro:2,hp:-7,fam:-3}}},
+ {l:'只接能做好的案量',ok:{t:'你守住報告品質,沒有一件被客訴。',fx:{rep:3,hp:-2,cash:8}}},
+ {l:'分派給新人並親自覆核',c:{k:'net',b:50,s:.8},ok:{t:'人手調度得很順,新人學得快,案子也沒出包。',fx:{net:4,rep:3,pro:1,hp:-2}},ng:{t:'新人經驗不足,覆核來不及,幾份報告出現明顯錯誤。',fx:{rep:-4,net:-2,hp:-3}}}
+]},
+{id:'quake',n:'強震後的千案潮',w:5,t:'規模 7 的地震襲擊中部,工業區、住宅、倉庫同時受損,案件以千計。',ch:[
+ {l:'自願前往重災區駐點',ok:{t:'你在災區住了三個月。你變得更沉穩,也更累。',fx:{pro:4,rep:4,hp:-6,fam:-4,cash:20}}},
+ {l:'留守處理既有案件',ok:{t:'你守住了後方,同事回來時案子都沒延誤。',fx:{rep:1,hp:-1,cash:8}}},
+ {l:'主導建立快速理賠標準流程',c:{k:'pro',b:45,s:1},ok:{t:'你設計的流程讓小額案件兩週內結案,被公會列為參考範本。',fx:{pro:3,rep:6,net:4}},ng:{t:'流程太理想化,現場根本跑不動。',fx:{rep:-2,hp:-3,pro:2}}}
+]},
+{id:'angry',n:'現場咆哮',w:10,t:'被保險人在現場對你大吼,認為你是「保險公司派來砍錢的」。',ch:[
+ {l:'耐心解釋流程與條款',c:{k:'net',b:50,s:.8},ok:{t:'他慢慢冷靜下來,最後還請你喝了一瓶飲料。',fx:{rep:3,net:2}},ng:{t:'他越聽越火,把你趕出工廠。',fx:{hp:-3,rep:-1}}},
+ {l:'先離開,改約時間並帶同事同行',ok:{t:'冷卻幾天後,對方態度軟化了一些。',fx:{hp:1,rep:-1,net:1}}},
+ {l:'強硬回應「有問題可以申訴」',ok:{t:'對方真的去申訴了,你寫了三頁說明。',fx:{rep:-4,net:-1,hp:-1}}}
+]},
+{id:'unsafe',n:'隨時會塌的屋頂',w:8,t:'火災現場屋頂結構看起來隨時會塌,但關鍵起火點就在正下方。',ch:[
+ {l:'戴好裝備進去拍',a:.6,c:{k:'hp',b:60,s:.6},ok:{t:'你拿到了決定性的證據。',fx:{pro:4,rep:3}},ng:{t:'一塊鐵皮砸下來,你在醫院躺了一週。',fx:{hp:-15,cash:-10,fam:-2}}},
+ {l:'等結構技師評估後再進',ok:{t:'晚了三天,部分痕跡被雨水沖掉,但你毫髮無傷。',fx:{pro:1,rep:1}}},
+ {l:'改用空拍機',ok:{t:'畫面不夠清楚,但聊勝於無。',fx:{pro:2,cash:-3}}}
+]},
+{id:'underins',n:'不足額保險',w:10,t:'工廠實際價值 5 億,保額只投 3 億。你得告訴被保險人:只能按比例賠 60%。',ch:[
+ {l:'拿出計算式逐項說明',c:{k:'pro',b:55,s:.8},ok:{t:'對方雖然難過,但聽懂了,隔年把保額補足。',fx:{rep:4,net:2}},ng:{t:'對方聽不進去,認為你在找理由少賠。',fx:{rep:-2,hp:-2}}},
+ {l:'先跟經紀人溝通,由經紀人轉達',ok:{t:'經紀人接住了這顆燙手山芋,你欠了一個人情。',fx:{net:3,rep:1}}},
+ {l:'建議保險公司通融',ok:{t:'保險公司不太高興,覺得你立場不穩。',fx:{net:2,rep:-3}}}
+]},
+{id:'depr',n:'折舊爭議',w:10,t:'設備用了 12 年,被保險人主張以重置成本賠償,但保單寫的是實際現金價值。',ch:[
+ {l:'堅持依保單條款計算',ok:{t:'你守住條款,被保險人很不滿,但保險公司放心。',fx:{rep:3,net:-2}}},
+ {l:'查維修紀錄,爭取合理殘值',c:{k:'pro',b:50,s:1},ok:{t:'你找到設備大修紀錄,合理調整折舊,雙方都接受。',fx:{pro:3,rep:4,net:2}},ng:{t:'紀錄殘缺不全,你白忙一場。',fx:{pro:2,hp:-3}}},
+ {l:'先擱著,等對方讓步',ok:{t:'案子拖了一年,兩邊都不滿意。',fx:{rep:-4,net:-2}}}
+]},
+{id:'bi',n:'停工要算幾個月',w:10,yrs:[3,40],t:'營業中斷損失:被保險人主張停工 6 個月,你估計 3 個月就能恢復生產。',ch:[
+ {l:'用產能、訂單、替代產能建模',c:{k:'pro',b:45,s:1.1},ok:{t:'你的模型把損失拆成可驗證的區塊,各方都接受推算依據。',fx:{pro:5,rep:5,cash:15}},ng:{t:'模型假設被會計師逐項質疑,你花了兩週修正。',fx:{pro:3,hp:-4,rep:-2}},gr:{t:'這個模型後來變成公司的標準工具,上面掛著你的名字。',fx:{pro:7,rep:7,net:3,cash:20}}},
+ {l:'折衷為 4.5 個月',ok:{t:'談判很快結束,但你自己知道這個數字沒有依據。',fx:{net:2,rep:-2}}},
+ {l:'請會計師事務所共同審核',ok:{t:'費用不低,但三方都接受共同審算結果。',fx:{cash:-5,rep:3,pro:1}}}
+]},
+{id:'fraud',n:'同一支電話',w:6,yrs:[2,40],t:'你發現三件看似無關的竊盜案,報案人留的手機號碼竟然是同一支。',ch:[
+ {l:'深入追查並通報檢方',c:{k:'pro',b:50,s:.8},ok:{t:'一個詐保集團被起訴。你上了新聞,也被盯上了。',fx:{rep:7,pro:3,net:3,sched:{id:'threat',in:[1,2]}}},ng:{t:'證據不夠,檢方沒有立案。',fx:{hp:-3,pro:1,rep:1}}},
+ {l:'只處理手上這件',ok:{t:'你結了案,但心裡一直有個疙瘩。',fx:{rep:-1,hp:-1}}},
+ {l:'交給保險公司的調查單位',ok:{t:'調查單位接手,也記住了你的敏銳。',fx:{net:3,rep:2}}}
+]},
+{id:'threat',n:'樓下的字條',w:0,t:'詐保集團的人找到你家樓下,在信箱裡留下一張字條:「做人留一線。」',ch:[
+ {l:'報警並告知公司',ok:{t:'警方加強巡邏,家人好幾週不敢單獨出門。',fx:{fam:-3,hp:-3,rep:3}}},
+ {l:'申請調離相關案件',ok:{t:'風波慢慢平息,但你覺得自己退了一步。',fx:{rep:-2,hp:1,fam:1}}},
+ {l:'不予理會',c:{k:'hp',b:50,s:.4},ok:{t:'對方沒有再出現。',fx:{rep:2}},ng:{t:'一週後,你的車窗被砸了。',fx:{hp:-6,fam:-6,cash:-10}}}
+]},
+{id:'media',n:'麥克風伸到面前',w:6,when:s=>s.rank>=2,t:'大型災害現場,記者把麥克風伸到你面前:「請問保險會賠嗎?」',ch:[
+ {l:'冷靜說明理賠流程,不談金額',c:{k:'rep',b:50,s:.6},ok:{t:'你的回答被多家媒體引用。',fx:{rep:5,net:3}},ng:{t:'你的話被剪成「保險可能不賠」,公司接到大量電話。',fx:{rep:-4,hp:-2}}},
+ {l:'「無可奉告」',ok:{t:'畫面裡的你看起來像在逃避。',fx:{rep:-1,net:-1}}},
+ {l:'帶記者看現場',ok:{t:'畫面很震撼,但上級不高興你沒先報備。',fx:{rep:-3,net:2}}}
+]},
+{id:'trip',n:'一週內飛越南',w:8,yrs:[3,40],t:'客戶在越南的工廠淹水,你被要求一週內飛過去勘查。',ch:[
+ {l:'立刻出發',c:{k:'hp',b:60,s:.6},ok:{t:'你在泥水裡完成勘查,也認識了當地的保險同業。',fx:{pro:4,net:4,rep:3,cash:15,fam:-3}},ng:{t:'你在當地腸胃炎,勘查拖成兩週。',fx:{hp:-8,fam:-3,pro:2}}},
+ {l:'請當地公證人協作,你遠端指導',ok:{t:'效率普通,但你建立了一個海外合作夥伴。',fx:{net:3,pro:1,cash:-3}}},
+ {l:'推給同事',ok:{t:'你陪了家人,同事拿走了這個案子的功勞。',fx:{rep:-2,fam:2}}}
+]},
+{id:'pandemic',n:'封城中的勘查',w:4,once:1,yrs:[3,40],t:'疫情封城,現場無法進入,保險公司要求改用視訊勘查。',ch:[
+ {l:'建立視訊勘查作業流程',c:{k:'pro',b:50,s:.8},ok:{t:'你的流程被全公司採用,封城期間案件幾乎沒有延誤。',fx:{pro:5,rep:4,net:2}},ng:{t:'網路斷斷續續,被保險人鏡頭亂晃,你看不出所以然。',fx:{pro:2,rep:-2}}},
+ {l:'堅持等解封再勘',ok:{t:'你保住了品質,但案件堆積如山。',fx:{rep:-3,hp:3}}},
+ {l:'用被保險人提供的照片直接核算',a:.5,ok:{t:'效率很高,但事後發現有兩件照片是舊的。',fx:{rep:-4,cash:10}}}
+]},
+{id:'newcontact',n:'新窗口逐字質疑',w:8,t:'保險公司的老窗口退休,新窗口很年輕,對你每份報告都逐字質疑。',ch:[
+ {l:'主動約他見面,了解他的審核邏輯',c:{k:'net',b:50,s:.8},ok:{t:'原來他只是怕被主管罵。你們後來合作得很好。',fx:{net:5,rep:2}},ng:{t:'飯局很尷尬,他照樣挑剔。',fx:{net:-2,hp:-2}}},
+ {l:'報告寫得更細、附更多依據',ok:{t:'你的報告越寫越厚,也越來越無懈可擊。',fx:{pro:3,hp:-3}}},
+ {l:'跟他的主管反映',ok:{t:'他被約談了,從此對你冷若冰霜。',fx:{net:-4,rep:-1}}}
+]},
+{id:'pressure',n:'再保守一點',w:8,yrs:[2,40],t:'保險公司主管暗示:「這件可以再保守一點吧?」希望你把可賠金額壓低兩成。',ch:[
+ {l:'堅持依證據認定',ok:{t:'主管沉默了幾秒,說:「好,照你的。」之後找你的案子少了一些。',fx:{rep:5,net:-4}}},
+ {l:'找更多佐證後再決定',c:{k:'pro',b:50,s:.9},ok:{t:'你找到的資料讓雙方都沒話說。',fx:{pro:3,rep:4}},ng:{t:'佐證沒找到,主管覺得你在拖延。',fx:{hp:-3,net:-2}}},
+ {l:'照辦',a:.3,ok:{t:'主管很滿意。但被保險人並不打算接受。',fx:{net:4,rep:-5,cash:10,sched:{id:'lawsuit',in:[1,3]}}}}
+]},
+{id:'lawsuit',n:'律師函',w:0,t:'被保險人委任律師,針對你當年被壓低的報告提起訴訟,點名你出庭。',ch:[
+ {l:'由公司出面和解',ok:{t:'公司賠了錢,你的名字在內部被記了一筆。',fx:{rep:-6,cash:-20,net:-2}}},
+ {l:'出庭辯護',c:{k:'pro',b:40,s:1},ok:{t:'你勉強說服了法官,但知道自己當年不該照辦。',fx:{rep:2,pro:2,hp:-3}},ng:{t:'交互詰問時,你承認了主管的暗示。全場安靜。',fx:{rep:-12,hp:-4,net:-4}}}
+]},
+{id:'inflate',n:'庫存多寫一點',w:8,t:'被保險人拜託你:「庫存帳上多寫一點,反正保險公司不會查。」',ch:[
+ {l:'拒絕,並在報告中註明',ok:{t:'對方很不爽,但你的報告經得起任何檢驗。',fx:{rep:4,net:-2}}},
+ {l:'婉轉拒絕',ok:{t:'你說得很客氣,對方也就算了。',fx:{rep:2,net:1}}},
+ {l:'睜一隻眼閉一隻眼',a:.12,ok:{t:'對方塞給你一盒「茶葉」。茶葉罐底下是現金。',fx:{net:3,rep:-3,cash:20,flag:'dirty',sched:{id:'audit',in:[2,5]}}}}
+]},
+{id:'credit',n:'被搶走的功勞',w:7,t:'同事把你做的分析放進他的簡報,在主管面前說是他做的。',ch:[
+ {l:'私下找他談',c:{k:'net',b:50,s:.7},ok:{t:'他道歉了,下次簡報主動掛上你的名字。',fx:{net:2,rep:1}},ng:{t:'他矢口否認,辦公室氣氛很僵。',fx:{net:-3,hp:-2}}},
+ {l:'在會議上直接澄清',ok:{t:'主管知道了真相,但你也多了一個敵人。',fx:{rep:2,net:-4}}},
+ {l:'算了,以後檔案都留底',ok:{t:'你學會保護自己的工作,也吞下了一口氣。',fx:{pro:1,hp:-2}}}
+]},
+{id:'scapegoat',n:'背黑鍋',w:6,yrs:[3,40],t:'一個大案出包,主管暗示要你承擔主要責任。',ch:[
+ {l:'拿出郵件紀錄自保',ok:{t:'責任釐清了,你和主管的關係也結束了。',fx:{rep:2,net:-5}}},
+ {l:'扛下來',ok:{t:'你被記了一個小過。主管私下說:「我欠你一次。」',fx:{rep:-4,net:4}}},
+ {l:'找更高層主管說明',c:{k:'rep',b:45,s:.8},ok:{t:'高層相信你,主管被調離。',fx:{rep:4,net:2}},ng:{t:'高層選擇保護主管,你成了不受歡迎的人。',fx:{net:-6,hp:-3}}}
+]},
+{id:'merger',n:'併購與裁員',w:4,once:1,yrs:[5,35],t:'公司被國際集團併購,辦公室裡開始流傳裁員名單。',ch:[
+ {l:'主動爭取新集團的重點專案',c:{k:'pro',b:50,s:.8},ok:{t:'你成了新集團在台灣的重點人才,薪水跟著調整。',fx:{raise:.1,pro:2,net:3}},ng:{t:'專案做得吃力,你差點上了名單。',fx:{hp:-4,net:-1}}},
+ {l:'拿遣散費,換一家公司',ok:{t:'遣散費不錯,新公司也還可以,只是一切重來。',fx:{cash:40,net:-3,raise:.05}}},
+ {l:'低調保守,等風頭過去',c:{k:'rep',b:55,s:.6},ok:{t:'你留下來了。',fx:{hp:-2}},ng:{t:'你還是被裁了,三個月後才找到新工作。',fx:{cash:-20,hp:-4,fam:-2,raise:-.05}}}
+]},
+{id:'freeze',n:'凍漲',w:6,t:'公司宣布今年凍漲,年終也縮水。',ch:[
+ {l:'接外部講課補收入',ok:{t:'週末都在上課,收入補回來了,人也累了。',fx:{cash:10,hp:-3,net:2}}},
+ {l:'把心力轉回家庭',ok:{t:'錢少了一點,家裡的氣氛好了一點。',fx:{fam:4,cash:-5}}},
+ {l:'找主管談',c:{k:'rep',b:45,s:.8},ok:{t:'主管替你爭取到特別調薪。',fx:{raise:.05}},ng:{t:'主管兩手一攤,你們都很尷尬。',fx:{net:-2,hp:-1}}}
+]},
+{id:'hunter',n:'獵頭來電',w:8,yrs:[5,35],t:'獵頭來電:同業開出比現在高三成的薪水,要你去帶團隊。',ch:[
+ {l:'跳槽',c:{k:'rep',b:55,s:.7},ok:{t:'新環境資源更多,薪水也到位。',fx:{raise:.18,net:-3,pro:3,hp:-2,rep:2}},ng:{t:'新公司的管理風格與你不合,半年後你覺得做錯了決定。',fx:{raise:.08,hp:-5,fam:-3,net:-4}}},
+ {l:'留下,拿 offer 談加薪',c:{k:'rep',b:45,s:.8},ok:{t:'公司願意留你,加薪比預期多。',fx:{raise:.1,rep:1}},ng:{t:'主管覺得你在要脅,關係微妙地冷了下來。',fx:{rep:-2,net:-2}}},
+ {l:'不為所動',ok:{t:'你婉拒了獵頭,心裡有一點遺憾,也有一點踏實。',fx:{fam:1,hp:1}}}
+]},
+{id:'cert',n:'國際證照',w:10,yrs:[1,25],once:1,t:'你考慮報考國際公證人專業證照,要吃掉一整年的週末。',ch:[
+ {l:'報名,拚下來',c:{k:'pro',b:40,s:1},ok:{t:'你考過了。客戶看你的眼神也變了。',fx:{flag:'cert',pro:8,rep:5,hp:-4,fam:-3,cash:-8}},ng:{t:'第一次沒過,得再戰一年。',fx:{pro:4,hp:-4,fam:-4,cash:-8}}},
+ {l:'先把實務做穩,以後再說',ok:{t:'你把時間留給案場與家庭。',fx:{fam:2,hp:1}}}
+]},
+{id:'court',n:'出庭作證',w:7,yrs:[4,40],t:'被保險人不服你的理賠報告,提起民事訴訟,你被傳喚出庭。',ch:[
+ {l:'逐項備好數據、照片與方法說明',c:{k:'pro',b:50,s:1},ok:{t:'交互詰問下你的邏輯站得住腳,法院採納了你的分析。',fx:{rep:7,pro:4,net:2}},ng:{t:'對方律師揪出一處推算假設,法官要求補充說明。',fx:{rep:-5,hp:-3}}},
+ {l:'只回答問題,不多解釋',ok:{t:'你避開了風險,也沒能展現專業。',fx:{rep:1,hp:-1}}}
+]},
+{id:'soft',n:'軟市場殺價',w:7,t:'保險市場進入軟市場,案量縮水,同業開始降價搶案。',ch:[
+ {l:'堅持品質,不跟著降價',c:{k:'rep',b:45,s:.9},ok:{t:'幾個重要客戶留下來了。',fx:{rep:4,net:2,cash:-10}},ng:{t:'你丟了兩個客戶,業績明顯下滑。',fx:{cash:-30,net:-3}}},
+ {l:'跟進降價以維持案量',ok:{t:'案量保住了,利潤很薄,你也開始疲於奔命。',fx:{cash:-5,hp:-4,rep:-1}}},
+ {l:'趁淡季進修與整理案例庫',ok:{t:'業績雖弱,下一波景氣你準備得更好。',fx:{pro:5,cash:-15,hp:2}}}
+]},
+{id:'ai',n:'AI 工具導入',w:10,yrs:[8,40],once:1,t:'公司導入 AI 工具,能自動摘要保單條款、整理照片、草擬報告。',ch:[
+ {l:'主動學,把它變成自己的工具',c:{k:'pro',b:60,s:.6},ok:{t:'你把重複工作交給工具,自己專心做判斷。',fx:{pro:5,rep:3,hp:3}},ng:{t:'你太信任工具,有份報告引用了不存在的條款。',fx:{rep:-6,pro:1}}},
+ {l:'維持原本做法',ok:{t:'同事的速度悄悄把你甩開一段。',fx:{pro:-1,hp:-2}}}
+]},
+{id:'newbie',n:'帶新人',w:9,yrs:[8,40],t:'公司把兩位新人交給你帶。他們聰明,但問題很多。',ch:[
+ {l:'傾囊相授,讓他們跟案',ok:{t:'新人進步很快,你也在教學中理清了自己的方法論。',fx:{net:4,rep:3,pro:2,hp:-2}}},
+ {l:'只交代任務,不多費心',ok:{t:'省了時間,但新人出了錯,還是你收尾。',fx:{hp:-2,rep:-1}}}
+]},
+{id:'reins',n:'再保人查核',w:7,when:s=>s.rank>=3&&s.track!=='rei',t:'國際再保人來台查核一宗數億元的理賠,點名要你的報告與計算模型。',ch:[
+ {l:'用英文簡報,從方法論講起',c:{k:'pro',b:45,s:1},ok:{t:'再保人接受了你的推算架構,希望你多參與國際案件。',fx:{rep:8,pro:4,net:6,cash:40}},ng:{t:'再保人提出多項質疑,你被要求補件重算。',fx:{rep:-3,hp:-6,pro:3}}},
+ {l:'請主管代為說明',ok:{t:'風險由別人扛了,你在國際場合缺席了。',fx:{net:1,rep:-1}}}
+]},
+{id:'speaker',n:'研討會講者',w:7,when:s=>s.rank>=3,t:'產險公會邀請你在年度研討會分享大型災損案例。',ch:[
+ {l:'整理案例並上台分享',c:{k:'pro',b:55,s:.7},ok:{t:'講完後有人排隊遞名片。',fx:{rep:6,net:6,cash:10,hp:-2}},ng:{t:'現場被問倒一題,場面尷尬。',fx:{rep:-2,net:2,pro:2}}},
+ {l:'婉拒,專心做案子',ok:{t:'你守住了時間,也錯過了舞台。',fx:{hp:2,net:-1}}}
+]},
+{id:'olderr',n:'三年前的計算錯誤',w:7,yrs:[3,40],t:'整理舊案時,你發現三年前的報告有計算錯誤,影響約 5% 的賠款。沒有人發現。',ch:[
+ {l:'主動通知對方更正',ok:{t:'對方先是錯愕,隨後感謝你的誠實。',fx:{rep:5,pro:2,cash:-10,sched:{id:'trust',in:[3,6]}}}},
+ {l:'當作沒看到',a:.2,c:{k:'rep',b:75,s:0},ok:{t:'風平浪靜,但你每次看到那個案號都會停一下。',fx:{rep:-2,hp:-1}},ng:{t:'再保人覆核時發現了,你的信用出現大裂痕。',fx:{rep:-25,cash:-30}}}
+]},
+{id:'startup',n:'合夥創業的邀請',w:5,job:1,when:s=>s.rank>=2&&s.age>=32&&s.age<=58&&s.track!=='own'&&!s.f.semi,t:'同業夥伴邀你創辦獨立公證行,你出技術,他出資金與客戶。',ch:[
+ {l:'創業,賭一把',c:{k:'net',b:35,s:1},ok:{t:'前兩年很苦,但你的口碑撐起了客戶基礎。公證行活下來了。',fx:{route:'own',cash:80,net:6,rep:3,hp:-6,fam:-4}},ng:{t:'客戶不如預期,資金鏈吃緊,你最後黯然退出。',fx:{cash:-120,rep:-4,hp:-8,fam:-5}}},
+ {l:'繼續待在目前的位置',ok:{t:'你選擇穩定,偶爾還是會想「如果那時候」。',fx:{fam:2,hp:1}}}
+]},
+{id:'broker',n:'經紀公司的邀請',w:5,job:1,when:s=>s.rank>=1&&s.age>=27&&s.age<=52&&s.net>=40&&s.track!=='brk',t:'一家國際保險經紀公司邀你加入,負責大型客戶的理賠管理。',ch:[
+ {l:'轉戰經紀公司',c:{k:'net',b:50,s:.8},ok:{t:'你學會從客戶的角度設計整套理賠策略。',fx:{route:'brk',raise:.15,net:5,pro:2}},ng:{t:'經紀業的節奏比想像中快,你花了兩年才站穩。',fx:{route:'brk',raise:.05,hp:-4,net:-2}}},
+ {l:'婉拒',ok:{t:'你喜歡站在現場的感覺。',fx:{pro:2,rep:1}}}
+]},
+{id:'expat',n:'外派新加坡',w:6,once:1,when:s=>s.rank>=2&&s.age>=30&&s.age<=50&&!s.f.semi,t:'公司要派你到新加坡區域中心三年,負責東南亞大型案件。',ch:[
+ {l:'舉家同行',show:s=>s.f.married,ok:{t:'孩子換了學校,另一半放下了工作,你們在異鄉重新開始。',fx:{net:6,pro:4,raise:.12,fam:-2,cash:10,flag:'abroad'}}},
+ {l:'一個人去',c:{k:'fam',b:55,s:.8},ok:{t:'每週視訊,每季回台。撐過去了。',fx:{net:6,pro:4,raise:.12,fam:-6,flag:'abroad'}},ng:{t:'三年後回家,你發現自己像個客人。',fx:{net:5,pro:3,raise:.12,fam:-14,hp:-3,flag:'abroad'}}},
+ {l:'婉拒',ok:{t:'你留在台灣,公司派了別人去。',fx:{fam:3,net:-2}}}
+]},
+{id:'petro',n:'石化廠大爆炸',w:4,yrs:[6,40],t:'石化廠發生爆炸,損失估計數十億,國際再保人要求聯合公證。',ch:[
+ {l:'爭取擔任主導角色',c:{k:'pro',b:40,s:1.1},ok:{t:'你主導了十年一遇的大案,業界都在談論你的報告。',fx:{pro:6,rep:8,net:5,cash:40,hp:-5}},ng:{t:'壓力太大,你被國際團隊邊緣化。',fx:{rep:-3,hp:-6,pro:3}},gr:{t:'你的報告成為亞洲再保圈的參考案例。',fx:{pro:8,rep:12,net:8,cash:60,hp:-4}}},
+ {l:'擔任協同角色',ok:{t:'你學到國際團隊的作業方式。',fx:{pro:3,net:3,cash:15,hp:-2}}},
+ {l:'不參與',ok:{t:'你錯過了業界十年一次的大案。',fx:{pro:-1,net:-1,hp:1}}}
+]},
+{id:'lastcase',n:'最後一案',w:30,once:1,when:s=>s.age>=62,t:'退休前,一個你二十年前處理過的被保險人又出事了,指名找你。',ch:[
+ {l:'親自接下',c:{k:'pro',b:60,s:.6},ok:{t:'你像回到年輕時,把每個細節都做到位。',fx:{rep:6,net:3}},ng:{t:'體力跟不上,你在現場扭傷了腳。',fx:{hp:-6,rep:-1}}},
+ {l:'交給你帶出來的後輩,從旁指導',ok:{t:'後輩做得很好,對方說:「你教得真好。」',fx:{net:5,rep:3}}},
+ {l:'婉拒,好好退休',ok:{t:'你把時間留給自己。',fx:{fam:4,hp:3}}}
+]},
+{id:'earlyout',n:'提早退休?',w:8,once:1,when:s=>s.age>=50&&s.age<=60&&NW()>=1500,t:'理財顧問看了你的資產表:「你其實可以現在就退休。」',ch:[
+ {l:'退休',ok:{t:'你交出了門禁卡。',fx:{fam:6,hp:6,end:{t:'提早退休的公證人',d:'你沒有等到 65 歲。某個平凡的星期五,你交出門禁卡,開車回家的路上沒有接任何一通電話。'}}}},
+ {l:'再做幾年',ok:{t:'你還捨不得現場。',fx:{rep:2,hp:-2}}}
+]},
+/* ---- 路線專屬:經紀業 ---- */
+{id:'b1',n:'客戶要你施壓',route:['brk'],w:10,t:'大客戶續約前,財務長暗示:「這件理賠如果談不到全額,我們明年就換經紀人。」',ch:[
+ {l:'整理完整索賠文件,用證據談',c:{k:'pro',b:50,s:.9},ok:{t:'保險公司被你的文件說服,客戶滿意續約。',fx:{rep:4,net:3,cash:15}},ng:{t:'證據不夠硬,只談到八成,客戶很失望。',fx:{net:-4,hp:-3}}},
+ {l:'動用人脈向保險公司施壓',c:{k:'net',b:50,s:.8},ok:{t:'保險公司給了面子。',fx:{net:2,cash:15,rep:-1}},ng:{t:'保險公司覺得被逼,關係出現裂痕。',fx:{net:-5,rep:-3}}},
+ {l:'坦白告知客戶合理的預期',ok:{t:'財務長不太高興,但隔年還是續約了。',fx:{rep:3,net:-3}}}
+]},
+{id:'b2',n:'全球整合保單',route:['brk'],w:10,t:'跨國客戶要你設計一張整合全球貨物與存貨風險的 STP 保單。',ch:[
+ {l:'親自帶隊,逐國盤點風險',c:{k:'pro',b:45,s:1},ok:{t:'保單上線,第一年就處理了三件跨國理賠。',fx:{pro:6,rep:5,cash:30,hp:-4}},ng:{t:'各國法規差異太大,專案延宕半年。',fx:{pro:3,hp:-6}},gr:{t:'這張保單成了公司亞太區的標準架構。',fx:{pro:7,rep:9,net:5,cash:50}}},
+ {l:'與海外同事分工合作',ok:{t:'進度順利,你也在集團內打開了名號。',fx:{net:4,pro:2}}},
+ {l:'沿用既有架構微調',ok:{t:'客戶接受了,但覺得沒有驚喜。',fx:{hp:1,rep:-1}}}
+]},
+{id:'b3',n:'客戶被挖角',route:['brk'],w:8,t:'競爭對手開出更低的經紀費,想挖走你負責的大客戶。',ch:[
+ {l:'用過去的理賠成果說話',c:{k:'rep',b:50,s:.9},ok:{t:'客戶說:「理賠的時候,我只信你。」',fx:{rep:3,net:3}},ng:{t:'客戶還是走了。',fx:{cash:-20,net:-4}}},
+ {l:'跟著降價',ok:{t:'客戶留下了,利潤變薄。',fx:{cash:-10,net:2}}},
+ {l:'加碼服務:免費防損訓練',ok:{t:'你親自去客戶倉庫上課,客戶很感動。',fx:{pro:2,net:4,hp:-3}}}
+]},
+/* ---- 路線專屬:保險公司 ---- */
+{id:'i1',n:'美化準備金',route:['ins'],w:10,t:'季底前,財務部希望理賠部「調低」幾件大案的準備金。',ch:[
+ {l:'拒絕,依實際評估提存',ok:{t:'財務長在會議上沒有看你一眼。',fx:{rep:5,net:-4}}},
+ {l:'依新資訊有依據地重估',c:{k:'pro',b:55,s:.8},ok:{t:'有幾件確實可以調整,你給了雙方都能接受的數字。',fx:{pro:3,rep:2,net:2}},ng:{t:'重估結果站不住腳,被精算部退回。',fx:{rep:-2,hp:-2}}},
+ {l:'照辦',a:.2,ok:{t:'季報很好看。',fx:{net:4,rep:-6,sched:{id:'i_audit',in:[1,3]}}}}
+]},
+{id:'i_audit',n:'主管機關檢查',w:0,t:'主管機關檢查發現準備金提存不足,點名理賠部說明。',ch:[
+ {l:'承擔責任',ok:{t:'你被記過,但同事們看你的眼神多了一份敬意。',fx:{rep:-8,cash:-10}}},
+ {l:'說明是財務部的指示',c:{k:'net',b:45,s:.8},ok:{t:'檢查報告寫明了決策流程,你只受到輕微處分。',fx:{rep:-3,net:-2}},ng:{t:'沒有書面證據,責任全落在你身上。',fx:{rep:-12,net:-6}}}
+]},
+{id:'i2',n:'結案天數砍半',route:['ins'],w:9,t:'公司要求理賠部把平均結案天數砍半。',ch:[
+ {l:'優化流程與系統',c:{k:'pro',b:50,s:.8},ok:{t:'結案天數下降四成,你拿到年度獎。',fx:{pro:3,rep:3,raise:.04}},ng:{t:'系統上線出了問題,反而更慢。',fx:{hp:-4,rep:-1}}},
+ {l:'要求合作的公證人加速',ok:{t:'公證人們開始抱怨你。',fx:{net:-3,rep:1}}},
+ {l:'帶團隊加班消化',ok:{t:'數字達標了,團隊也累垮了。',fx:{hp:-6,rep:2}}}
+]},
+{id:'i3',n:'核保部的邀請',route:['ins'],w:8,t:'核保部希望你參與一家高風險工廠的核保評估。',ch:[
+ {l:'參與,把理賠經驗帶進核保',ok:{t:'你指出的三個風險點,讓公司拒保了一張後來真的出事的保單。',fx:{pro:4,net:3,rep:2,hp:-2}}},
+ {l:'婉拒,專注理賠',ok:{t:'你守住本業。',fx:{hp:1,pro:1}}}
+]},
+/* ---- 路線專屬:再保險 ---- */
+{id:'r1',n:'倫敦的會議室',route:['rei'],w:10,t:'你要在倫敦市場的會議室,用英文為一件亞洲大案的賠付立場辯護。',ch:[
+ {l:'準備數據與判例,正面迎擊',c:{k:'pro',b:45,s:1},ok:{t:'會後一位資深核保人走過來跟你握手。',fx:{rep:7,net:5,pro:3}},ng:{t:'你被連續追問,最後只能說「會後補充」。',fx:{rep:-3,hp:-4}},gr:{t:'你的立場被全數採納,總部直接幫你調薪。',fx:{rep:10,net:8,pro:4,raise:.05}}},
+ {l:'請倫敦同事主講,你負責數據',ok:{t:'穩妥,但功勞是同事的。',fx:{net:2,rep:-1}}}
+]},
+{id:'r2',n:'巨災季',route:['rei'],w:9,t:'一年內全球發生三場重大颶風與洪水,你半年都在出差。',ch:[
+ {l:'全力投入',ok:{t:'你看過了三個大陸的災後現場。',fx:{pro:4,rep:4,hp:-8,fam:-6,cash:25}}},
+ {l:'爭取輪調,保留家庭時間',c:{k:'net',b:50,s:.7},ok:{t:'主管同意了。',fx:{fam:3,hp:-2}},ng:{t:'主管說:「這就是這份工作。」',fx:{fam:-2,net:-3}}}
+]},
+{id:'r3',n:'72 小時條款',route:['rei'],w:9,t:'颱風加暴雨持續五天,再保合約的「72 小時條款」要怎麼切分事件,影響數億元。',ch:[
+ {l:'依氣象資料逐時切分事件',c:{k:'pro',b:45,s:1.1},ok:{t:'你的切分方式成為後續爭議的參考。',fx:{pro:5,rep:5}},ng:{t:'分出公司的律師找出你的資料漏洞。',fx:{pro:2,rep:-3,hp:-3}}},
+ {l:'與分出公司協商折衷',ok:{t:'關係保住了,總部覺得你讓太多。',fx:{net:4,rep:-1}}}
+]},
+/* ---- 路線專屬:自營公證行 ---- */
+{id:'o1',n:'發不出薪水',route:['own'],w:9,t:'兩個大客戶延遲付款,下個月的薪水可能發不出來。',ch:[
+ {l:'拿個人存款墊付',ok:{t:'員工不知道這件事。你知道就好。',fx:{cash:-80,net:3,rep:2}}},
+ {l:'向銀行借款',c:{k:'rep',b:50,s:.6},ok:{t:'銀行看在你的信用上放款了。',fx:{cash:-20}},ng:{t:'利率很高,你多背了一筆債。',fx:{cash:-50,hp:-4}}},
+ {l:'延遲發薪並坦白說明',ok:{t:'有兩個員工離職了。',fx:{net:-5,rep:-3}}}
+]},
+{id:'o2',n:'獨家合約',route:['own'],w:9,t:'一家大型保險公司提出獨家合作,條件是費率砍兩成。',ch:[
+ {l:'接受,穩定案源',ok:{t:'案子多到做不完,利潤卻變薄了。',fx:{cash:40,rep:-1,hp:-3}}},
+ {l:'拒絕,維持獨立性',ok:{t:'少了一個大客戶,多了一份自由。',fx:{rep:4,cash:-10}}},
+ {l:'反提案:加入績效獎金',c:{k:'net',b:45,s:.9},ok:{t:'對方接受了,雙贏。',fx:{cash:50,net:3}},ng:{t:'對方轉身找了別家。',fx:{net:-3}}}
+]},
+{id:'o3',n:'合夥人想拆夥',route:['own'],w:7,t:'合夥人想帶走一半客戶,自立門戶。',ch:[
+ {l:'好聚好散,協議分割',ok:{t:'少了一半客戶,也少了一半爭吵。',fx:{cash:-60,net:-3,hp:2}}},
+ {l:'挽留,讓出部分股份',c:{k:'net',b:50,s:.8},ok:{t:'他留下了,公司更穩了。',fx:{cash:-20,net:4}},ng:{t:'他拿了股份還是走了。',fx:{cash:-60,hp:-5}}},
+ {l:'走法律途徑',ok:{t:'官司打了兩年,兩敗俱傷。',fx:{cash:-30,rep:-3,hp:-4}}}
+]},
+{id:'o4',n:'開分公司',route:['own'],w:7,t:'南部有客戶需求,你考慮在高雄開分公司。',ch:[
+ {l:'開',c:{k:'net',b:45,s:.9},ok:{t:'分公司第二年就打平。',fx:{cash:80,net:5,rep:3,hp:-4}},ng:{t:'在地人脈不足,分公司一年後收掉。',fx:{cash:-100,hp:-5}}},
+ {l:'先派人駐點試水溫',ok:{t:'穩健,但慢。',fx:{net:2,cash:-10}}}
+]},
+/* ---- 路線專屬:技術專家 ---- */
+{id:'x1',n:'鑑識實驗室',route:['exp'],w:9,t:'公司願意投資建立火災與電氣鑑識實驗室,由你主導。',ch:[
+ {l:'接下',c:{k:'pro',b:50,s:.9},ok:{t:'實驗室成立第一年就破了兩件縱火案。',fx:{pro:7,rep:5,hp:-4}},ng:{t:'設備採購延誤,實驗室半年後才上線。',fx:{pro:3,hp:-5,rep:-2}}},
+ {l:'建議先與大學合作',ok:{t:'成本低,學生也成了你的後備軍。',fx:{pro:3,net:3}}}
+]},
+{id:'x2',n:'專家證人',route:['exp'],w:9,t:'法院指定你擔任一件重大工安訴訟的專家證人。',ch:[
+ {l:'接受',c:{k:'pro',b:50,s:1},ok:{t:'判決書引用了你的鑑定意見。',fx:{rep:7,pro:3,cash:15}},ng:{t:'對方專家證人與你針鋒相對,法官採信了對方。',fx:{rep:-5,hp:-3}}},
+ {l:'婉拒以避免利益衝突',ok:{t:'你的謹慎被業界記住。',fx:{rep:2}}}
+]},
+{id:'x3',n:'國際期刊邀稿',route:['exp'],w:8,t:'你的損失計算方法被國際期刊邀請投稿。',ch:[
+ {l:'熬夜寫完',ok:{t:'論文刊出,你的方法開始被國外同業引用。',fx:{pro:4,rep:4,hp:-4,fam:-2}}},
+ {l:'交給後輩執筆,你負責指導',ok:{t:'後輩成名了,也一直感謝你。',fx:{net:3,rep:2}}}
+]},
+/* ---- 路線專屬:管理線 ---- */
+{id:'m1',n:'裁員名單',route:['mgr'],w:9,t:'公司要求你從團隊裡裁掉兩個人。',ch:[
+ {l:'依績效決定,親自說明',ok:{t:'那天你很晚才回家。',fx:{rep:2,net:-3,hp:-3}}},
+ {l:'爭取保住全員,改為集體減薪',c:{k:'rep',b:45,s:.8},ok:{t:'團隊保住了,大家對你更死忠。',fx:{net:5,raise:-.05}},ng:{t:'上級不同意,你還被認為不配合。',fx:{net:-2,rep:-3}}},
+ {l:'把名單交給人資處理',ok:{t:'你保持距離,團隊也跟你保持距離。',fx:{net:-5,hp:1}}}
+]},
+{id:'m2',n:'業績目標上調 30%',route:['mgr'],w:9,t:'總部把明年業績目標上調三成。',ch:[
+ {l:'帶團隊開發新市場',c:{k:'net',b:50,s:.9},ok:{t:'你們拿下再生能源的新客群,超標達成。',fx:{net:4,cash:20,raise:.05,hp:-3}},ng:{t:'新市場沒打下來,年度考核不及格。',fx:{hp:-5,rep:-2}}},
+ {l:'與總部協商目標',c:{k:'rep',b:45,s:.8},ok:{t:'目標下修到 15%。',fx:{rep:2,hp:1}},ng:{t:'總部不買帳。',fx:{net:-3}}},
+ {l:'把壓力分給下屬',ok:{t:'數字達到了,有人哭著離職。',fx:{net:-4,cash:10}}}
+]},
+{id:'m3',n:'王牌想走',route:['mgr'],w:8,t:'團隊裡最強的公證人被對手挖角。',ch:[
+ {l:'爭取加薪與升遷留人',c:{k:'net',b:50,s:.8},ok:{t:'他留下來了,說是因為你。',fx:{net:4,rep:2}},ng:{t:'他還是走了,還帶走一個客戶。',fx:{net:-3,hp:-2}}},
+ {l:'祝福他,培養下一個',ok:{t:'你親自帶新人,半年後團隊恢復戰力。',fx:{net:2,pro:1,hp:-2}}}
+]},
+/* ---- 路線專屬:講師與學界 ---- */
+{id:'e1',n:'出書',route:['edu'],w:9,t:'出版社邀你寫一本理賠實務專書。',ch:[
+ {l:'寫',c:{k:'pro',b:50,s:.8},ok:{t:'書成了公證人考試的必讀參考。',fx:{rep:6,pro:3,cash:10,hp:-3}},ng:{t:'寫了一半卡住,出版延了兩年。',fx:{hp:-4,pro:2}}},
+ {l:'婉拒',ok:{t:'你把精力留給學生。',fx:{hp:2,net:1}}}
+]},
+{id:'e2',n:'企業顧問邀約',route:['edu'],w:9,t:'一家科技公司想請你兼任風險管理顧問。',ch:[
+ {l:'接受',ok:{t:'理論和實務終於接上了。',fx:{cash:30,net:4,hp:-3}}},
+ {l:'婉拒,專心教學',ok:{t:'學生的評鑑分數很高。',fx:{pro:2,fam:2}}}
+]},
+{id:'e3',n:'學生的推薦信',route:['edu'],w:8,t:'你教過的學生要進國際再保公司,請你寫推薦信。',ch:[
+ {l:'認真寫,附上具體案例',ok:{t:'學生錄取了。幾年後,他成了你在倫敦的人脈。',fx:{net:4,rep:2}}},
+ {l:'照範本寫',ok:{t:'學生沒錄取。',fx:{net:-1}}}
+]},
+/* ---- 專長領域 ---- */
+{id:'fire1',n:'金屬加工廠火災',spec:['fire'],w:10,yrs:[2,40],t:'金屬加工廠凌晨起火,廠長堅稱是電線走火,但燃燒痕跡與庫存對不上。',ch:[
+ {l:'委託鑑定單位做起火原因分析',c:{k:'pro',b:55,s:.9},ok:{t:'鑑定證實有人為縱火跡象,案件轉為調查。',fx:{rep:6,pro:4,net:3,cash:20}},ng:{t:'鑑定無法排除電線走火,按一般火災處理。',fx:{pro:3,rep:-1,hp:-2}}},
+ {l:'依現場證據保守認定',ok:{t:'中性報告,沒人能挑出毛病。',fx:{rep:2,pro:1}}}
+]},
+{id:'fire2',n:'物流倉庫大火',spec:['fire'],w:10,yrs:[2,40],t:'物流倉庫大火,上千家客戶的貨物在裡面,每家都要求先賠。',ch:[
+ {l:'建立分批清點與優先順序',c:{k:'pro',b:50,s:.9},ok:{t:'混亂的現場被你整理成一張表,各家都知道自己排在哪。',fx:{pro:4,rep:4,net:3}},ng:{t:'清點系統崩潰,你連續加班一個月。',fx:{hp:-5,rep:-2}}},
+ {l:'先處理最大的三家',ok:{t:'大客戶滿意,小客戶在網路上罵你。',fx:{net:3,rep:-2}}},
+ {l:'要求倉庫業者先提出完整清冊',ok:{t:'進度慢,但每一筆都有依據。',fx:{rep:1,hp:1,pro:1}}}
+]},
+{id:'fire3',n:'老公寓火警',spec:['fire'],w:8,t:'老舊公寓火警,住戶多是長者,很多人拿不出任何財產證明。',ch:[
+ {l:'用照片與鄰居證詞協助重建清單',ok:{t:'一位阿嬤握著你的手說謝謝。你在回程的車上沉默很久。',fx:{rep:4,pro:2,hp:-2}}},
+ {l:'依規定要求單據',ok:{t:'流程正確,但有幾位住戶最後一毛都沒拿到。',fx:{rep:-1,hp:-1}}}
+]},
+{id:'cargo1',n:'貨櫃落海',spec:['cargo'],w:10,yrs:[2,40],t:'貨櫃輪遇上惡劣海象,數十個貨櫃落海,船東宣告共同海損。你的客戶有三櫃高價電子零組件在船上。',ch:[
+ {l:'立即協助貨主備妥共同海損擔保',c:{k:'pro',b:50,s:1},ok:{t:'文件一次到位,貨主順利提領其餘貨物。',fx:{pro:5,rep:4,net:3,cash:20}},ng:{t:'擔保文件格式被船東代理退回,貨物多壓兩週。',fx:{rep:-4,hp:-3}}},
+ {l:'先等保險公司表態再行動',ok:{t:'流程沒出錯,但慢了一步。',fx:{rep:-1,net:2}}}
+]},
+{id:'cargo2',n:'溫控紀錄空白 6 小時',spec:['cargo'],w:10,yrs:[2,40],t:'一櫃進口疫苗的溫控紀錄出現 6 小時空白,貨主要求全損。',ch:[
+ {l:'調閱溫度記錄器原始數據',c:{k:'pro',b:50,s:.9},ok:{t:'原始數據顯示溫度從未超標,你救回了整櫃貨。',fx:{pro:4,rep:4,cash:10}},ng:{t:'記錄器真的故障了,只能推定全損。',fx:{pro:2,rep:-2,hp:-2}}},
+ {l:'請原廠評估藥品穩定性',ok:{t:'原廠出具報告,爭議收斂。',fx:{pro:2,rep:2,cash:-3}}},
+ {l:'直接接受全損',ok:{t:'貨主很滿意,保險公司覺得你太快投降。',fx:{rep:-3,net:3}}}
+]},
+{id:'cargo3',n:'曝光機超過 10G',spec:['cargo','semi'],w:10,yrs:[2,40],t:'一台曝光機運進廠區,衝擊記錄器顯示超過 10G,設備價值數十億。',ch:[
+ {l:'會同原廠開箱檢測',c:{k:'pro',b:50,s:.9},ok:{t:'檢測釐清只有部分模組受損,損失從全損降為局部修復。',fx:{pro:5,rep:5,net:3,cash:20}},ng:{t:'原廠堅持整機送回,你無力反駁。',fx:{pro:3,hp:-4,rep:-2}},gr:{t:'你建立的開箱檢測流程被客戶寫進全球供應鏈規範。',fx:{pro:7,rep:8,net:6,cash:30}}},
+ {l:'先追究運輸業者責任',ok:{t:'代位求償的路很長,但方向正確。',fx:{net:-2,rep:2,pro:1}}},
+ {l:'依原廠報價直接核損',ok:{t:'客戶很滿意,保險公司很心痛。',fx:{rep:-2,net:3}}}
+]},
+{id:'re1',n:'太陽能板被吹落',spec:['re'],w:10,yrs:[2,40],t:'颱風過後,海邊的太陽能電廠大片光電板被吹落,投資人要求立即賠付,並質疑固定架設計。',ch:[
+ {l:'邀結構技師共同勘查',c:{k:'pro',b:50,s:.9},ok:{t:'風速、規範與施工差異講得清清楚楚,責任分攤獲得接受。',fx:{pro:5,rep:5,net:3,cash:20}},ng:{t:'氣象與規範資料對不上,各方僵持不下。',fx:{hp:-4,rep:-2,pro:2}}},
+ {l:'先出初步賠付意見穩住投資人',ok:{t:'投資人安心了,再保人指出尚缺依據。',fx:{rep:-2,net:2}}}
+]},
+{id:'re2',n:'海纜斷裂',spec:['re'],w:10,yrs:[2,40],t:'離岸風場一段海纜在施工中斷裂,工作船每天的租金高達數百萬。',ch:[
+ {l:'立刻協調修復與保險通知',c:{k:'net',b:45,s:1},ok:{t:'你在 72 小時內串起所有人,停工損失大幅降低。',fx:{net:5,rep:5,cash:20}},ng:{t:'各方互踢皮球,你夾在中間。',fx:{hp:-5,rep:-2}}},
+ {l:'先釐清是施工錯誤還是設計缺陷',ok:{t:'責任清楚了,但多付了好幾天船租。',fx:{pro:3,rep:1,net:-2}}},
+ {l:'等國際公證人主導',ok:{t:'你成了配角。',fx:{net:1,rep:-2}}}
+]},
+{id:'semi1',n:'晶圓廠電壓驟降',spec:['semi'],w:10,yrs:[2,40],t:'晶圓廠瞬間電壓驟降,製程中的整批晶圓報廢,營業中斷損失要一併估算。',ch:[
+ {l:'用產能與復原曲線自建模型',c:{k:'pro',b:45,s:1.1},ok:{t:'模型把損失拆成可驗證的區塊,各方都接受。',fx:{pro:6,rep:6,net:4,cash:30}},ng:{t:'模型假設被會計師逐項質疑,你修了兩週。',fx:{pro:3,hp:-5,rep:-2}}},
+ {l:'沿用被保險人提供的數字',a:.5,ok:{t:'談判很快結束,事後覆核被質疑缺乏獨立驗證。',fx:{rep:-4,net:1,cash:8}}},
+ {l:'聘請外部會計師共同審算',ok:{t:'費用不低,但三方都同意。',fx:{rep:4,pro:2,cash:-8,net:2}}}
+]},
+{id:'semi2',n:'無塵室的煙',spec:['semi'],w:10,yrs:[2,40],t:'無塵室發生小火警,火勢很小,但煙塵讓整區設備都可能受污染。',ch:[
+ {l:'安排污染檢測與分區清潔',c:{k:'pro',b:50,s:.9},ok:{t:'大部分設備清潔後恢復,損失只剩原本的三分之一。',fx:{pro:5,rep:5,cash:20}},ng:{t:'檢測結果模稜兩可,各方吵了半年。',fx:{pro:3,hp:-3,rep:-2}}},
+ {l:'依被保險人主張全面更換',ok:{t:'客戶滿意,保險公司覺得你太好說話。',fx:{rep:-4,net:4}}},
+ {l:'只賠受火直接損壞的部分',ok:{t:'客戶很不滿,揚言換人處理。',fx:{rep:1,net:-4}}}
+]},
+{id:'eng1',n:'深開挖鄰房龜裂',spec:['eng'],w:10,yrs:[2,40],t:'捷運沿線的深開挖工地,鄰房出現裂縫與傾斜。',ch:[
+ {l:'建議立即停工並進行鄰房鑑定',c:{k:'rep',b:50,s:.7},ok:{t:'事後證明你的判斷避免了更大的災損。',fx:{rep:6,pro:3,cash:15}},ng:{t:'營造廠抗議延誤工期,業主也有意見。',fx:{rep:-3,net:-3,hp:-3}}},
+ {l:'先蒐集資料,不急著表態',ok:{t:'事態幾天後明朗,但初期被批評反應慢。',fx:{rep:-1,pro:2}}}
+]},
+{id:'eng2',n:'隧道湧水',spec:['eng'],w:10,yrs:[2,40],t:'隧道工程突發湧水,隧道鑽掘機被困在地底。',ch:[
+ {l:'會同大地技師分析原因',c:{k:'pro',b:45,s:1},ok:{t:'你釐清了地質調查的缺漏,責任歸屬清楚。',fx:{pro:5,rep:4,cash:20}},ng:{t:'地質資料互相矛盾,爭議延燒兩年。',fx:{hp:-4,pro:2}}},
+ {l:'優先處理救援與減損費用',ok:{t:'機器救出來了,減損費用也獲得認可。',fx:{rep:3,net:3,hp:-2}}},
+ {l:'等業主提出完整求償',ok:{t:'你錯過了減損的黃金期。',fx:{rep:-2,hp:1}}}
+]},
+{id:'motor1',n:'連環車禍',spec:['motor'],w:10,yrs:[2,40],t:'多車連環事故,三家保險公司對責任比例各執一詞。',ch:[
+ {l:'重建事故時序並請鑑定協助',c:{k:'pro',b:55,s:.9},ok:{t:'時序一還原,責任比例很快有共識。',fx:{pro:4,rep:4,net:4,cash:10}},ng:{t:'關鍵監視器畫面缺漏,拖了半年才定案。',fx:{hp:-3,rep:-1}}},
+ {l:'依三方折衷比例協調',ok:{t:'三方都不滿意,也都能接受。',fx:{net:3,rep:1,pro:-1}}}
+]},
+{id:'motor2',n:'百貨公司滑倒',spec:['motor'],w:10,yrs:[2,40],t:'百貨公司顧客滑倒骨折,要求鉅額賠償,並揚言找媒體。',ch:[
+ {l:'調閱監視器,確認清潔告示',c:{k:'pro',b:50,s:.8},ok:{t:'告示牌清楚可見,過失比例合理分攤。',fx:{rep:3,pro:2,net:2}},ng:{t:'監視器剛好沒拍到,只能全賠。',fx:{rep:-2,hp:-2}}},
+ {l:'建議快速和解',ok:{t:'事情很快落幕,沒有上新聞。',fx:{net:3,rep:-1,cash:5}}},
+ {l:'堅持過失比例',ok:{t:'對方真的找了媒體,但報導很中立。',fx:{rep:2,net:-2}}}
+]},
+/* ---- 人生 ---- */
+{id:'love',n:'聊得來的人',w:9,when:s=>!s.f.married&&s.age>=24&&s.age<=40,t:'朋友介紹你認識一個人,你們很聊得來。但你這陣子幾乎每週都在跑現場。',ch:[
+ {l:'認真經營這段感情',c:{k:'fam',b:45,s:.8},ok:{t:'一年後,你們結婚了。',fx:{flag:'married',unflag:'divorced',fam:12,hp:2,cash:-15}},ng:{t:'對方說:「你好像比較愛你的案子。」',fx:{fam:-2,hp:-1}}},
+ {l:'先專心事業',ok:{t:'你把聯絡方式存著,但再也沒打過。',fx:{pro:2,fam:-2}}}
+]},
+{id:'baby',n:'新生命',w:12,when:s=>s.f.married&&s.kids<2&&s.age>=26&&s.age<=42,t:'家裡有新生命要誕生了。這是你人生最重大的專案之一,時程不由你控制。',ch:[
+ {l:'暫停接新案,陪產與育嬰',ok:{t:'那幾個月你很少睡,但也很少後悔。',fx:{kid:1,fam:12,hp:-2,cash:-20,rep:-1}}},
+ {l:'維持工作節奏,請家人幫忙',c:{k:'fam',b:55,s:.8},ok:{t:'家人撐住了,你在工作上沒有掉速。',fx:{kid:1,fam:4,cash:10,hp:-3}},ng:{t:'你錯過了好幾個重要時刻。',fx:{kid:1,fam:-7,hp:-3,cash:10}}}
+]},
+{id:'house',n:'買房',w:8,once:1,when:s=>s.age>=28&&s.age<=45&&s.cash>=150,t:'你看中一間離公司 40 分鐘的房子,頭期款要 300 萬。',ch:[
+ {l:'買,背 30 年房貸',ok:{t:'拿到鑰匙那天,你在空房子裡轉了好幾圈。每月房貸讓你接案更謹慎。',fx:{cash:-300,flag:'house',fam:5,hp:-1}}},
+ {l:'租屋,把錢拿去投資',c:{k:'pro',b:50,s:0},ok:{t:'市場不錯,資產成長了。',fx:{cash:80,fam:-1}},ng:{t:'遇上股災,帳面縮水。',fx:{cash:-60,hp:-2}}},
+ {l:'繼續租屋,存錢',ok:{t:'省下不少錢,但空間有點擠。',fx:{cash:20,fam:1}}}
+]},
+{id:'family',n:'三個週末沒回家',w:10,when:s=>s.f.married,t:'你已經三個週末沒陪家人。家人沒有抱怨,只是不再問「這週有空嗎」。',ch:[
+ {l:'請假一週,把時間還給家人',ok:{t:'那週你什麼案子都沒接。氣氛慢慢回暖。',fx:{fam:9,hp:4,pro:-1,cash:-8}}},
+ {l:'說「這個案子結束就休息」',c:{k:'fam',b:55,s:.8},ok:{t:'家人暫時接受了你的說法。',fx:{fam:-1,rep:1}},ng:{t:'家人沒有再多說什麼,但有些東西悄悄變了。',fx:{fam:-8,hp:-2}}}
+]},
+{id:'crisis',n:'我們需要談談',w:s=>s.fam<45?30:0,when:s=>s.f.married,t:'另一半說:「我們需要談談。」',ch:[
+ {l:'一起去做伴侶諮商,減少出差',ok:{t:'很難,但你們都留下來了。',fx:{fam:12,cash:-10,pro:-2,hp:2}}},
+ {l:'承諾改變,但工作照舊',a:.5,c:{k:'fam',b:40,s:.8},ok:{t:'對方給了你一次機會。',fx:{fam:3}},ng:{t:'你們分開了。',fx:{fam:-15,unflag:'married',flag:'divorced',cash:-150,hp:-5}}},
+ {l:'安排一趟長途旅行',ok:{t:'旅行很美,回來後一切照舊。',fx:{fam:5,cash:-15}}}
+]},
+{id:'kidschool',n:'家長會與比賽',w:8,when:s=>s.kids>0&&s.age>=36&&s.age<=56,t:'孩子要升學了,另一半希望你出席每一場家長會與比賽。',ch:[
+ {l:'盡量出席',ok:{t:'孩子在終點線看到你,笑得很開心。',fx:{fam:7,pro:-1}}},
+ {l:'用錢補:補習、才藝班',ok:{t:'孩子的行程比你還滿。',fx:{cash:-30,fam:2}}},
+ {l:'交給另一半',ok:{t:'孩子很少跟你說學校的事了。',fx:{fam:-5,pro:2}}}
+]},
+{id:'parent',n:'父母住院',w:12,once:1,when:s=>s.age>=46&&s.age<=62,t:'父母其中一位病倒住院,需要有人長期在身邊。',ch:[
+ {l:'調整工作,親自照顧',ok:{t:'你放慢了節奏,陪伴帶來無法衡量的安慰。',fx:{fam:6,hp:-4,cash:-25,rep:-1}}},
+ {l:'請看護與家人分擔',ok:{t:'一切運轉如常,但你偶爾在深夜覺得愧疚。',fx:{cash:-20,fam:-2,hp:-2}}}
+]},
+{id:'checkup',n:'健檢紅字',w:s=>s.hp<40?40:(s.hp<55?15:4),when:s=>s.age>=30,t:'健檢報告出現好幾個紅字,醫師要求你調整作息並回診追蹤。',ch:[
+ {l:'認真回診,調整生活',ok:{t:'你開始固定運動、早點睡,代價是少接幾個案子。',fx:{hp:10,cash:-12,fam:2}}},
+ {l:'等這陣子忙完再說',a:.5,c:{k:'hp',b:55,s:1},ok:{t:'身體撐住了。這次。',fx:{hp:-3}},ng:{t:'你在案場突然頭暈,被送到急診。',fx:{hp:-16,cash:-20,fam:-3}}}
+]},
+{id:'burnout',n:'凌晨四點的心悸',w:s=>s.hp<40?30:0,t:'你連續三個月每天只睡四小時,早上醒來時心跳得很快。',ch:[
+ {l:'立刻請假兩週',ok:{t:'你睡了整整兩天,醒來覺得世界很安靜。',fx:{hp:12,cash:-5,rep:-1}}},
+ {l:'喝咖啡撐過去',a:.4,c:{k:'hp',b:45,s:1},ok:{t:'你撐過去了。',fx:{hp:-2,rep:1}},ng:{t:'你在報告會議上暈倒了。',fx:{hp:-12,rep:-2}}},
+ {l:'跟主管談減少案量',c:{k:'rep',b:50,s:.6},ok:{t:'主管同意了,你的案量減少三成。',fx:{hp:8,cash:-5}},ng:{t:'主管說「大家都很辛苦」。',fx:{hp:2,net:-2,cash:-3}}}
+]},
+{id:'invest',n:'穩賺的明牌',w:6,t:'老同學報了一支明牌,說穩賺不賠。',ch:[
+ {l:'投入 100 萬',c:{k:'net',b:40,s:.3},ok:{t:'真的漲了,你賺了一筆。',fx:{cash:120}},ng:{t:'公司下市了。',fx:{cash:-100,hp:-2}}},
+ {l:'小試 20 萬',c:{k:'net',b:40,s:.3},ok:{t:'小賺一點。',fx:{cash:25}},ng:{t:'小賠一點。',fx:{cash:-20}}},
+ {l:'不碰',ok:{t:'你睡得很好。',fx:{hp:1}}}
+]},
+{id:'marathon',n:'全馬邀約',w:6,once:1,when:s=>s.age>=30&&s.age<=55,t:'同事約你一起練跑,目標是明年的全程馬拉松。',ch:[
+ {l:'加入,每週練三次',c:{k:'hp',b:55,s:.7},ok:{t:'你跑完了全馬,體力回到二十幾歲的狀態。',fx:{hp:10,net:2,fam:-1}},ng:{t:'你膝蓋受傷,復健了三個月。',fx:{hp:-5,cash:-5}}},
+ {l:'改成每天散步半小時',ok:{t:'不起眼,但持續了很多年。',fx:{hp:4,fam:1}}},
+ {l:'沒時間',ok:{t:'你回去寫報告。',fx:{pro:1,hp:-1}}}
+]},
+{id:'midlife',n:'中年的問號',w:6,once:1,when:s=>s.age>=41&&s.age<=47,t:'你開始想:「我要這樣做到退休嗎?」朋友在花蓮開民宿,邀你入股。',ch:[
+ {l:'離開保險業,去花蓮',a:.4,ok:{t:'你交出了辭呈。',fx:{hp:8,fam:4,end:{t:'花蓮民宿老闆',d:'你把安全帽掛在民宿櫃檯後面當裝飾。偶爾有房客問起,你就講一個火災現場的故事。'}}}},
+ {l:'請長假去旅行一個月',ok:{t:'回來後,你重新喜歡上這份工作。',fx:{hp:8,fam:4,cash:-15,rep:-1}}},
+ {l:'讀在職碩士,換一種成長',ok:{t:'兩年的夜間課程很辛苦,但你的視野變了。',fx:{pro:6,net:3,hp:-4,cash:-25,fam:-3}}}
+]},
+{id:'crash',n:'國道追撞',w:4,t:'趕往案場的路上,你在國道上被後車追撞。',ch:[
+ {l:'住院休養',ok:{t:'你在病床上第一次覺得,原來不工作也可以。',fx:{hp:-6,cash:-5,fam:2}}},
+ {l:'撐著去完成勘查',c:{k:'hp',b:55,s:.8},ok:{t:'客戶知道後非常感動。',fx:{rep:3,hp:-6}},ng:{t:'你在現場才發現肋骨裂了。',fx:{hp:-14,rep:-1}}}
+]},
+{id:'reunion',n:'大學同學會',w:6,t:'大學同學會,不少人轉行做了風控、法務、保險公司主管。',ch:[
+ {l:'去,順便交換名片',ok:{t:'隔月就有同學介紹案子給你。',fx:{net:4,hp:-1}}},
+ {l:'推掉,在家休息',ok:{t:'你錯過了一些八卦,換來一個好覺。',fx:{hp:2,fam:1}}}
+]}
+];
+
+/* ===================== 第五版新增內容 ===================== */
+/* 隨機轉職邀請(job:1,兩次之間至少間隔 3 年) */
+E.push(
+{id:'j_exp',n:'技術組的邀請',job:1,w:5,when:s=>['adj','mgr'].includes(s.track)&&s.pro>=50&&s.rank>=1&&s.age>=27&&s.age<=55,t:'公司成立損失鑑定技術組,總經理希望你去當核心成員。',ch:[
+ {l:'加入技術組',c:{k:'pro',b:55,s:.7},ok:{t:'你開始專攻最難的技術案。',fx:{route:'exp',pro:4,net:-2}},ng:{t:'你加入了,但前半年都在補基礎。',fx:{route:'exp',hp:-3}}},
+ {l:'談條件:加薪才去',c:{k:'rep',b:45,s:.9},ok:{t:'總經理答應了你的條件。',fx:{route:'exp',raise:.08}},ng:{t:'總經理覺得你太計較,改找別人。',fx:{net:-3,rep:-1}}},
+ {l:'婉拒,維持現狀',ok:{t:'你留在原本的位置。',fx:{hp:1,net:1}}}
+]},
+{id:'j_mgr',n:'接下一個團隊',job:1,w:5,when:s=>['adj','exp'].includes(s.track)&&s.net>=45&&s.rank>=2&&s.age<=55,t:'你的主管突然離職,公司問你要不要接下他的團隊。',ch:[
+ {l:'接下',c:{k:'net',b:55,s:.7},ok:{t:'團隊很快接受了你。',fx:{route:'mgr',net:3,hp:-2}},ng:{t:'有兩個資深同事不服你,花了一年才磨合。',fx:{route:'mgr',hp:-4,net:-2}}},
+ {l:'接下,但保留自己的現場案件',ok:{t:'管理和現場兩頭燒。',fx:{route:'mgr',hp:-4,pro:1}}},
+ {l:'婉拒',ok:{t:'公司另外找了外部主管。',fx:{net:-1,hp:1}}}
+]},
+{id:'j_ins',n:'保險公司招手',job:1,w:5,when:s=>s.track!=='ins'&&s.age>=27&&s.age<=55,t:'一家產險公司的理賠部主管約你喝咖啡,問你有沒有興趣過去。',ch:[
+ {l:'過去',c:{k:'net',b:55,s:.6},ok:{t:'你換到桌子的另一邊,工時正常了,視野也不一樣了。',fx:{route:'ins',raise:.05,hp:3}},ng:{t:'職位不如預期,得重新證明自己。',fx:{route:'ins',net:-2,hp:1}}},
+ {l:'婉拒,但保持聯絡',ok:{t:'你多了一個保險公司的朋友。',fx:{net:2}}}
+]},
+{id:'j_rei',n:'再保公司的面試',job:1,w:4,when:s=>s.track!=='rei'&&(s.pro>=60||s.f.eng)&&s.age>=30&&s.age<=55,t:'一家國際再保公司亞洲分公司邀你面試,全程英文。',ch:[
+ {l:'去面試',c:{k:'pro',b:45,s:1},ok:{t:'你拿到了 offer,郵件開始以英文為主,時差成了日常。',fx:{route:'rei',raise:.12,net:3}},ng:{t:'面試官的問題你答得很吃力,沒有錄取。',fx:{hp:-2,pro:1}}},
+ {l:'婉拒',ok:{t:'你覺得現在不是時候。',fx:{fam:1}}}
+]},
+{id:'j_edu',n:'大學的邀請',job:1,w:4,when:s=>s.track!=='edu'&&s.pro>=55&&s.age>=35,t:'一所大學的風險管理系邀你去當專任講師。',ch:[
+ {l:'接受,轉往學界',ok:{t:'你第一次站上講台,底下坐滿未來的公證人。',fx:{route:'edu',fam:5,hp:4,net:2}}},
+ {l:'先兼課看看',ok:{t:'週末多了一份備課,學生很喜歡你的案例。',fx:{net:2,rep:2,hp:-1}}},
+ {l:'婉拒',ok:{t:'你還想留在第一線。',fx:{pro:1}}}
+]},
+{id:'j_back',n:'老東家的召喚',job:1,w:4,when:s=>!['adj','exp','mgr'].includes(s.track)&&s.age<=58,t:'以前公證公司的老闆打電話來:「回來吧,我們需要你。」',ch:[
+ {l:'回去',ok:{t:'熟悉的辦公室,熟悉的安全帽。',fx:{route:'adj',net:2,rep:2}}},
+ {l:'談條件:要合夥人位置',c:{k:'rep',b:40,s:1},ok:{t:'老闆答應了。',fx:{route:'adj',raise:.1,rep:2}},ng:{t:'老闆說他再想想,之後就沒消息了。',fx:{net:-2}}},
+ {l:'婉拒',ok:{t:'你謝謝他的好意。',fx:{net:1}}}
+]}
+);
+/* 三階段大案 */
+const BIG={
+ fire:{n:'電子廠全廠大火',s1:'一間電子廠深夜大火,廠房、機台、庫存全毀,現場還在冒煙,四家共保保險公司同時指定你。',s2:'損失清單送來了:機台重置成本、庫存、營業中斷,加起來超過三十億。',s3:'各方坐上談判桌。被保險人要求全額,首席保險人要求你的報告逐項說明。'},
+ cargo:{n:'貨櫃輪擱淺',s1:'一艘滿載電子產品的貨櫃輪在港外擱淺,部分貨艙進水,船東準備宣告共同海損。',s2:'貨物卸下後,要逐櫃判斷:海水損害、搬運損害,還是根本沒事。',s3:'貨主、船東、共同海損理算師與保險人各執一詞,談判開始。'},
+ eng:{n:'捷運工程塌陷',s1:'捷運隧道施工中路面塌陷,吞沒兩台車,鄰近大樓緊急撤離。',s2:'損失分成三塊:工程本體、第三人財損、鄰房結構。每一塊的責任都不一樣。',s3:'業主、營造廠、受害住戶與保險人召開協調會。'},
+ re:{n:'離岸風機倒塌',s1:'一座離岸風機在颱風中倒塌,葉片與機艙沉入海中,另外三座受損停機。',s2:'要釐清是設計風速不足、施工瑕疵,還是超過設計標準的天災,並估算停機發電損失。',s3:'開發商、統包商、國際保險人與再保人進入談判。'},
+ semi:{n:'晶圓廠強震停機',s1:'強震後晶圓廠全面停機,數千片在製晶圓報廢,多台曝光機需要重新校正。',s2:'營業中斷損失怎麼算?復機時程、良率爬升、客戶訂單轉移,每一項都有爭議。',s3:'被保險人、國際共保團與再保人要對最終金額達成共識。'},
+ motor:{n:'遊覽車重大事故',s1:'一台遊覽車在山路翻覆,多人傷亡,媒體大量報導。',s2:'責任要拆分:駕駛、客運公司、車輛保養、道路設施。每一方的保險都不同。',s3:'家屬、客運公司、多家保險公司召開和解會議。'}
+};
+const bigT=(s,k)=>BIG[s.sp.id][k];
+E.push(
+{id:'big1',n:s=>'大案:'+BIG[s.sp.id].n+'(一)現場勘查',w:6,once:1,yrs:[6,38],big:1,t:s=>bigT(s,'s1'),ch:[
+ {l:'組成跨專業團隊,全面蒐證',c:{k:'pro',w:{pro:.6,net:.4},b:45,s:1},ok:{t:'蒐證完整,損失範圍與原因都有依據。',fx:{pro:3,rep:3,hp:-4,big:1,sched:{id:'big2',in:[1,2]}}},ng:{t:'團隊分工混亂,有些證據沒保住。',fx:{hp:-5,big:-1,sched:{id:'big2',in:[1,2]}}}},
+ {l:'先搶時間,鎖定關鍵證據',c:{k:'pro',b:50,s:.9},ok:{t:'你拿到了最關鍵的幾個證據。',fx:{pro:2,rep:2,big:1,sched:{id:'big2',in:[1,2]}}},ng:{t:'你找錯了方向,錯過了黃金時間。',fx:{rep:-2,big:-1,sched:{id:'big2',in:[1,2]}}}},
+ {l:'交給資淺同事,你負責對外',c:{k:'net',b:50,s:.8},ok:{t:'對外溝通很順,現場也還過得去。',fx:{net:3,sched:{id:'big2',in:[1,2]}}},ng:{t:'同事漏了幾張關鍵照片。',fx:{rep:-3,big:-1,sched:{id:'big2',in:[1,2]}}}},
+ {l:'你一眼看出損失的關鍵點',hid:{k:'pro',v:75},ok:{t:'你在現場就畫出了損失分布圖,後面的工作省了一半。',fx:{pro:2,rep:4,big:2,sched:{id:'big2',in:[1,2]}}}}
+]},
+{id:'big2',n:s=>'大案:'+BIG[s.sp.id].n+'(二)損失計算',w:0,big:1,t:s=>bigT(s,'s2'),ch:[
+ {l:'用模型逐項推算,附完整依據',c:{k:'pro',w:{pro:.7,rep:.3},b:45,s:1},ok:{t:'每一個數字都有來源,各方很難挑毛病。',fx:{pro:4,rep:3,big:1,sched:{id:'big3',in:[1,2]}}},ng:{t:'模型有幾個假設被抓出來。',fx:{hp:-4,big:-1,sched:{id:'big3',in:[1,2]}}}},
+ {l:'請外部專家共同鑑定',c:{k:'net',b:55,s:.6},ok:{t:'專家的意見讓結論更有分量。',fx:{net:2,cash:-10,big:1,sched:{id:'big3',in:[1,2]}}},ng:{t:'專家意見和你的看法不一致,反而多了爭議。',fx:{cash:-15,hp:-2,sched:{id:'big3',in:[1,2]}}}},
+ {l:'採用被保險人的數字,加快進度',ok:{t:'進度很快,但你知道談判時會被挑戰。',fx:{net:3,rep:-3,big:-1,sched:{id:'big3',in:[1,2]}}}},
+ {l:'召集各方開技術協調會',hid:{k:'rep',v:75},ok:{t:'你的名聲讓各方都願意先坐下來,爭議點一次釐清。',fx:{rep:3,net:3,big:2,sched:{id:'big3',in:[1,2]}}}}
+]},
+{id:'big3',n:s=>'大案:'+BIG[s.sp.id].n+'(三)理賠談判',w:0,big:1,t:s=>bigT(s,'s3'),ch:[
+ {l:'堅持報告結論,逐項說服',c:{k:'pro',w:{pro:.5,rep:.5},b:45,s:1},ok:{t:'各方接受了你的結論,大案順利結案。',fx:{rep:8,pro:4,cash:60,net:4,big:-9}},ng:{t:'談判破裂,案子拖進訴訟。',fx:{rep:-5,hp:-5,big:-9}},gr:{t:'這件大案成了業界的標竿案例,你的名字傳遍整個市場。',fx:{rep:12,pro:5,cash:90,net:6,big:-9}}},
+ {l:'尋求各方都能接受的和解',c:{k:'net',w:{net:.7,rep:.3},b:50,s:.9},ok:{t:'各退一步,和解成立。',fx:{net:6,rep:4,cash:40,big:-9}},ng:{t:'有一方始終不肯讓步。',fx:{net:-3,rep:-2,big:-9}}},
+ {l:'建議交付仲裁',ok:{t:'仲裁花了一年半,結果中規中矩。',fx:{rep:1,hp:-3,cash:10,big:-9}}},
+ {l:'私下先與再保人的老朋友取得共識',hid:{k:'net',v:75},ok:{t:'最大的出資方先點頭,其他人很快跟上。',fx:{net:5,rep:6,cash:50,big:-9}}}
+]}
+);
+/* 各專長新增案例 */
+E.push(
+{id:'fire4',n:'鋰電池倉庫復燃',spec:['fire'],w:10,yrs:[2,40],t:'倉庫存放大量鋰電池,起火後三度復燃,消防用水還讓隔壁區的貨物全部泡水。',ch:[
+ {l:'分開認定火損與水損',c:{k:'pro',b:50,s:.9},ok:{t:'兩種損失釐清後,各批貨主都知道自己能拿多少。',fx:{pro:4,rep:3}},ng:{t:'火損和水損混在一起,分不清楚。',fx:{hp:-3,rep:-2}}},
+ {l:'一律當作火災損失處理',ok:{t:'處理很快,但保險公司覺得不夠精細。',fx:{net:2,rep:-2}}},
+ {l:'調閱電池管理系統紀錄,找熱失控源頭',hid:{k:'pro',v:70},ok:{t:'你找到第一顆失控的電池模組,責任一下子清楚了。',fx:{pro:4,rep:5,net:2}}}
+]},
+{id:'fire5',n:'餐廳油煙管起火',spec:['fire'],w:10,t:'一樓餐廳油煙管起火,火勢延燒到樓上三戶住家。',ch:[
+ {l:'調閱油煙管清潔保養紀錄',c:{k:'pro',b:55,s:.8},ok:{t:'餐廳一年沒清過油煙管,責任很清楚。',fx:{pro:3,rep:3}},ng:{t:'紀錄被燒毀了,只能推定。',fx:{hp:-2,pro:1}}},
+ {l:'協調餐廳責任險與住戶火險',c:{k:'net',b:50,s:.8},ok:{t:'住戶先從自己的火險拿到錢,保險公司再向餐廳求償。',fx:{net:4,rep:2}},ng:{t:'兩家保險公司互推,住戶等了半年。',fx:{rep:-3,hp:-2}}}
+]},
+{id:'fire6',n:'屋頂光電起火',spec:['fire','re'],w:9,yrs:[3,40],t:'工廠屋頂的太陽能板起火,延燒到廠房。屋頂板屬於租用屋頂的電廠業者。',ch:[
+ {l:'釐清起火點在電廠設備還是廠房',c:{k:'pro',b:50,s:.9},ok:{t:'起火點在接線盒,責任歸屬清楚。',fx:{pro:4,rep:3,cash:10}},ng:{t:'燒得太嚴重,起火點無法確定。',fx:{hp:-3,rep:-1}}},
+ {l:'召集兩方保險人共同勘查',c:{k:'net',b:50,s:.8},ok:{t:'兩家保險人同意依共同勘查結果分攤。',fx:{net:4,rep:2}},ng:{t:'兩家各請公證人,報告結論互相矛盾。',fx:{net:-2,hp:-2}}}
+]},
+{id:'cargo4',n:'鋼捲生鏽',spec:['cargo'],w:10,yrs:[2,40],t:'進口鋼捲到港後發現大面積鏽蝕,貨主主張是運送途中海水入艙。',ch:[
+ {l:'做硝酸銀測試,判斷海水還是淡水',c:{k:'pro',b:55,s:.8},ok:{t:'測試顯示是淡水凝結的艙汗,不是海水。',fx:{pro:4,rep:3}},ng:{t:'樣本被污染,結果無法判讀。',fx:{pro:1,hp:-2}}},
+ {l:'調閱裝船前的檢驗報告',ok:{t:'原來裝船前就有輕微鏽蝕,責任要重新切分。',fx:{pro:2,rep:2}}},
+ {l:'從鏽蝕分布判斷是艙內汗濕',hid:{k:'pro',v:70},ok:{t:'你指出鏽只在鋼捲上緣,正是艙頂滴水的位置。',fx:{pro:3,rep:5}}}
+]},
+{id:'cargo5',n:'整櫃筆電失竊',spec:['cargo'],w:10,yrs:[2,40],t:'一櫃筆電在內陸運輸途中整櫃失竊,司機說在休息站被搶。',ch:[
+ {l:'調閱 GPS 軌跡與休息站監視器',c:{k:'pro',b:50,s:.9},ok:{t:'GPS 顯示車子停在非指定地點兩小時,司機的說法破功。',fx:{pro:4,rep:4}},ng:{t:'GPS 剛好斷訊,查不出所以然。',fx:{hp:-2,pro:1}}},
+ {l:'先向運輸業者追償',c:{k:'net',b:50,s:.8},ok:{t:'運輸業者的責任險先賠了一部分。',fx:{net:3,cash:5}},ng:{t:'運輸業者主張不可抗力,拒絕賠償。',fx:{net:-2}}},
+ {l:'依保單快速賠付',ok:{t:'貨主很滿意,但保險公司擔心這會變成常態。',fx:{net:3,rep:-1}}}
+]},
+{id:'cargo6',n:'單層紙箱的儀器',spec:['cargo','semi'],w:9,yrs:[2,40],t:'一批精密儀器到貨受損,拆開發現只用單層紙箱包裝,沒有任何緩衝材。',ch:[
+ {l:'依包裝不足主張除外',c:{k:'rep',b:50,s:.8},ok:{t:'貨主接受了,轉向賣方求償。',fx:{rep:3,pro:2}},ng:{t:'貨主認為包裝符合賣方慣例,揚言提告。',fx:{rep:-2,hp:-2}}},
+ {l:'檢測是否有運送中的外力撞擊',c:{k:'pro',b:50,s:.9},ok:{t:'外箱有明顯叉車撞痕,包裝不是唯一原因。',fx:{pro:4,rep:2}},ng:{t:'檢測結果不明確。',fx:{pro:1,hp:-2}}},
+ {l:'協調賣方與承攬人共同分擔',ok:{t:'三方各出一部分,事情落幕。',fx:{net:4}}}
+]},
+{id:'eng3',n:'颱風吹倒塔吊',spec:['eng'],w:10,yrs:[2,40],t:'颱風過境,工地塔吊倒塌,砸壞鄰近的倉庫。',ch:[
+ {l:'檢視塔吊固定與颱風應變措施',c:{k:'pro',b:50,s:.9},ok:{t:'營造廠在颱風前沒有把塔臂放鬆迴轉,責任清楚。',fx:{pro:4,rep:3}},ng:{t:'應變紀錄齊全,但塔吊還是倒了,原因不明。',fx:{hp:-3}}},
+ {l:'協調塔吊租賃業者共同負擔',c:{k:'net',b:50,s:.8},ok:{t:'租賃業者的保險分攤了一半。',fx:{net:4,cash:5}},ng:{t:'租賃業者堅持是工地操作問題。',fx:{net:-2}}}
+]},
+{id:'eng4',n:'新大樓漏水',spec:['eng'],w:10,yrs:[2,40],t:'新大樓完工驗收前發現大量漏水,業主主張由營造險理賠。',ch:[
+ {l:'區分施工瑕疵與意外損失',c:{k:'pro',b:50,s:.9},ok:{t:'防水層施工瑕疵不賠,但瑕疵造成的裝修損壞可以賠。',fx:{pro:4,rep:4}},ng:{t:'兩者界線模糊,爭議延燒。',fx:{hp:-3,rep:-1}}},
+ {l:'先協助搶修,避免損失擴大',ok:{t:'損失控制住了,但責任還沒釐清。',fx:{net:3,rep:1}}},
+ {l:'逐條對照保單的瑕疵條款',hid:{k:'pro',v:72},ok:{t:'你引用條款原文,把可賠與不可賠的界線畫得一清二楚。',fx:{pro:3,rep:5}}}
+]},
+{id:'eng5',n:'洪水沖刷基樁',spec:['eng'],w:9,yrs:[3,40],t:'河川橋梁工程遇上洪水,基樁被沖刷偏移。',ch:[
+ {l:'調閱水文資料,判斷是否超過設計洪水',c:{k:'pro',b:50,s:.9},ok:{t:'洪峰流量遠超設計標準,屬於天災。',fx:{pro:4,rep:3}},ng:{t:'水文資料不完整,無法下結論。',fx:{hp:-3}}},
+ {l:'協助業主規劃搶修順序',ok:{t:'搶修很順利,減損費用也被認可。',fx:{net:3,rep:2,hp:-2}}}
+]},
+{id:'re3',n:'風機葉片雷擊',spec:['re'],w:10,yrs:[2,40],t:'陸域風機葉片遭雷擊裂開,停機兩個月。',ch:[
+ {l:'調閱雷擊監測與避雷系統紀錄',c:{k:'pro',b:50,s:.9},ok:{t:'避雷系統正常運作,屬於意外事故。',fx:{pro:4,rep:3}},ng:{t:'監測紀錄有缺漏。',fx:{hp:-2,pro:1}}},
+ {l:'估算停機期間的發電損失',c:{k:'pro',w:{pro:.6,net:.4},b:50,s:.9},ok:{t:'你用同期風況與鄰近風機發電量推算,各方都接受。',fx:{pro:4,rep:3,cash:10}},ng:{t:'風況資料爭議很大。',fx:{hp:-3}}}
+]},
+{id:'re4',n:'光電板效率衰退',spec:['re'],w:10,yrs:[2,40],t:'投資人主張大量光電板發電效率衰退,要求保險理賠。',ch:[
+ {l:'鑑定是否為製造瑕疵',c:{k:'pro',b:50,s:.9},ok:{t:'電致發光檢測顯示是製程瑕疵,不屬於保險事故。',fx:{pro:4,rep:3}},ng:{t:'檢測結果模稜兩可。',fx:{hp:-2,rep:-1}}},
+ {l:'協助投資人向製造商主張保固',ok:{t:'投資人從保固拿回了一部分損失,很感謝你。',fx:{net:4,rep:2}}}
+]},
+{id:'re5',n:'升壓站變壓器起火',spec:['re'],w:9,yrs:[3,40],t:'電廠升壓站的主變壓器起火,整座電廠停止送電。',ch:[
+ {l:'調閱絕緣油檢測紀錄',c:{k:'pro',b:50,s:.9},ok:{t:'油中氣體分析早有異常徵兆,原因清楚。',fx:{pro:4,rep:3}},ng:{t:'檢測紀錄不連續。',fx:{hp:-2}}},
+ {l:'協調原廠加速供貨,縮短停機',c:{k:'net',b:45,s:1},ok:{t:'原廠調來備品,停機從十四個月縮到五個月。',fx:{net:5,rep:5,cash:15}},ng:{t:'原廠交期無法提前。',fx:{net:-1,hp:-2}}}
+]},
+{id:'semi3',n:'地震後晶圓破片',spec:['semi'],w:10,yrs:[2,40],t:'地震後多台機台當機,晶圓破片,復機需要重新校正。',ch:[
+ {l:'逐台檢查並確認復機時程',c:{k:'pro',b:50,s:.9},ok:{t:'你建立的復機時程表成了營業中斷計算的基礎。',fx:{pro:4,rep:3}},ng:{t:'機台太多,檢查拖了很久。',fx:{hp:-4}}},
+ {l:'依被保險人的復機計畫估算',ok:{t:'速度快,但復機時程被質疑太樂觀。',fx:{net:3,rep:-2}}},
+ {l:'比對地震強度與機台耐震設計',hid:{k:'pro',v:72},ok:{t:'你指出兩台機台的固定方式不符原廠規範,責任重新分配。',fx:{pro:4,rep:5}}}
+]},
+{id:'semi4',n:'特殊氣體洩漏',spec:['semi'],w:9,yrs:[2,40],t:'廠區特殊氣體洩漏,部分設備遭腐蝕,員工緊急撤離。',ch:[
+ {l:'會同工安與原廠評估腐蝕範圍',c:{k:'pro',b:50,s:.9},ok:{t:'腐蝕範圍確定,大部分設備可以修復。',fx:{pro:4,rep:3}},ng:{t:'評估範圍一再擴大。',fx:{hp:-3,rep:-1}}},
+ {l:'確認是否為設備老化導致',c:{k:'rep',b:50,s:.7},ok:{t:'管路老化是主因,部分損失不在承保範圍。',fx:{rep:3,net:-2}},ng:{t:'被保險人強烈反彈。',fx:{net:-3,hp:-2}}}
+]},
+{id:'semi5',n:'廠務停水三天',spec:['semi'],w:9,yrs:[2,40],t:'供水管線破裂,無塵室停機三天。',ch:[
+ {l:'確認保單是否承保公共設施中斷',c:{k:'pro',w:{pro:.5,rep:.5},b:50,s:.8},ok:{t:'保單有附加公共設施中斷條款,停機損失可以理賠。',fx:{pro:3,rep:3}},ng:{t:'條款只承保供電中斷,不含供水。',fx:{rep:-1,net:-2}}},
+ {l:'估算三天的停機損失',ok:{t:'金額不大,但被保險人很在意。',fx:{pro:2,net:2}}}
+]},
+{id:'motor3',n:'外送員撞傷行人',spec:['motor'],w:10,yrs:[2,40],t:'外送員騎車撞傷行人,平台、外送員與保險公司互推責任。',ch:[
+ {l:'釐清外送員與平台的合作關係',c:{k:'pro',w:{pro:.5,rep:.5},b:50,s:.9},ok:{t:'合約關係釐清,平台的第三人責任險可以理賠。',fx:{pro:3,rep:4}},ng:{t:'合約條款模糊,各方各說各話。',fx:{hp:-2,rep:-1}}},
+ {l:'先協助傷者取得醫療費用',ok:{t:'傷者家屬很感激,責任之後再談。',fx:{rep:3,net:2}}}
+]},
+{id:'motor4',n:'停車場電動車起火',spec:['motor'],w:10,yrs:[2,40],t:'地下停車場一台電動車在充電時起火,波及十多台車。',ch:[
+ {l:'調閱充電樁與車輛紀錄',c:{k:'pro',b:50,s:.9},ok:{t:'起火源是充電樁接頭過熱,責任指向安裝業者。',fx:{pro:4,rep:3}},ng:{t:'紀錄被燒毀,原因不明。',fx:{hp:-3}}},
+ {l:'先處理其他車主的車體險理賠',c:{k:'net',b:55,s:.7},ok:{t:'車主很快拿到賠款,保險公司之後再代位求償。',fx:{net:4,rep:2}},ng:{t:'有幾位車主沒保車體險,場面很混亂。',fx:{hp:-2,rep:-1}}}
+]},
+{id:'motor5',n:'遊樂設施受傷',spec:['motor'],w:9,yrs:[2,40],t:'遊樂園設施故障,十多名遊客受傷,媒體大幅報導。',ch:[
+ {l:'調閱設施保養與檢查紀錄',c:{k:'pro',b:50,s:.9},ok:{t:'保養紀錄齊全,故障屬於零件突發斷裂。',fx:{pro:3,rep:3}},ng:{t:'有兩次定期檢查沒有做。',fx:{rep:-2,hp:-2}}},
+ {l:'協助園方快速與傷者和解',ok:{t:'事件很快平息,園方很感謝你。',fx:{net:4,cash:5}}}
+]}
+);
+/* 依數值解鎖的隱藏選項 */
+const EXTRA={
+ deadline:{l:'打給保險公司協理,先口頭說明',hid:{k:'net',v:70},ok:{t:'協理在電話裡就同意延後,還謝謝你主動說明。',fx:{net:2,rep:3}}},
+ typhoon:{l:'調來合作公證行支援',hid:{k:'net',v:70},ok:{t:'三家公證行一起上,案子消化得又快又好。',fx:{net:3,rep:3,cash:15}}},
+ angry:{l:'拿出過去處理同類案件的紀錄',hid:{k:'rep',v:70},ok:{t:'他看完後態度完全不一樣了。',fx:{rep:3,net:2}}},
+ unsafe:{l:'從外圍燒痕直接推斷起火點',hid:{k:'pro',v:75},ok:{t:'你不用進去,就把起火點畫出來了。',fx:{pro:3,rep:4}}},
+ underins:{l:'幫被保險人找出可另外主張的費用',hid:{k:'pro',v:70},ok:{t:'清除費用與減損費用另外計算,被保險人拿到的比預期多。',fx:{rep:5,net:3}}},
+ depr:{l:'用二手設備市場行情建立殘值模型',hid:{k:'pro',v:75},ok:{t:'模型一出,雙方都沒話說。',fx:{pro:3,rep:4}}},
+ bi:{l:'請客戶的下游提供訂單轉移資料',hid:{k:'net',v:75},ok:{t:'訂單資料證明實際損失期間只有三個月。',fx:{pro:3,net:2,rep:4}}},
+ fraud:{l:'找警界的老朋友私下比對資料',hid:{k:'net',v:70},ok:{t:'比對結果直接連到另外兩家保險公司的案子。',fx:{rep:5,net:2}}},
+ media:{l:'以業界專家身分接受專訪,談防災',hid:{k:'rep',v:80},ok:{t:'專訪播出後,好幾家企業打來詢問防災建議。',fx:{rep:6,net:3}}},
+ newcontact:{l:'請他的主管安排一起看現場',hid:{k:'rep',v:75},ok:{t:'看過現場後,他終於理解你報告裡的每一句話。',fx:{net:4,rep:2}}},
+ pressure:{l:'直接向保險公司理賠長說明',hid:{k:'rep',v:75},ok:{t:'理賠長支持你的認定,主管也不再多說。',fx:{rep:5,net:1}}},
+ inflate:{l:'當場用進銷存資料指出差異',hid:{k:'pro',v:70},ok:{t:'對方臉色一變,再也不提多寫的事。',fx:{rep:5,pro:2,net:-2}}},
+ scapegoat:{l:'請客戶出面說明真實經過',hid:{k:'net',v:75},ok:{t:'客戶的說明讓真相大白。',fx:{rep:4,net:2}}},
+ hunter:{l:'請獵頭開出合夥人條件',hid:{k:'rep',v:80},ok:{t:'對方答應了,你成為最年輕的合夥人之一。',fx:{raise:.25,net:-2,hp:-2}}},
+ soft:{l:'跟老客戶簽三年長約',hid:{k:'net',v:75},ok:{t:'景氣再差,你的案源都很穩。',fx:{cash:20,net:2}}},
+ court:{l:'當庭用模型重現事故過程',hid:{k:'pro',v:80},ok:{t:'法官聽得很專心,判決書引用了你的模型。',fx:{rep:9,pro:3}}},
+ reins:{l:'主動提出保守與積極兩種情境',hid:{k:'pro',v:80},ok:{t:'再保人說,這是他看過最清楚的亞洲報告。',fx:{rep:8,pro:4,net:4,cash:30}}},
+ cargo1:{l:'找熟識的海損理算師加速擔保',hid:{k:'net',v:70},ok:{t:'擔保三天就完成,貨主很驚訝。',fx:{net:3,rep:4,cash:10}}},
+ cargo2:{l:'比對同航次其他貨櫃的溫度紀錄',hid:{k:'pro',v:75},ok:{t:'同船其他冷凍櫃都正常,證明電源沒有中斷。',fx:{pro:4,rep:4}}},
+ semi1:{l:'用歷史良率資料校正復原曲線',hid:{k:'pro',v:75},ok:{t:'良率資料讓復原曲線無可挑剔。',fx:{pro:5,rep:5,cash:20}}},
+ eng1:{l:'調閱施工前的鄰房鑑定報告比對',hid:{k:'pro',v:70},ok:{t:'有幾道裂縫在施工前就存在,責任重新釐清。',fx:{pro:3,rep:5}}},
+ motor1:{l:'用行車紀錄器畫面逐格還原',hid:{k:'pro',v:70},ok:{t:'逐格畫面讓責任比例一目了然。',fx:{pro:3,rep:4,net:2}}},
+ re2:{l:'調度別的風場的備用海纜',hid:{k:'net',v:75},ok:{t:'你一通電話借到備用海纜,停工損失大幅降低。',fx:{net:4,rep:5,cash:20}}},
+ petro:{l:'爭取主導,並邀國際團隊共同署名',hid:{k:'rep',v:80},ok:{t:'聯合署名的報告讓各方都買單。',fx:{rep:10,net:6,cash:40,hp:-4}}},
+ b1:{l:'安排客戶與保險公司高層直接會談',hid:{k:'rep',v:75},ok:{t:'高層會談後,雙方很快達成共識。',fx:{net:4,rep:3,cash:10}}},
+ i1:{l:'向董事會稽核委員會說明',hid:{k:'rep',v:75},ok:{t:'稽核委員會支持依實際提存。',fx:{rep:6,net:-2}}},
+ o1:{l:'請老客戶提前付款',hid:{k:'net',v:75},ok:{t:'老客戶二話不說就先匯款了。',fx:{net:2,rep:1}}},
+ m1:{l:'幫兩位同事找到同業的新職缺',hid:{k:'net',v:75},ok:{t:'兩人都找到新工作,團隊更信任你了。',fx:{net:5,rep:3,hp:-1}}},
+ j_exp:{l:'提出自己設計的鑑識流程,要求主導',hid:{k:'pro',v:75},ok:{t:'總經理直接讓你當技術組組長。',fx:{route:'exp',pro:3,rep:4,raise:.05}}},
+ j_mgr:{l:'接下,並帶自己信任的人一起過去',hid:{k:'net',v:75},ok:{t:'有自己人在,團隊很快上軌道。',fx:{route:'mgr',net:4,rep:2}}},
+ j_ins:{l:'開出理賠部協理的條件',hid:{k:'rep',v:75},ok:{t:'對方答應了。',fx:{route:'ins',raise:.12,rep:2}}},
+ j_rei:{l:'帶著自己的案例分析去面試',hid:{k:'pro',v:78},ok:{t:'面試官當場說:「你什麼時候可以上班?」',fx:{route:'rei',raise:.18,rep:3}}}
+};
+Object.entries(EXTRA).forEach(([id,o])=>{const e=E.find(x=>x.id===id);if(e)e.ch.push(o)});
+/* 多數值綜合判定 */
+const MULTI={'deadline:0':{pro:.6,rep:.4},'typhoon:2':{net:.6,pro:.4},'quake:2':{pro:.6,net:.4},'angry:0':{net:.6,rep:.4},'underins:0':{pro:.5,rep:.5},'depr:1':{pro:.7,net:.3},'bi:0':{pro:.7,rep:.3},'fraud:0':{pro:.6,net:.4},'media:0':{rep:.6,net:.4},'trip:0':{hp:.6,net:.4},'newcontact:0':{net:.6,rep:.4},'pressure:1':{pro:.6,net:.4},'credit:0':{net:.6,rep:.4},'scapegoat:2':{rep:.6,net:.4},'merger:0':{pro:.5,net:.5},'hunter:0':{rep:.5,net:.5},'hunter:1':{rep:.6,net:.4},'court:0':{pro:.7,rep:.3},'soft:0':{rep:.6,net:.4},'reins:0':{pro:.6,net:.4},'speaker:0':{pro:.5,net:.5},'startup:0':{net:.6,rep:.4},'broker:0':{net:.6,rep:.4},'expat:1':{fam:.7,hp:.3},'petro:0':{pro:.6,rep:.4},'b1:0':{pro:.6,rep:.4},'r1:0':{pro:.6,net:.4},'o4:0':{net:.6,rep:.4},'m2:0':{net:.6,pro:.4},'love:0':{fam:.6,hp:.4},'cargo1:0':{pro:.6,net:.4},'re2:0':{net:.6,pro:.4},'semi1:0':{pro:.7,rep:.3},'eng1:0':{rep:.5,pro:.5},'motor1:0':{pro:.6,net:.4},'j_rei:0':{pro:.6,net:.4},'j_ins:0':{net:.6,rep:.4},'j_mgr:0':{net:.7,rep:.3}};
+E.forEach(e=>e.ch.forEach((c,i)=>{const w=MULTI[e.id+':'+i];if(w&&c.c)c.c.w=w}));
+/* 背景、專長、路線加成用的事件分類 */
+const TAG={
+ tech:new Set(['first','unsafe','bi','fire1','fire2','fire4','fire6','cargo3','cargo6','re1','re2','re3','re4','re5','semi1','semi2','semi3','semi4','eng1','eng2','eng3','eng5','x1','x3','pandemic','petro','motor1','motor4','big1','big2']),
+ law:new Set(['underins','depr','pressure','lawsuit','court','i1','i_audit','r3','b1','audit','cargo1','inflate','x2','motor2','motor3','eng4','semi5','cargo6','big3']),
+ sea:new Set(['cargo1','cargo2','cargo3','cargo4','cargo5','trip','b2']),
+ ins:new Set(['newcontact','pressure','reins','i1','i2','i3','b1','underins','j_ins','big3'])
+};
+/* 數值高低帶來的結果敘述 */
+const HI={pro:['你的專業讓過程比別人順很多,對方也注意到了。','你一眼就看到別人沒注意的細節。'],rep:['你的名聲讓對方一開始就選擇信任你。','對方說:「是你處理的,我就放心了。」'],net:['你一通電話就找到對的人。','老朋友們都願意幫你這個忙。'],hp:['你的體力讓你撐得比別人久。','連續熬夜你也撐得住。'],fam:['家人的支持讓你沒有後顧之憂。','家人主動幫你分擔了不少事。']};
+const LO={pro:['經驗不足讓你在關鍵處判斷失準。','你漏看了一個老手一定會注意的地方。'],rep:['對方不太信任你,處處提防。','你的名聲讓事情更難談。'],net:['你找不到人幫忙,只能自己硬扛。','關鍵時刻沒有人替你說話。'],hp:['身體狀況拖累了你。','你累到無法專心。'],fam:['家裡的狀況讓你分心。','你連家人都說服不了。']};
+
+E.forEach(e=>e.ch.forEach(c=>{if(c.hid){const {k,v}=c.hid;c.show=s=>s[k]>=v}}));
+
+/* ===================== 第六版:開局條件、技能、人物、狀態、理財、創業 ===================== */
+const TR={
+ careful:{n:'細心',d:'專業判定 +5%'},
+ smooth:{n:'圓融',d:'人脈判定 +5%;衝突類事件 +5%'},
+ stub:{n:'固執',d:'信譽判定 +5%,人脈判定 −5%'},
+ work:{n:'工作狂',d:'衝現場收益 ×1.3;家庭每年多 −1'},
+ home:{n:'顧家',d:'休養陪家人效果 ×1.5;外派與巨災類判定 −5%'},
+ opt:{n:'樂天',d:'健康耗損每年少 0.5;壞結果損失 ×0.8'},
+ amb:{n:'野心',d:'升遷機率 +10%,轉職邀請增加;家庭每年多 −0.5'},
+ sweet:{n:'嘴甜',d:'人脈每年 +1;王經理起始好感 +10'},
+ just:{n:'正義感',d:'拒絕不當利益時,信譽獎勵 ×1.5'},
+ risk:{n:'冒險家',d:'大成功與大失敗機率 ×1.5'}
+};
+const TR_X=[['smooth','stub'],['work','home']];
+const CONFLICT=new Set(['angry','credit','scapegoat','newcontact','n_chen1','n_chen_poach','o3','c_key']);
+const HOMEMINUS=new Set(['expat','trip','r2','typhoon','quake','petro']);
+const JUST=new Set(['bribe:0','bribe:2','inflate:0','inflate:1','pressure:0','i1:0','olderr:0','k1:0','c_short:1']);
+const FB={
+ rich:{n:'富裕家庭',w:15,d:'起始資產 300 萬、家庭 +5'},
+ normal:{n:'小康家庭',w:55,d:'沒有特別調整'},
+ loan:{n:'背負學貸',w:20,d:'起始資產 −80 萬、健康 −3;28 歲前儲蓄率 −10%'},
+ pillar:{n:'家中經濟支柱',w:10,d:'家庭 +8;40 歲前儲蓄率 −10%;父母相關事件較多'}
+};
+const SK={
+ eng:{n:'商業英文',ids:['reins','r1','r2','r3','trip','expat','j_rei','petro','b2','cargo1'],v:8},
+ fire:{n:'火災鑑識',spec:'fire',ids:['x1','unsafe','first'],v:8},
+ bi:{n:'BI 損失計算',ids:['bi','semi1','semi3','semi5','re3','re5','big2','eng2'],v:8},
+ ga:{n:'海損理算',spec:'cargo',ids:[],v:8},
+ struct:{n:'結構工程',spec:'eng',ids:['quake','re1','fire6'],v:8},
+ law:{n:'條款與法律',tag:'law',ids:[],v:8},
+ digi:{n:'數位勘查',ids:['unsafe','pandemic','first','big1','fire4','motor4','eng3'],v:5},
+ nego:{n:'談判',ids:['big3','b1','b3','o2','m2','angry','underins','lawsuit','k1','k3','c_acq','fb_inherit','n_chen_poach'],v:8}
+};
+const SPSK={fire:'fire',cargo:'ga',eng:'struct',re:'struct',semi:'bi',motor:'law'};
+const STA={
+ media:{n:'媒體點名',y:3,ck:{rep:-5}},
+ award:{n:'業界得獎',y:3,ck:{net:5}},
+ back:{n:'腰傷',y:2,ck:{hp:-8}},
+ honey:{n:'新婚期',y:2},
+ watch:{n:'被稽核盯上',y:3},
+ halo:{n:'大案光環',y:3},
+ burn:{n:'燃燒殆盡',y:2,ck:{all:-5}}
+};
+const NPCN={lin:'林前輩',chen:'陳志明',wang:'王經理'};
+const CO={
+ own:{n:'公證公司',cap:300,P:450,vol:.28,req:s=>s.pro>=60,lk:'專業 ≥ 60'},
+ bro:{n:'保險經紀公司',cap:500,P:550,vol:.22,req:s=>s.net>=65,lk:'人脈 ≥ 65'},
+ con:{n:'風險顧問公司',cap:200,P:320,vol:.45,req:s=>s.pro>=65,lk:'專業 ≥ 65'},
+ tech:{n:'理賠科技新創',cap:800,P:900,vol:.65,req:s=>s.pro+s.net>=120,lk:'專業 + 人脈 ≥ 120'}
+};
+const STK={flat:{n:'股市盤整',m:0},bull:{n:'股市多頭',m:8},bear:{n:'股市空頭',m:-10},crash:{n:'股災',m:-28}};
+const STRAT={safe:{n:'保守',d:'定存與儲蓄險,年報酬約 1.5%'},mid:{n:'穩健',d:'ETF 與基金,平均 5%,一年波動約 ±10%'},agg:{n:'積極',d:'個股,平均 7%,一年波動約 ±25%,股市漲跌放大 1.4 倍'}};
+const POL={grow:{n:'擴張'},steady:{n:'穩健'},lean:{n:'節流'}};
+const COR=['own','bro','con','tech'];
+const liq=s=>s.cash+s.inv;
+
+Object.assign(ROUTES,{
+ bro:{n:'經紀公司老闆',r:['經紀工作室負責人','經紀工作室負責人','經紀公司負責人','經紀公司總經理','區域經紀集團董事長','經紀集團董事長'],m:.7,d:1.4,off:{},x:'續約佣金越做越穩,客戶集中風險高'},
+ con:{n:'顧問公司老闆',r:['獨立顧問','獨立顧問','顧問公司負責人','顧問公司總經理','顧問集團董事長','顧問集團董事長'],m:.6,d:1.2,off:{},x:'成本低,收入波動大'},
+ tech:{n:'新創老闆',r:['新創創辦人','新創創辦人','新創執行長','成長期執行長','獨角獸執行長','上市公司董事長'],m:.5,d:2,off:{},x:'高風險高報酬,可能被收購,也可能燒光'}
+});
+Object.assign(ROUTES.own,{n:'公證公司老闆',r:['工作室負責人','工作室負責人','公證公司負責人','公證公司總經理','區域公證公司老闆','公證集團董事長'],m:.7,d:1.6,off:{},x:'穩定,靠接案量'});
+
+/* 舊事件調整:創業改走公司機制,部分事件接上人物 */
+(function(){
+ const g=id=>E.find(e=>e.id===id);
+ const br2=g('br2');br2.ch.forEach(c=>{if(c.ok.fx.route==='own'){c.req=s=>s.net>=55&&s.rank>=2&&liq(s)>=300;c.lk='人脈 ≥ 55、職級第 3 階、現金加投資 ≥ 300 萬';delete c.c;c.l='自立門戶,開自己的公證公司';c.ok={t:'招牌掛上去的那天,幾個老客戶送來花籃。',fx:{found:'own',net:3,rep:2}};delete c.ng}});
+ const st=g('startup');st.ch[0]={l:'一起創業,各出一半資金',req:s=>liq(s)>=150,lk:'現金加投資 ≥ 150 萬',ok:{t:'你們租下一間小辦公室,公證公司開張了。',fx:{found:'own',fcap:150,net:4,hp:-3}}};
+ const cr=g('credit');cr.t='同期的陳志明把你做的分析放進他的簡報,在主管面前說是他做的。';
+ const pr=g('pressure');pr.t='保險公司的王經理暗示:「這件可以再保守一點吧?」希望你把可賠金額壓低兩成。';
+ const o1=g('o1');o1.ch[0].ok.fx={cash:-80,res:80,net:3,rep:2};
+ ['o1','o2','o3','o4'].forEach(id=>g(id).ch.forEach((c,i)=>{if(id==='o1'&&i===0)return;[c.ok,c.ng,c.gr].forEach(r=>{if(r&&r.fx.cash!==undefined){r.fx.res=r.fx.cash;delete r.fx.cash}})}));
+ g('english').ch[0].ok.fx.sk='eng';
+ g('x1').ch[0].ok.fx.sk='fire';
+ g('emba').ch[0].ok.fx.sk='nego';
+ g('midlife').ch[2].ok.fx.sk='law';
+ g('bi').ch[0].gr.fx.sk='bi';
+ g('j_back').when=s=>!['adj','exp','mgr'].includes(s.track)&&!s.co&&s.age<=58;
+})();
+
+E.push(
+{id:'hosp',n:'你倒下了',w:0,t:'你在案場昏倒,被救護車送進醫院。醫師說:「再這樣下去,下一次你可能就醒不來了。」',ch:[
+ {l:'休養半年,把重心放回生活',ok:{t:'你第一次認真休息。出院那天,家人來接你。',fx:{hp:30,fam:6,cash:-30,rep:-2,focus:'rest'}}},
+ {l:'出院就回去工作',a:.3,ok:{t:'你回到工作崗位,但身體記得這一次。',fx:{hp:12,rep:1,st:'burn'}}},
+ {l:'換一份比較輕鬆的工作',ok:{t:'你放下了一些東西,也撿回了一些東西。',fx:{hp:25,fam:5,flag:'semi'}}}
+]},
+/* ---- 創業 ---- */
+{id:'co_found',n:'自己當老闆?',job:1,w:6,when:s=>!s.co&&s.age>=30&&s.age<=58&&s.age-s.coFail>=4&&liq(s)>=200&&s.rank>=2,t:'你算了算自己的存款與投資,也想了想手上的人脈。也許,是時候自己當老闆了。',ch:[
+ {l:'開公證公司(啟動資金 300 萬)',req:s=>CO.own.req(s)&&liq(s)>=300,lk:'專業 ≥ 60、現金加投資 ≥ 300 萬',ok:{t:'你租下一間辦公室,掛上自己的招牌。',fx:{found:'own'}}},
+ {l:'開保險經紀公司(啟動資金 500 萬)',req:s=>CO.bro.req(s)&&liq(s)>=500,lk:'人脈 ≥ 65、現金加投資 ≥ 500 萬',ok:{t:'你帶著幾個信任你的客戶,成立了經紀公司。',fx:{found:'bro'}}},
+ {l:'開風險顧問公司(啟動資金 200 萬)',req:s=>CO.con.req(s)&&liq(s)>=200,lk:'專業 ≥ 65、現金加投資 ≥ 200 萬',ok:{t:'一張桌子、一台筆電,你的顧問公司開張了。',fx:{found:'con'}}},
+ {l:'做理賠科技新創(啟動資金 800 萬)',req:s=>CO.tech.req(s)&&liq(s)>=800,lk:'專業加人脈 ≥ 120、現金加投資 ≥ 800 萬',ok:{t:'你找了兩個工程師,開始寫第一版理賠平台。',fx:{found:'tech'}}},
+ {l:'再等等',ok:{t:'你決定再存一點錢、再累積一點實力。',fx:{hp:1}}}
+]},
+{id:'c_crunch',n:'公司現金告急',w:0,t:'公司帳上的錢,只夠再發一個月的薪水。',ch:[
+ {l:'掏自己的錢補進公司',req:s=>liq(s)>=150,lk:'現金加投資 ≥ 150 萬',ok:{t:'你把存款轉進公司帳戶。家人問你:「還要補幾次?」',fx:{cash:-150,res:150,fam:-4,hp:-2}}},
+ {l:'裁員、縮減規模',ok:{t:'你親自跟每一位被裁的同事談。',fx:{sz:-.4,res:60,net:-4,rep:-2,hp:-3}}},
+ {l:'向銀行貸款',req:s=>!s.co||(s.co.cr||[]).length<2,lk:'3 年內第二次現金告急,銀行不再放款',c:{k:'rep',b:45,s:.8},ok:{t:'銀行看在你的信用上放款了。',fx:{res:120,gov:-3}},ng:{t:'銀行拒絕了,你只能結束營業。',fx:{bust:1}}},
+ {l:'結束營業',ok:{t:'你關掉了公司,把鑰匙交還給房東。',fx:{bust:1}}}
+]},
+{id:'c_inspect',n:'主管機關檢查',route:COR,w:s=>s.co?Math.max(1,(100-s.co.gov)/6):0,t:'主管機關到公司例行檢查,調閱了近三年的案件與帳冊。',ch:[
+ {l:'全力配合,缺失立即補正',c:{k:'gov',b:40,s:.8},ok:{t:'只有幾個小缺失,補正後結案。',fx:{gov:8,res:-20}},ng:{t:'缺失比想像中多,被要求限期改善。',fx:{gov:5,res:-60,rep:-3}}},
+ {l:'找關係疏通',a:.2,c:{k:'net',b:40,s:.6},ok:{t:'檢查草草結束。',fx:{gov:-8}},ng:{t:'疏通的過程被記錄下來,公司遭到重罰。',fx:{gov:-10,res:-150,rep:-10,st:'watch'}}},
+ {l:'主動暫停部分業務,自我整頓',ok:{t:'營收掉了一季,但公司體質變好了。',fx:{gov:15,res:-40,rep:2}}}
+]},
+{id:'c_acq',n:'收購提議',route:COR,w:s=>s.co&&s.co.y>=4&&s.co.V>=2*CO[s.co.t].cap?7:0,t:s=>'一家國際集團想收購你的公司,初步出價約 '+cur((s.co.V+Math.max(0,s.co.res))*1.2)+'。',ch:[
+ {l:'賣掉,然後退休',ok:{t:'簽約那天,你在停車場坐了很久。',fx:{sell:1.2,end:{t:'公司被收購的創辦人',d:'你一手打造的公司,現在是國際集團的一部分。你把錢分成三份:一份給家人,一份給自己,一份成立了公證人培訓基金。'}}}},
+ {l:'賣掉,留下來當高階主管',ok:{t:'你拿到一大筆錢,也多了一個老闆。',fx:{sell:1.15}}},
+ {l:'談更高的價格',c:{k:'net',w:{net:.6,rep:.4},b:45,s:.9},ok:{t:'對方加價,你決定成交,留下來當顧問。',fx:{sell:1.5}},ng:{t:'對方撤回了提議。',fx:{rep:-1}}},
+ {l:'拒絕,繼續做大',ok:{t:'你相信公司還有更大的未來。',fx:{rep:2,gov:2}}}
+]},
+{id:'c_key',n:'核心員工出走',route:COR,w:s=>s.co?(s.co.gov<60?10:5):0,t:'公司最資深的同事遞出辭呈,據說要帶走兩個大客戶。',ch:[
+ {l:'加薪、給股份留人',c:{k:'net',b:50,s:.8},ok:{t:'他留下來了,團隊更穩了。',fx:{res:-40,net:2}},ng:{t:'他收下加薪,半年後還是走了。',fx:{res:-40,sz:-.2}}},
+ {l:'祝福他,把客戶穩住',c:{k:'rep',b:50,s:.8},ok:{t:'大部分客戶選擇留下。',fx:{sz:-.1,rep:2}},ng:{t:'兩個大客戶都跟著走了。',fx:{sz:-.3,res:-30}}},
+ {l:'以競業條款提告',ok:{t:'官司打了一年,雙方都很難看。',fx:{gov:-3,rep:-3,res:-30}}}
+]},
+{id:'c_short',n:'業績壓力下的捷徑',route:COR,w:6,t:'業務主管建議:為了搶下一個大客戶,先在提案裡「保證」理賠結果。',ch:[
+ {l:'同意,先拿下再說',a:.3,ok:{t:'客戶簽約了。公司裡開始有人學這一招。',fx:{gov:-15,res:60}}},
+ {l:'禁止,寧可不接',ok:{t:'少了一個大客戶,團隊知道了你的底線。',fx:{gov:8,res:-10,rep:2}}},
+ {l:'訂出提案的合規審核流程',ok:{t:'速度慢了一點,但每份提案都經得起檢驗。',fx:{gov:12,hp:-2}}}
+]},
+{id:'o5',n:'半價搶案',route:['own'],w:8,t:'一家新成立的公證公司以半價搶走你兩個保險公司客戶。',ch:[
+ {l:'跟進降價',ok:{t:'客戶回來了,利潤也沒了。',fx:{res:-30,gov:-2}}},
+ {l:'強調報告品質與時效',c:{k:'rep',b:50,s:.9},ok:{t:'三個月後,其中一個客戶回頭找你。',fx:{rep:3,sz:.1}},ng:{t:'客戶只看價格。',fx:{sz:-.15}}},
+ {l:'開發再生能源等新領域',c:{k:'pro',b:45,s:.9},ok:{t:'新領域的案子補上了缺口,還更賺。',fx:{sz:.2,pro:2}},ng:{t:'新領域的門檻比想像中高。',fx:{res:-30,hp:-2}}}
+]},
+{id:'k1',n:'客戶要求回扣',route:['bro'],w:9,t:'大型客戶的採購主管暗示:「明年續約,佣金要退一部分給我個人。」',ch:[
+ {l:'拒絕,並向客戶高層說明',c:{k:'rep',b:50,s:.8},ok:{t:'客戶高層感謝你,採購主管被調職。',fx:{gov:5,rep:4}},ng:{t:'客戶換了經紀人。',fx:{sz:-.2,res:-30}}},
+ {l:'答應',a:.1,ok:{t:'合約續了。這件事你不會跟任何人提。',fx:{gov:-20,res:50,st:'watch'}}},
+ {l:'降低費率,但不給個人',ok:{t:'客戶接受了新費率。',fx:{res:-20,gov:3}}}
+]},
+{id:'k2',n:'收回承保授權',route:['bro'],w:8,t:'一家合作多年的保險公司通知:你的客戶群去年賠付率太高,要收回承保授權。',ch:[
+ {l:'提出防損改善計畫',c:{k:'pro',b:50,s:.9},ok:{t:'保險公司同意再給一年觀察期。',fx:{wang:5,sz:.1}},ng:{t:'保險公司不買帳。',fx:{sz:-.2}}},
+ {l:'轉找其他保險公司承保',c:{k:'net',b:50,s:.9},ok:{t:'另一家保險公司接手,條件還更好。',fx:{net:2}},ng:{t:'市場沒人願意接,只好提高保費。',fx:{res:-30,sz:-.1}}},
+ {l:'接受,縮小這塊業務',ok:{t:'業務少了一塊,也少了一個風險。',fx:{sz:-.3,gov:2}}}
+]},
+{id:'k3',n:'續約大戰',route:['bro'],w:9,t:'年底續約季,國際經紀公司開出更低的費率搶你的客戶。',ch:[
+ {l:'用理賠成果說話',c:{k:'rep',w:{rep:.6,net:.4},b:50,s:.9},ok:{t:'客戶說:「出事的時候是你在處理。」',fx:{sz:.1,rep:2}},ng:{t:'還是丟了兩個客戶。',fx:{sz:-.2}}},
+ {l:'降低佣金保住客戶',ok:{t:'客戶都留下了,利潤薄了一層。',fx:{res:-40}}},
+ {l:'加碼免費防損服務',c:{k:'pro',b:50,s:.8},ok:{t:'防損服務成了你的招牌。',fx:{sz:.15,hp:-3}},ng:{t:'服務做了,客戶還是走了。',fx:{hp:-3,res:-20}}}
+]},
+{id:'k4',n:'上市公司招標',route:['bro'],w:7,t:'一家上市公司公開招標保險經紀人,評選重點是理賠服務能力。',ch:[
+ {l:'全力準備提案',c:{k:'pro',w:{pro:.5,rep:.5},b:45,s:1},ok:{t:'你得標了,公司規模一下子擴大。',fx:{sz:.3,res:40}},ng:{t:'差了一點,沒有得標。',fx:{res:-20,hp:-3}}},
+ {l:'找關係打聽底價',a:.2,c:{k:'net',b:45,s:.8},ok:{t:'你得標了,但有人在背後議論。',fx:{sz:.3,gov:-8}},ng:{t:'打聽的事被傳開,你被取消資格。',fx:{gov:-8,rep:-5,st:'watch'}}},
+ {l:'不投標',ok:{t:'你專心服務現有客戶。',fx:{hp:1}}}
+]},
+{id:'q1',n:'ERM 大型專案',route:['con'],w:9,t:'一家科技公司委託你建立整套企業風險管理制度,預算很漂亮,時程很緊。',ch:[
+ {l:'接下並擴編團隊',c:{k:'pro',b:50,s:.9},ok:{t:'專案成功,客戶又追加了兩個子公司。',fx:{sz:.3,res:80,hp:-4}},ng:{t:'新人經驗不足,專案延誤被扣款。',fx:{res:-30,rep:-3}}},
+ {l:'接下,不擴編,自己扛',ok:{t:'你連續半年每天工作十四小時。',fx:{res:50,hp:-6}}},
+ {l:'婉拒',ok:{t:'你覺得現在的規模接不下。',fx:{hp:1}}}
+]},
+{id:'q2',n:'顧問報告上了法庭',route:['con'],w:7,t:'客戶拿你的風險評估報告去跟保險公司打官司,對方律師說你的報告「立場偏頗」。',ch:[
+ {l:'出庭說明評估方法',c:{k:'pro',b:50,s:1},ok:{t:'法官採信了你的方法論。',fx:{rep:5,sz:.1}},ng:{t:'你被問倒了幾題,名聲受損。',fx:{rep:-5}}},
+ {l:'撤回部分結論',ok:{t:'客戶很不高興。',fx:{rep:-4,sz:-.1}}},
+ {l:'交給律師處理',ok:{t:'律師費不便宜。',fx:{res:-30}}}
+]},
+{id:'q3',n:'專案斷層',route:['con'],w:8,t:'三個大專案同時結案,下一季的訂單是零。',ch:[
+ {l:'降價接短期小案',ok:{t:'現金流撐住了,但利潤很薄。',fx:{res:20,rep:-1}}},
+ {l:'開發企業訓練課程',c:{k:'pro',b:50,s:.8},ok:{t:'課程大受歡迎,成了穩定收入。',fx:{res:40,net:3}},ng:{t:'報名的人不多。',fx:{res:-10}}},
+ {l:'縮編,等景氣回來',ok:{t:'你送走了兩位同事。',fx:{sz:-.2,res:30}}}
+]},
+{id:'q4',n:'政府研究標案',route:['con'],w:6,t:'政府要委外研究巨災保險制度,標案金額不大,但很有名聲。',ch:[
+ {l:'投標',c:{k:'pro',w:{pro:.6,rep:.4},b:45,s:1},ok:{t:'研究報告被政策引用。',fx:{rep:6,net:3,res:20}},ng:{t:'沒有得標。',fx:{hp:-2}}},
+ {l:'不投',ok:{t:'你專注在企業客戶。',fx:{res:10}}}
+]},
+{id:'t1',n:'募資',route:['tech'],w:9,t:'創投願意投資 1,500 萬,但要拿走三成股份,還要求一年內營收翻倍。',ch:[
+ {l:'接受',ok:{t:'錢進來了,壓力也進來了。',fx:{res:1500,Vm:1.4,gov:-3,hp:-2}}},
+ {l:'談條件',c:{k:'net',w:{net:.6,rep:.4},b:45,s:1},ok:{t:'你爭取到更好的估值。',fx:{res:1200,Vm:1.6}},ng:{t:'創投轉身投了你的競爭對手。',fx:{Vm:.9}}},
+ {l:'拒絕,自己撐',ok:{t:'你保住了股份,也保住了焦慮。',fx:{hp:-3}}}
+]},
+{id:'t2',n:'燒錢速度',route:['tech'],w:9,t:'工程師團隊擴到二十人,每個月燒掉一百多萬,營收還沒跟上。',ch:[
+ {l:'繼續擴張搶市場',ok:{t:'你決定賭一把。',fx:{pol:'grow',hp:-3}}},
+ {l:'砍掉一半人力',ok:{t:'公司活下來了,團隊士氣很低。',fx:{sz:-.3,pol:'lean',net:-3}}},
+ {l:'轉型接顧問案補現金',ok:{t:'錢補回來一些,但產品進度慢了。',fx:{res:80,Vm:.9}}}
+]},
+{id:'t3',n:'大公司抄產品',route:['tech'],w:8,t:'一家大型保險公司推出跟你幾乎一樣的理賠平台,還免費提供給客戶。',ch:[
+ {l:'轉攻利基市場',c:{k:'pro',b:50,s:.9},ok:{t:'你專攻貨物險理賠,大公司做不來。',fx:{sz:.1,Vm:1.2}},ng:{t:'利基市場太小,養不活公司。',fx:{Vm:.7}}},
+ {l:'提告侵權',ok:{t:'官司打了兩年,律師費驚人。',fx:{res:-80,gov:2}}},
+ {l:'找他們談合作',c:{k:'net',b:45,s:.9},ok:{t:'對方決定入股你的公司。',fx:{Vm:1.3,res:200}},ng:{t:'對方只是想打聽你的技術。',fx:{Vm:.8}}}
+]},
+{id:'t4',n:'AI 模型判錯',route:['tech'],w:8,t:'你們的 AI 理賠模型把一批火災照片判成「不理賠」,客戶在社群上公開抱怨。',ch:[
+ {l:'立即下架,全部改人工複核',ok:{t:'損失了一個月營收,但贏回信任。',fx:{res:-40,gov:8,rep:2}}},
+ {l:'修正模型後繼續上線',c:{k:'pro',b:50,s:.9},ok:{t:'修正版表現很好。',fx:{pro:2}},ng:{t:'又出錯了,事件上了新聞。',fx:{rep:-6,st:'media'}}},
+ {l:'說是客戶照片品質有問題',ok:{t:'網友不買帳。',fx:{rep:-8,gov:-5}}}
+]},
+{id:'t5',n:'上市的機會',route:['tech'],once:1,w:s=>s.co&&s.co.t==='tech'&&s.co.V>=3000?10:0,t:'承銷商說,以你們的成長速度,可以申請上市了。',ch:[
+ {l:'申請上市',c:{k:'pro',w:{pro:.4,net:.3,rep:.3},b:45,s:1},ok:{t:'敲鐘那天,你想起第一版只有三個功能的系統。',fx:{ipo:1,Vm:2,rep:6}},ng:{t:'審查沒過,要再等兩年。',fx:{res:-80,hp:-4}}},
+ {l:'再等兩年',ok:{t:'你想讓公司體質更好再上市。',fx:{hp:1,gov:3}}},
+ {l:'賣給大型保險集團',ok:{t:'你選擇落袋為安。',fx:{sell:1.3}}}
+]},
+/* ---- 人物 ---- */
+{id:'n_lin1',n:'前輩的考驗',w:9,once:1,yrs:[0,4],t:'林前輩丟給你一份他寫了一半的報告:「後面你補完。」',ch:[
+ {l:'熬夜補完,附上計算依據',ok:{t:'林前輩看完只說了一句:「還行。」但隔天把你帶去見客戶。',fx:{pro:3,lin:10,hp:-3}}},
+ {l:'照他的架構快速完成',ok:{t:'林前輩把報告退回來,上面滿滿紅字。',fx:{lin:-5,pro:1}}},
+ {l:'先問他整份報告的邏輯',ok:{t:'他講了一個小時,你學到的比上一年還多。',fx:{lin:8,pro:2}}}
+]},
+{id:'n_lin2',n:'前輩算錯了',w:6,once:1,yrs:[5,18],when:s=>!s.f.linRet&&s.npc.lin>=-10,t:'你發現林前輩一份已經送出的報告算錯了,他還不知道。',ch:[
+ {l:'私下提醒他',ok:{t:'他沉默了一下,然後拍拍你的肩膀。',fx:{lin:15,rep:1}}},
+ {l:'告訴主管',ok:{t:'事情處理得很快,但林前輩再也沒找你吃過飯。',fx:{lin:-20,rep:3}}},
+ {l:'裝作沒看到',ok:{t:'後來被保險公司發現,林前輩被記了一筆。',fx:{rep:-2,lin:-3}}}
+]},
+{id:'n_lin_ret',n:'林前輩退休',w:10,once:1,when:s=>s.age>=42&&s.age<=52,t:'帶你入行的林前輩要退休了。',ch:[
+ {l:'接手他的客戶',c:{k:'net',b:55,s:.7},ok:{t:'客戶看在前輩的面子上,都留了下來。',fx:{net:6,wang:5,lin:5,flag:'linRet'}},ng:{t:'有幾個客戶趁機換了人。',fx:{net:2,flag:'linRet'}}},
+ {l:'籌辦一場送別會',ok:{t:'林前輩在台上講到你,眼眶紅了。',fx:{lin:12,net:2,fam:-1,flag:'linRet'}}},
+ {l:'送一張卡片',ok:{t:'他回了一個讚。',fx:{lin:2,flag:'linRet'}}}
+]},
+{id:'n_lin_ref',n:'前輩的推薦',w:0,t:'退休的林前輩打電話來:「國際公證公司在找亞洲區主管,我推薦了你。」',ch:[
+ {l:'去面試',c:{k:'pro',w:{pro:.6,rep:.4},b:55,s:.8},ok:{t:'你拿到了這個職位。',fx:{route:'adj',raise:.15,rep:4}},ng:{t:'對方最後選了內部人選。',fx:{lin:2}}},
+ {l:'謝謝他,但婉拒',ok:{t:'林前輩說:「我就知道你會這樣說。」',fx:{lin:3,fam:1}}}
+]},
+{id:'n_chen1',n:'同期的較勁',w:9,once:1,yrs:[1,6],t:'你和同期的陳志明都在爭取負責一個新客戶,主管要從你們兩個選一個。',ch:[
+ {l:'全力爭取',c:{k:'pro',w:{pro:.6,net:.4},b:50,s:.9},ok:{t:'主管選了你。陳志明在走廊上沒跟你打招呼。',fx:{rep:3,chen:-10}},ng:{t:'主管選了陳志明。',fx:{chen:-5,hp:-2}}},
+ {l:'讓給他',ok:{t:'陳志明請你喝了一杯咖啡。',fx:{chen:15,net:1}}},
+ {l:'提議兩人合作',c:{k:'net',b:50,s:.8},ok:{t:'你們一起拿下客戶,也成了朋友。',fx:{chen:10,net:3}},ng:{t:'陳志明覺得你在搶功。',fx:{chen:-3}}}
+]},
+{id:'n_chen2',n:'陳志明的求助',w:7,yrs:[6,25],when:s=>s.npc.chen>=0,t:'陳志明的案子出包,私下請你幫忙看報告。',ch:[
+ {l:'幫他',ok:{t:'他說:「這次欠你。」',fx:{chen:15,hp:-2,pro:1}}},
+ {l:'拒絕',ok:{t:'他點點頭,沒再說什麼。',fx:{chen:-10}}},
+ {l:'幫,但要求共同掛名',ok:{t:'他勉強答應了。',fx:{chen:-3,rep:2}}}
+]},
+{id:'n_chen_poach',n:'陳志明挖你的客戶',w:s=>s.npc.chen<=-15?12:0,yrs:[5,40],t:'陳志明跳槽到對手公司,開始一個一個挖你的客戶。',ch:[
+ {l:'正面迎戰',c:{k:'net',b:50,s:.9},ok:{t:'客戶都留下了。',fx:{net:3,chen:-5}},ng:{t:'你丟了兩個客戶。',fx:{cash:-20,net:-3}}},
+ {l:'約他出來談',c:{k:'rep',b:45,s:.8},ok:{t:'你們把話說開了。',fx:{chen:20}},ng:{t:'談不攏。',fx:{chen:-5}}},
+ {l:'不理他',ok:{t:'有些客戶走了,有些沒有。',fx:{net:-3}}}
+]},
+{id:'n_chen_partner',n:'陳志明的提議',w:s=>s.npc.chen>=25?10:0,once:1,when:s=>!s.co&&s.age>=33&&s.age<=55&&s.age-s.coFail>=4,t:'陳志明找你:「我們一起開公證公司吧,資金一人一半。」',ch:[
+ {l:'一起創業',req:s=>liq(s)>=150,lk:'現金加投資 ≥ 150 萬',ok:{t:'兩個當年的對手,成了合夥人。',fx:{found:'own',fcap:150,chen:10}}},
+ {l:'婉拒',ok:{t:'他有點失望,但說會支持你。',fx:{chen:-5}}}
+]},
+{id:'n_wang1',n:'王經理的飯局',w:8,once:1,yrs:[2,30],t:'保險公司的王經理約你吃飯,暗示希望你多幫他們「看緊一點」。',ch:[
+ {l:'答應,但強調會依證據認定',ok:{t:'王經理笑了笑:「我就是喜歡你這點。」',fx:{wang:5,rep:1}}},
+ {l:'婉拒飯局',ok:{t:'王經理有點不高興。',fx:{wang:-8}}},
+ {l:'赴約,不表態',ok:{t:'飯吃得很愉快。',fx:{wang:3,net:1}}}
+]},
+{id:'n_wang2',n:'王經理升官',w:s=>s.npc.wang>=25?10:0,once:1,yrs:[8,35],t:'王經理升任理賠部協理,上任第一件事就打給你。',ch:[
+ {l:'接下他交辦的大案',c:{k:'pro',b:55,s:.8},ok:{t:'你漂亮地結案,他在公司裡更挺你了。',fx:{wang:10,cash:20,rep:3}},ng:{t:'案子出了點問題,他幫你擋下來。',fx:{wang:-3,hp:-3}}},
+ {l:'恭喜他,大案先不接',ok:{t:'他說:「下次一定要接。」',fx:{wang:2}}}
+]},
+/* ---- 家庭背景 ---- */
+{id:'fb_biz',n:'家族事業',w:6,once:1,when:s=>s.fbg==='rich'&&s.age>=33&&s.age<=55,t:'父親年紀大了,希望你回去接手家族的貿易公司。',ch:[
+ {l:'回去接班',ok:{t:'你脫下安全帽,換上董事長的西裝。',fx:{fam:6,end:{t:'家族企業接班人',d:'你把公證人的風險意識帶進家族公司。每年續保時,經紀人都說你是最難搞、也最懂行的客戶。'}}}},
+ {l:'掛名董事,繼續做本業',ok:{t:'每季開一次董事會,其他時間照常工作。',fx:{cash:80,hp:-3,fam:2}}},
+ {l:'婉拒',ok:{t:'父親沉默了很久,最後說:「你開心就好。」',fx:{fam:-4,rep:1}}}
+]},
+{id:'fb_inherit',n:'遺產分配',w:6,once:1,when:s=>s.fbg==='rich'&&s.age>=45&&s.age<=62,t:'長輩過世,留下一筆遺產,兄弟姊妹對分配方式意見不同。',ch:[
+ {l:'依法平分,不爭',ok:{t:'你拿到應得的一份,家人關係也保住了。',fx:{cash:400,fam:4}}},
+ {l:'爭取多一點',c:{k:'net',b:45,s:.8},ok:{t:'你多分到一些,但兄弟之間有了心結。',fx:{cash:650,fam:-8}},ng:{t:'官司打了兩年,律師費吃掉一大塊。',fx:{cash:250,fam:-10,hp:-4}}},
+ {l:'捐出一部分成立獎學金',ok:{t:'第一屆受獎的學生寄來一張卡片。',fx:{cash:250,rep:4,fam:2}}}
+]},
+{id:'fb_borrow',n:'家人借錢',w:7,when:s=>s.fbg!=='rich'&&s.age>=28&&s.age<=58&&s.cash>=120,t:'家人做生意周轉不靈,開口跟你借 100 萬。',ch:[
+ {l:'借全額',ok:{t:'家人很感激,但什麼時候能還,沒人說得準。',fx:{cash:-100,fam:6,sched:{id:'fb_repay',in:[2,5]}}}},
+ {l:'借一半',ok:{t:'你說這是你能力所及的極限。',fx:{cash:-50,fam:2}}},
+ {l:'拒絕',ok:{t:'電話那頭安靜了很久。',fx:{fam:-7}}}
+]},
+{id:'fb_repay',n:'還錢',w:0,t:'當年跟你借錢的家人,生意終於有了起色。',ch:[
+ {l:'收下還款',ok:{t:'對方連本帶利還給你。',fx:{cash:110,fam:3}}},
+ {l:'跟他說不用還了',ok:{t:'家人眼眶紅了。',fx:{fam:8}}}
+]},
+{id:'fb_parents',n:'家裡的經濟重擔',w:8,once:1,when:s=>s.fbg==='pillar'&&s.age>=25&&s.age<=38,t:'弟妹的學費、父母的醫藥費,這個月又全落在你身上。',ch:[
+ {l:'多接案子撐過去',ok:{t:'你撐過去了,也累壞了。',fx:{cash:20,hp:-6,fam:3}}},
+ {l:'跟家人討論怎麼分擔',c:{k:'fam',b:50,s:.8},ok:{t:'弟妹也開始打工,壓力小了一些。',fx:{fam:5,hp:2}},ng:{t:'討論變成了爭吵。',fx:{fam:-5}}},
+ {l:'賣掉一部分投資',ok:{t:'帳戶少了一截,心裡踏實一點。',fx:{invSell:.5,fam:4}}}
+]},
+/* ---- 理財 ---- */
+{id:'s_crash',n:'股災',w:s=>s.stk==='crash'&&s.inv>50?40:0,t:'股市崩跌,你的投資帳戶一週內少了三成,新聞每天都在講「跌破關卡」。',ch:[
+ {l:'停損出場,改放定存',ok:{t:'帳面損失變成真實損失,但你終於睡得著。',fx:{invSell:1,strat:'safe',hp:2}}},
+ {l:'抱著不動',ok:{t:'你關掉看盤軟體,繼續工作。',fx:{hp:-1}}},
+ {l:'拿現金加碼',ok:{t:'別人恐懼的時候,你把存款投了進去。',fx:{invBuy:.6,hp:-2}}}
+]},
+{id:'s_bull',n:'大多頭',w:s=>s.stk==='bull'&&s.inv>100?12:0,t:'股市連漲一年,同事午餐都在聊股票,有人說要辭職當全職投資人。',ch:[
+ {l:'獲利了結一半',ok:{t:'你把一半的部位轉成現金。',fx:{invSell:.5}}},
+ {l:'改成積極策略,全力加碼',ok:{t:'你的部位一下子放大了。',fx:{strat:'agg',invBuy:.8,hp:-2}}},
+ {l:'照原本的計畫,不動',ok:{t:'你維持紀律。',fx:{hp:1}}}
+]},
+{id:'s_scam',n:'投資老師',w:6,when:s=>s.cash>=100,t:'你被拉進一個投資群組,「老師」每天報明牌,群組裡的人都在貼獲利截圖。',ch:[
+ {l:'跟著老師投入 50 萬',a:.1,ok:{t:'第一週真的賺了。第二週,群組消失了。',fx:{cash:-50,hp:-3}}},
+ {l:'截圖檢舉',ok:{t:'你向 165 反詐騙專線檢舉,後來這個集團被查獲。',fx:{rep:1}}},
+ {l:'直接退出群組',ok:{t:'你繼續過你的日子。',fx:{hp:1}}}
+]},
+{id:'s_annuity',n:'理專的推薦',w:5,once:1,when:s=>s.age>=35&&s.cash>=200,t:'銀行理專推薦你一張六年期儲蓄險,說是「保本又穩定」。',ch:[
+ {l:'買,當作強迫儲蓄',ok:{t:'你的資產波動變小了。',fx:{strat:'safe',fam:1}}},
+ {l:'先看清楚費用與解約條件',c:{k:'pro',b:55,s:.6},ok:{t:'你發現前幾年解約會虧損,決定只買小額。',fx:{pro:1,hp:1}},ng:{t:'條款太複雜,你乾脆不買。',fx:{hp:-1}}},
+ {l:'不買,自己定期定額買 ETF',ok:{t:'你設定了每月自動扣款。',fx:{strat:'mid'}}}
+]},
+{id:'s_property',n:'第二間房',w:5,once:1,when:s=>s.f.house&&liq(s)>=600&&s.age>=35&&s.age<=58,t:'仲介打電話來:捷運站旁有一間小套房適合收租,頭期款 300 萬。',ch:[
+ {l:'買下來收租',ok:{t:'每個月多了一筆租金,也多了一個管理的麻煩。',fx:{cash:-300,home:900,mort:600,rent:1}}},
+ {l:'不買,繼續投資股市',ok:{t:'你覺得房地產的報酬不如股市。',fx:{strat:'mid'}}},
+ {l:'不買,保留現金',ok:{t:'你覺得現在不是時候。',fx:{hp:1}}}
+]}
+);
+/* 技能專屬選項 */
+const SKOPT={
+ fire1:{l:'調閱電氣熔痕分析',hs:'fire',ok:{t:'熔痕型態顯示是一次短路,而不是火燒後的二次熔痕。',fx:{pro:3,rep:5}}},
+ cargo4:{l:'依共同海損與單獨海損分開計算',hs:'ga',ok:{t:'損失拆得清清楚楚,貨主和船東都無話可說。',fx:{pro:3,rep:4}}},
+ bi:{l:'用敏感度分析呈現三種復原情境',hs:'bi',ok:{t:'三種情境攤在桌上,談判很快收斂。',fx:{pro:3,rep:5,cash:10}}},
+ underins:{l:'說明哪些費用不受比例分擔影響',hs:'law',ok:{t:'部分費用不受比例分擔影響,被保險人多拿回一些。',fx:{rep:4,net:3}}},
+ eng1:{l:'用結構監測數據證明傾斜趨勢',hs:'struct',ok:{t:'監測曲線清楚顯示傾斜從開挖第三週開始。',fx:{pro:3,rep:5}}},
+ r1:{l:'用英國判例逐條回應',hs:'eng',ok:{t:'對方律師點頭的次數越來越多。',fx:{rep:8,net:4}}},
+ pandemic:{l:'用空拍與 3D 建模完成遠端勘查',hs:'digi',ok:{t:'3D 模型讓保險公司在辦公室就能看清現場。',fx:{pro:4,rep:4}}},
+ big3:{l:'設計分階段賠付方案',hs:'nego',ok:{t:'先付無爭議部分,爭議部分交由專家決定,各方都接受。',fx:{rep:7,net:5,cash:50,big:-9}}},
+ semi3:{l:'用 BI 模型預估三種復機時程',hs:'bi',ok:{t:'模型把爭議縮小到兩週的差距。',fx:{pro:4,rep:4}}},
+ k3:{l:'用談判技巧爭取三年長約',hs:'nego',ok:{t:'客戶簽下三年長約。',fx:{sz:.1,res:40,net:2}}},
+ trip:{l:'用英文直接與當地保險公司協調',hs:'eng',ok:{t:'你一個人就搞定了三方協調。',fx:{net:4,rep:3,cash:10}}}
+};
+Object.entries(SKOPT).forEach(([id,o])=>{const e=E.find(x=>x.id===id);if(e){o.show=s=>!!s.skills[o.hs];e.ch.push(o)}});
+/* 舊事件結果加上狀態與人物好感 */
+const STFX={'media:0:ng':'media','media:2:ok':'media','speaker:0:ok':'award','x2:0:ok':'award','r1:0:gr':'award','petro:0:ok':'halo','petro:0:gr':'halo','big3:0:ok':'halo','big3:0:gr':'halo','unsafe:0:ng':'back','crash:1:ng':'back','marathon:0:ng':'back','love:0:ok':'honey','audit:1:ok':'watch','i_audit:1:ng':'watch','burnout:1:ng':'burn','checkup:1:ng':'burn'};
+const NPCFX={'credit:0:ok':{chen:5},'credit:0:ng':{chen:-8},'credit:1:ok':{chen:-12},'credit:2:ok':{chen:2},'pressure:0:ok':{wang:-6},'pressure:1:ok':{wang:3},'pressure:2:ok':{wang:8},'trust:0:ok':{wang:5},'trust:0:gr':{wang:8},'newbie:0:ok':{lin:3},'scapegoat:1:ok':{lin:5},'first:1:ok':{lin:6},'deadline:2:ok':{wang:-3},'b1:1:ok':{wang:3},'b1:1:ng':{wang:-6},'newcontact:0:ok':{wang:3}};
+E.forEach(e=>e.ch.forEach((c,i)=>['ok','ng','gr'].forEach(t=>{const key=e.id+':'+i+':'+t;if(!c[t])return;if(STFX[key])c[t].fx=Object.assign({},c[t].fx,{st:STFX[key]});if(NPCFX[key])c[t].fx=Object.assign({},c[t].fx,NPCFX[key])})));
+
+/* ===================== 第九版:職業對應的事件 ===================== */
+const ADJR=['adj','exp','mgr','own'];
+const EMPR=['adj','exp','mgr','ins','brk','rei'];
+const ROUTE_OK={};
+['deadline','typhoon','quake','angry','unsafe','underins','depr','bi','fraud','trip','pandemic','newcontact','pressure','inflate','cert','court','soft','olderr','petro','trust',
+ 'fire1','fire2','fire3','fire4','fire5','fire6','cargo1','cargo2','cargo3','cargo4','cargo5','cargo6','eng1','eng2','eng3','eng4','eng5','re1','re2','re3','re4','re5','semi1','semi2','semi3','semi4','semi5','motor1','motor2','motor3','motor4','motor5',
+ 'big1','big2','big3','n_lin1','n_lin2','n_chen1','n_wang1','n_wang2','first'].forEach(id=>ROUTE_OK[id]=ADJR);
+ROUTE_OK.reins=ADJR.concat(['ins']);
+ROUTE_OK.lastcase=ADJR.concat(['ins','brk','bro']);
+['credit','scapegoat','merger','freeze','hunter'].forEach(id=>ROUTE_OK[id]=EMPR);
+ROUTE_OK.media=ADJR.concat(['ins','brk','bro','rei','con']);
+ROUTE_OK.ai=ADJR.concat(['ins','brk','bro','rei','con']);
+
+/* 依職業改寫的日常描述 */
+const FPH={
+ ins:['你一年核了上千件賠案。','你的待辦清單上永遠有三十件未結案。','你和十幾家公證公司都打過交道。'],
+ brk:['你一年拜訪了上百個客戶。','你的行事曆排滿了續約會議。','你幫客戶跑完了好幾件理賠。'],
+ rei:['你一年飛了二十趟。','你在不同時區之間開視訊會議。','你讀完了一整疊再保合約。'],
+ edu:['你一學期開了四門課。','你改完了一百多份期末報告。','你在研討會上發表了兩篇論文。'],
+ co:['你一年跑了幾十家客戶。','你幾乎每個週末都在寫提案。','你親自處理公司的每一筆大帳。'],
+ tech:['你連續幾個月睡在辦公室。','你一週開了二十場客戶簡報。','你和工程師一起熬夜修系統。']
+};
+const fGroup=()=>ADJR.includes(S.track)?null:['bro'].includes(S.track)?'brk':['con'].includes(S.track)?'co':S.track;
+const fName=f=>f.id==='field'&&!ADJR.includes(S.track)?'拚工作':f.n;
+
+/* 專長案例:不同職業的視角 */
+const SPC={
+ fire:{c:'電子廠火災',ins:'公證人送來一份電子廠火災的報告,認定損失 2 億,其中 8,000 萬是營業中斷。',brk:'你的客戶,一家電子廠,昨晚發生火災。客戶很慌,不知道第一步該做什麼。',rei:'分出公司通知:一家電子廠火災,估計損失 2 億,超過自留額。',con:'一家電子廠請你評估火災風險,廠房裡堆滿紙箱與化學品。',tech:'一家電子廠火災的理賠申請上傳到你的平台,附了三百張照片。',tip:'火災理賠常見的爭議:起火原因、清理費用、營業中斷期間與存貨價值。'},
+ cargo:{c:'整櫃貨物受損',ins:'公證報告指出,一櫃精密儀器在海運途中受潮,但貨主的包裝只有一層塑膠膜。',brk:'客戶的一櫃精密儀器到港後發現受潮,保險公司還沒表態。',rei:'分出公司通知:一艘貨櫃輪出事,牽涉數十位貨主,累積損失可能很大。',con:'一家出口商請你檢視運輸風險,貨物從台灣到墨西哥要轉運三次。',tech:'平台收到一件貨損理賠,附件是提單、裝箱單與幾張模糊的照片。',tip:'貨物理賠的關鍵文件是提單、發票、裝箱單與檢驗報告,也要釐清事故發生時貨物在誰手上。'},
+ eng:{c:'工程事故',ins:'公證報告認定,一個建案的擋土牆倒塌屬於設計缺陷,但保單有瑕疵除外條款。',brk:'客戶的建案工地擋土牆倒塌,營造廠和業主都打電話給你。',rei:'分出公司通知:一件大型工程險賠案,同時涉及工程本體與第三人責任。',con:'一家營造廠請你檢視深開挖工程的風險管理計畫。',tech:'一件工程險理賠上傳到平台,附件是施工日誌與監測報告。',tip:'工程險常見的爭議:設計或施工瑕疵、天災是否超過設計標準、第三人損害的責任分攤。'},
+ re:{c:'再生能源設備損壞',ins:'公證報告認定,一座太陽能電廠的颱風損失有三成是施工不良造成。',brk:'客戶的離岸風場有一台風機停機,開發商問保險能不能賠停機損失。',rei:'分出公司通知:颱風造成多座太陽能電廠受損,事件可能要依 72 小時條款切分。',con:'一家能源開發商請你評估離岸風場施工期的風險。',tech:'一座太陽能電廠的理賠申請上傳到平台,附件是空拍影像與發電量紀錄。',tip:'再生能源理賠常見的爭議:設計標準、施工瑕疵、保固責任,以及停機期間的發電量損失。'},
+ semi:{c:'半導體廠停機',ins:'公證報告估算一座晶圓廠停機的營業中斷損失為 15 億,復原期 4 個月。',brk:'客戶的晶圓廠因停電停機,財務長問你營業中斷損失要怎麼申請。',rei:'分出公司通知:一座晶圓廠出事,營業中斷損失可能超過 10 億。',con:'一家半導體廠請你評估供電與廠務系統的單點故障風險。',tech:'一件晶圓廠停機的理賠上傳到平台,附件是產能報表與訂單資料。',tip:'半導體理賠的核心是營業中斷:停機前的產能、合理復原期間、良率爬升與在製品報廢。'},
+ motor:{c:'責任險事故',ins:'公證報告認定,一起賣場顧客跌倒事故,賣場要負七成責任。',brk:'客戶的賣場有顧客跌倒受傷,家屬要求鉅額賠償。',rei:'分出公司通知:一起重大交通事故,多張責任險保單同時被觸發。',con:'一家連鎖餐飲業請你評估顧客與員工的意外風險。',tech:'一件車險理賠上傳到平台,附件是行車紀錄器影片。',tip:'責任險的核心是過失與因果關係:有沒有過失、過失比例多少、損害與事故有沒有關聯。'}
+};
+const PVK={
+ pv_ins:['審核公證報告','保險公司理賠人員審核公證報告時,要確認事故經過、承保範圍、損失計算與除外條款是否都有依據。'],
+ pv_brk:['經紀人在出險後的角色','出險後,經紀人要協助客戶減損、通知保險公司、整理索賠文件,並在條款爭議時代表客戶協商。'],
+ pv_rei:['再保人審查大額賠案','再保人通常不直接面對被保險人,而是審查分出公司的賠案與準備金,依合約約定攤賠。'],
+ pv_con:['風險查勘','風險查勘是在事故發生前,找出可能造成重大損失的弱點,並提出改善建議。'],
+ pv_tech:['理賠科技','理賠科技用影像辨識、自動化流程與資料分析加快理賠,但關鍵判斷仍需要專業人員把關。']
+};
+E.push(
+{id:'pv_ins',n:s=>'審核公證報告:'+SPC[s.sp.id].c,route:['ins'],w:12,t:s=>SPC[s.sp.id].ins,ch:[
+ {l:'依報告核定賠款',ok:{t:'賠款很快付出,被保險人很滿意。',fx:{rep:2,net:2}}},
+ {l:'要求公證人補充說明關鍵假設',c:{k:'pro',b:55,s:.8},ok:{t:'補充資料讓核賠更有依據,也省下一筆不該賠的錢。',fx:{pro:3,rep:3}},ng:{t:'補件來回了三個月,被保險人投訴拖延。',fx:{rep:-3,hp:-2}}},
+ {l:'另請一家公證公司複核',ok:{t:'兩份報告的差距不大,但多花了時間與費用。',fx:{pro:1,net:-2}}}
+]},
+{id:'pv_brk',n:s=>'客戶出險:'+SPC[s.sp.id].c,route:['brk','bro'],w:12,t:s=>SPC[s.sp.id].brk,ch:[
+ {l:'先到現場,協助客戶減損並整理索賠清單',c:{k:'net',w:{net:.5,pro:.5},b:55,s:.8},ok:{t:'客戶說:「還好有你在。」',fx:{net:4,rep:3}},ng:{t:'清單整理得不完整,保險公司要求補件好幾次。',fx:{hp:-3,rep:-1}}},
+ {l:'先檢視保單條款,找出可能的爭議點',c:{k:'pro',b:55,s:.8},ok:{t:'你提早發現一個除外條款,幫客戶準備好反駁的證據。',fx:{pro:4,rep:2}},ng:{t:'條款太複雜,你沒找到關鍵。',fx:{hp:-2}}},
+ {l:'交給保險公司處理,等結果',ok:{t:'客戶覺得你沒有發揮作用。',fx:{net:-3}}}
+]},
+{id:'pv_rei',n:s=>'分出公司的大賠案:'+SPC[s.sp.id].c,route:['rei'],w:12,t:s=>SPC[s.sp.id].rei,ch:[
+ {l:'要求完整的公證報告與計算底稿',ok:{t:'資料齊全後,你核准了攤賠。',fx:{pro:2,rep:2}}},
+ {l:'派人參與現場勘查',c:{k:'net',b:50,s:.8},ok:{t:'你及早掌握損失規模,準備金提存得剛剛好。',fx:{pro:3,net:3}},ng:{t:'分出公司覺得你不信任他們。',fx:{net:-3}}},
+ {l:'接受分出公司的評估',ok:{t:'合作關係很好,但後來發現金額估得太低。',fx:{net:2,rep:-2}}}
+]},
+{id:'pv_con',n:s=>'風險評估:'+SPC[s.sp.id].c,route:['con'],w:12,t:s=>SPC[s.sp.id].con,ch:[
+ {l:'到現場做完整的風險查勘',c:{k:'pro',b:55,s:.8},ok:{t:'你找出三個關鍵風險點,客戶馬上改善。',fx:{pro:3,rep:3,res:20}},ng:{t:'報告太長,客戶看不懂重點。',fx:{rep:-2}}},
+ {l:'用問卷與文件快速評估',ok:{t:'成本低,但漏掉了一些現場才看得到的問題。',fx:{res:15,pro:-1}}},
+ {l:'建議客戶直接加保',ok:{t:'客戶照做了,但風險本身沒有改善。',fx:{res:10,rep:-1}}}
+]},
+{id:'pv_tech',n:s=>'平台上的案件:'+SPC[s.sp.id].c,route:['tech'],w:12,t:s=>SPC[s.sp.id].tech,ch:[
+ {l:'讓 AI 自動核定',c:{k:'pro',b:50,s:.8},ok:{t:'三分鐘完成核定,客戶很驚豔。',fx:{Vm:1.1,rep:2}},ng:{t:'AI 判錯了關鍵項目,客戶要求重審。',fx:{rep:-3}}},
+ {l:'轉給合作的公證人人工審核',ok:{t:'穩妥,但速度沒有優勢。',fx:{net:2,res:-10}}},
+ {l:'AI 初審加人工複核',ok:{t:'速度與品質兼顧,成了你們的賣點。',fx:{pro:2,Vm:1.05}}}
+]},
+/* ---- 保險公司 ---- */
+{id:'i5',n:'拒賠的電話',route:['ins'],w:9,t:'被保險人的工廠地震受損,但他沒有加保地震險。你得打電話告訴他:這次不在承保範圍。',ch:[
+ {l:'清楚說明條款,並告知申訴管道',c:{k:'rep',b:55,s:.7},ok:{t:'他很失望,但謝謝你講清楚。',fx:{rep:3,pro:1}},ng:{t:'他在電話裡大罵,還說要找民意代表。',fx:{hp:-2,rep:-1}}},
+ {l:'建議主管考慮通融給付',ok:{t:'主管拒絕了,還提醒你通融會造成不公平。',fx:{net:-2,pro:1}}},
+ {l:'請業務員去說',ok:{t:'業務員很不高興,覺得你在推責任。',fx:{net:-3}}}
+]},
+{id:'i6',n:'代位求償',route:['ins'],w:9,t:'你剛賠完一件火災,調查發現起火原因是隔壁工廠施工不慎。',ch:[
+ {l:'委任律師向隔壁工廠求償',c:{k:'pro',w:{pro:.6,rep:.4},b:50,s:.9},ok:{t:'對方的責任險賠回了七成。',fx:{rep:4,pro:2}},ng:{t:'證據不足,官司輸了。',fx:{rep:-2,hp:-2}}},
+ {l:'與對方的保險公司協商',c:{k:'net',b:55,s:.8},ok:{t:'兩家保險公司很快談出比例。',fx:{net:3,rep:2}},ng:{t:'對方保險公司一直拖。',fx:{hp:-2}}},
+ {l:'金額不大,放棄求償',ok:{t:'省了時間,但主管覺得你太保守。',fx:{rep:-2,hp:1}}}
+]},
+{id:'i7',n:'評議中心的來函',route:['ins'],w:8,t:'金融消費評議中心來函:一位客戶申訴你拖延理賠超過半年。',ch:[
+ {l:'整理完整時間軸,逐項說明',c:{k:'pro',b:55,s:.8},ok:{t:'評議結果認定延誤有正當理由。',fx:{rep:3,pro:2}},ng:{t:'有兩段時間你確實沒有處理,被要求改善。',fx:{rep:-3}}},
+ {l:'直接和解,盡快結案',ok:{t:'客戶接受了,公司多付了一點錢。',fx:{net:2,rep:-1}}},
+ {l:'檢討整個部門的結案流程',ok:{t:'你設計的追蹤機制讓延誤案件大幅減少。',fx:{pro:3,hp:-2,rep:2}}}
+]},
+{id:'i8',n:'超過自留額',route:['ins'],w:8,t:'一件大案的金額預估會超過公司的自留額,依再保合約要通知再保人。',ch:[
+ {l:'立刻通知,並附上目前所有資料',ok:{t:'再保人很配合,攤賠一路順暢。',fx:{rep:3,net:2}}},
+ {l:'等金額確定再通知',a:.4,c:{k:'rep',b:45,s:.6},ok:{t:'再保人沒說什麼。',fx:{hp:1}},ng:{t:'再保人以違反通知條款為由,拒絕攤賠一部分。',fx:{rep:-6,net:-3}}},
+ {l:'請再保經紀人協助溝通',ok:{t:'經紀人幫你把資料整理成再保人習慣的格式。',fx:{net:3}}}
+]},
+{id:'i9',n:'連續三年出險',route:['ins'],w:8,t:'一位車險客戶連續三年出險,每次都是夜間單車事故,金額都剛好在小額快賠的上限。',ch:[
+ {l:'轉給調查單位',c:{k:'pro',b:55,s:.8},ok:{t:'調查發現是集團性詐保,牽連十幾張保單。',fx:{rep:5,pro:3}},ng:{t:'查不出問題,客戶抱怨被當成嫌犯。',fx:{rep:-2,net:-2}}},
+ {l:'直接拒賠',ok:{t:'客戶申訴成功,你被要求重新處理。',fx:{rep:-4}}},
+ {l:'照常賠付',ok:{t:'省事,但下個月他又出險了。',fx:{pro:-1,rep:-1}}}
+]},
+{id:'i10',n:'線上快賠',route:['ins'],w:7,t:'公司要導入線上理賠,小額案件由系統自動審核、當天付款。',ch:[
+ {l:'主導專案,設計審核規則',c:{k:'pro',b:50,s:.9},ok:{t:'上線後小額案件平均三天結案,客訴大減。',fx:{pro:4,rep:4,raise:.05}},ng:{t:'規則太寬,詐保案件變多。',fx:{rep:-3,hp:-3}}},
+ {l:'參與,但只負責測試',ok:{t:'你學到不少數位工具。',fx:{pro:2}}},
+ {l:'反對,擔心審核品質',ok:{t:'專案照樣推動,你被認為跟不上時代。',fx:{net:-2,rep:-1}}}
+]},
+/* ---- 經紀 ---- */
+{id:'b4',n:'保單健檢',route:['brk','bro'],w:9,t:'新客戶是一家電子廠。你發現他的火險保額只有實際價值的六成。',ch:[
+ {l:'建議提高保額,並解釋比例分擔',c:{k:'pro',w:{pro:.6,rep:.4},b:55,s:.8},ok:{t:'客戶聽懂了,當場決定調整。',fx:{rep:3,net:2}},ng:{t:'客戶嫌保費太貴,沒有調整。',fx:{net:-1}}},
+ {l:'建議改用重置成本作為保險金額基礎',c:{k:'pro',b:50,s:.9},ok:{t:'客戶的保障完整了,你也贏得信任。',fx:{pro:3,rep:3}},ng:{t:'條款談不下來。',fx:{hp:-2}}},
+ {l:'先不提,怕保費變高',a:.2,ok:{t:'兩年後客戶失火,只拿到六成賠款,把你換掉了。',fx:{rep:-6,net:-4}}}
+]},
+{id:'b5',n:'保費上漲 40%',route:['brk','bro'],w:9,t:'市場轉硬,保險公司要求客戶續保保費上漲 40%。',ch:[
+ {l:'提供防損改善資料,爭取降幅',c:{k:'pro',b:50,s:.9},ok:{t:'漲幅壓到 15%。',fx:{rep:4,net:2}},ng:{t:'保險公司不買帳。',fx:{net:-2}}},
+ {l:'建議客戶提高自負額',ok:{t:'保費漲幅變小,客戶自己承擔更多小損失。',fx:{pro:2,net:1}}},
+ {l:'到市場上找其他保險公司',c:{k:'net',b:50,s:.9},ok:{t:'另一家保險公司給了更好的條件。',fx:{net:4,rep:2}},ng:{t:'市場上沒人給更好的價格。',fx:{hp:-2}}}
+]},
+{id:'b6',n:'包裝不良拒賠',route:['brk','bro'],w:9,t:'客戶的貨物在海運途中受損,保險公司以「包裝不良」為由拒賠。',ch:[
+ {l:'找獨立公證人證明是運送中損壞',c:{k:'net',w:{net:.5,pro:.5},b:50,s:.9},ok:{t:'報告證明外箱有撞擊痕跡,保險公司改為賠付。',fx:{rep:5,net:2}},ng:{t:'公證報告也認為包裝不足。',fx:{rep:-1,hp:-2}}},
+ {l:'協商部分賠付',c:{k:'net',b:55,s:.8},ok:{t:'雙方各退一步,客戶拿回六成。',fx:{net:3}},ng:{t:'保險公司一毛都不願意給。',fx:{net:-2}}},
+ {l:'建議客戶申請評議或訴訟',ok:{t:'客戶覺得你把麻煩丟給他。',fx:{net:-3,pro:1}}}
+]},
+{id:'b7',n:'要不要買營業中斷險',route:['brk','bro'],w:8,t:'一家半導體客戶問你:到底要不要買營業中斷險?',ch:[
+ {l:'用歷史停工資料試算可能損失',c:{k:'pro',b:50,s:.9},ok:{t:'試算結果讓財務長立刻決定投保。',fx:{pro:4,rep:3}},ng:{t:'資料不完整,試算說服力不足。',fx:{hp:-2}}},
+ {l:'推薦基本保障就好',ok:{t:'客戶買了,但賠償期間可能不夠長。',fx:{net:2}}},
+ {l:'推薦最高保額,佣金最多',a:.2,ok:{t:'客戶後來發現保額遠超過需要,對你起了疑心。',fx:{rep:-4,net:-2}}}
+]},
+{id:'b8',n:'美國的產品責任',route:['brk','bro'],w:8,t:'客戶要出口到美國,買方要求產品責任險保額 500 萬美元。',ch:[
+ {l:'安排全球產品責任險,涵蓋美國訴訟',c:{k:'net',w:{net:.5,pro:.5},b:50,s:.9},ok:{t:'保單一週內出單,客戶順利簽約。',fx:{net:3,rep:3}},ng:{t:'保險公司對美國風險很保守,報價很高。',fx:{hp:-2}}},
+ {l:'建議客戶在美國當地投保',ok:{t:'可行,但管理兩張保單很麻煩。',fx:{pro:1}}},
+ {l:'請客戶自己處理',ok:{t:'客戶換了一家經紀公司。',fx:{net:-4}}}
+]},
+{id:'b9',n:'保險公司的獎勵',route:['brk','bro'],w:7,t:'一家保險公司提出高額獎勵,希望你把客戶都轉到他們那裡。',ch:[
+ {l:'拒絕,以客戶最佳利益為準',ok:{t:'你錯過一筆獎金,但客戶更信任你。',fx:{rep:4,net:-1}}},
+ {l:'接受,但向客戶揭露',ok:{t:'有客戶覺得不舒服,但你問心無愧。',fx:{cash:20,rep:1}}},
+ {l:'接受,不說',a:.15,ok:{t:'後來客戶發現了。',fx:{cash:30,rep:-8,net:-3}}}
+]},
+/* ---- 再保 ---- */
+{id:'r4',n:'比例還是超額',route:['rei'],w:9,t:'一家產險公司希望明年財報更穩定,請你建議再保安排。',ch:[
+ {l:'建議比例再保',ok:{t:'保費與賠款都按比例分擔,財報波動變小。',fx:{pro:2,net:2}}},
+ {l:'建議超額賠款再保',ok:{t:'小賠案自己吸收,大賠案由你承擔,保費更便宜。',fx:{pro:2,rep:1}}},
+ {l:'設計兩者的組合',c:{k:'pro',b:50,s:1},ok:{t:'客製化方案讓客戶非常滿意。',fx:{pro:4,rep:4}},ng:{t:'方案太複雜,客戶看不懂。',fx:{hp:-2}}}
+]},
+{id:'r5',n:'風險太集中',route:['rei'],w:9,t:'你發現公司在中部某個工業區承保的風險過度集中,一場地震可能同時觸發幾十張保單。',ch:[
+ {l:'建議降低該區的承保額度',c:{k:'rep',b:50,s:.8},ok:{t:'總部採納了你的建議。',fx:{rep:4,pro:2}},ng:{t:'業務部門強烈反對。',fx:{net:-3}}},
+ {l:'安排轉再保,把風險分出去',c:{k:'net',b:50,s:.9},ok:{t:'轉再保順利安排,風險分散了。',fx:{net:3,pro:2}},ng:{t:'市場上的價格太貴。',fx:{hp:-2}}},
+ {l:'先觀察一年',ok:{t:'隔年果然發生地震,損失超出預期。',fx:{rep:-4}}}
+]},
+{id:'r7',n:'1 月 1 日續約',route:['rei'],w:9,t:'年底續約季,分出公司要求費率不變,但你的模型顯示應該漲 10%。',ch:[
+ {l:'依模型堅持漲價',c:{k:'rep',b:50,s:.8},ok:{t:'客戶接受了,合約利潤改善。',fx:{rep:3,pro:2}},ng:{t:'客戶轉向別的再保人。',fx:{net:-3}}},
+ {l:'給長期合作折扣',ok:{t:'關係穩住了,利潤薄了一些。',fx:{net:3,rep:-1}}},
+ {l:'減少承接的份額',ok:{t:'風險降低,業績也降低。',fx:{pro:1,net:-1}}}
+]},
+{id:'r8',n:'十年前的賠案',route:['rei'],w:8,t:'一件十年前的責任險賠案突然爆增,當初提存的準備金遠遠不夠。',ch:[
+ {l:'重新評估已發生未報賠款',c:{k:'pro',b:50,s:.9},ok:{t:'你的評估讓公司及早補足準備金。',fx:{pro:4,rep:3}},ng:{t:'評估方法被精算部質疑。',fx:{hp:-3}}},
+ {l:'與分出公司協商分攤方式',c:{k:'net',b:50,s:.8},ok:{t:'雙方達成共識。',fx:{net:3}},ng:{t:'協商破裂,進入仲裁。',fx:{hp:-3,rep:-1}}},
+ {l:'先提列一筆額外準備金',ok:{t:'財報難看了一季,但風險受控。',fx:{rep:2}}}
+]},
+{id:'r9',n:'領頭再保人',route:['rei'],w:7,t:'你被選為一張合約的領頭再保人,其他再保人會跟隨你談定的條件。',ch:[
+ {l:'主導條款談判',c:{k:'pro',w:{pro:.5,net:.5},b:50,s:.9},ok:{t:'你談定的條款成了市場參考。',fx:{rep:6,net:4}},ng:{t:'條款太嚴,跟隨者不願意加入。',fx:{net:-3}}},
+ {l:'沿用市場一般條件',ok:{t:'穩妥,但沒有亮點。',fx:{net:2}}},
+ {l:'婉拒領頭',ok:{t:'你錯過一次建立名聲的機會。',fx:{rep:-1,hp:1}}}
+]},
+{id:'r10',n:'氣候變遷模型',route:['rei'],w:7,t:'總部要你把氣候變遷納入颱風巨災模型。',ch:[
+ {l:'投入研究,建立在地參數',c:{k:'pro',b:45,s:1},ok:{t:'你的模型被亞洲區採用。',fx:{pro:5,rep:4,hp:-3}},ng:{t:'資料不足,模型結果不穩定。',fx:{hp:-3}}},
+ {l:'套用總部的預設參數',ok:{t:'快速完成,但台灣的特性沒有反映出來。',fx:{pro:1}}},
+ {l:'質疑模型的假設',ok:{t:'你的質疑引起討論,但也被認為不配合。',fx:{pro:2,net:-2}}}
+]},
+/* ---- 學界 ---- */
+{id:'e4',n:'研究計畫',route:['edu'],w:8,t:'你想申請研究計畫,題目是「台灣巨災保險的定價」。',ch:[
+ {l:'自己寫計畫申請',c:{k:'pro',b:50,s:.9},ok:{t:'計畫通過,你帶著學生做了兩年研究。',fx:{pro:4,rep:3}},ng:{t:'計畫沒有通過。',fx:{hp:-2}}},
+ {l:'與業界合作申請',c:{k:'net',b:50,s:.9},ok:{t:'業界提供資料,研究成果很紮實。',fx:{net:4,pro:2}},ng:{t:'業界資料拿不到。',fx:{net:-1}}},
+ {l:'今年先不申請',ok:{t:'你把時間留給教學。',fx:{fam:2}}}
+]},
+{id:'e5',n:'學生的實習',route:['edu'],w:8,t:'學生想去公證公司實習,問你能不能幫忙介紹。',ch:[
+ {l:'寫推薦信,並追蹤實習狀況',ok:{t:'學生實習結束後拿到正式工作。',fx:{net:3,rep:2}}},
+ {l:'讓學生自己去找',ok:{t:'學生投了十幾封履歷都沒回音。',fx:{rep:-1}}},
+ {l:'乾脆開一門實務課',c:{k:'net',b:50,s:.8},ok:{t:'你邀請業界講師上課,課程大受歡迎。',fx:{net:4,rep:3,hp:-2}},ng:{t:'業界講師常臨時請假。',fx:{hp:-2}}}
+]},
+{id:'e6',n:'證照考試出題',route:['edu'],w:6,t:'你被邀請參與保險專業證照的出題。',ch:[
+ {l:'接受',ok:{t:'你出的題目以實務案例為主,考生說很有感。',fx:{rep:4,pro:2}}},
+ {l:'婉拒',ok:{t:'你避開了可能的利益衝突,因為你也在教補習課程。',fx:{rep:1}}}
+]},
+{id:'e7',n:'論文被說太理想化',route:['edu'],w:7,t:'你的論文在研討會上被業界人士批評:「這在現場根本行不通。」',ch:[
+ {l:'回到業界做訪談,修正模型',c:{k:'net',b:50,s:.8},ok:{t:'修正後的論文被業界引用。',fx:{net:3,pro:3}},ng:{t:'訪談對象不多,進度很慢。',fx:{hp:-2}}},
+ {l:'寫文章回應',ok:{t:'一來一往的討論讓更多人關注這個題目。',fx:{rep:2,net:-1}}},
+ {l:'不理會',ok:{t:'你繼續做你的研究。',fx:{pro:1}}}
+]},
+{id:'e8',n:'課堂上的問題',route:['edu'],w:8,t:'學生問:「公證人是不是都在幫保險公司說話?」',ch:[
+ {l:'用真實案例說明公證人的中立',ok:{t:'學生聽完,有幾個決定報考公證人。',fx:{rep:3,pro:1}}},
+ {l:'邀請公證人來課堂分享',c:{k:'net',b:50,s:.8},ok:{t:'業界前輩的分享讓學生印象深刻。',fx:{net:3,rep:2}},ng:{t:'邀請的人臨時取消。',fx:{rep:-1}}},
+ {l:'說「這題考試不會考」',ok:{t:'學生覺得你在逃避。',fx:{rep:-2}}}
+]},
+{id:'e9',n:'理賠人員內訓',route:['edu'],w:7,t:'一家保險公司請你為理賠人員開一系列內部訓練課。',ch:[
+ {l:'用真實案例設計課程',c:{k:'pro',b:50,s:.8},ok:{t:'課程評價很高,隔年又續約。',fx:{cash:30,rep:3,net:3}},ng:{t:'學員覺得太理論。',fx:{rep:-2}}},
+ {l:'沿用學校的教材',ok:{t:'課程中規中矩。',fx:{cash:15}}},
+ {l:'婉拒,專心學術',ok:{t:'你把時間留給研究。',fx:{pro:1}}}
+]},
+/* ---- 顧問 ---- */
+{id:'q5',n:'營運持續計畫',route:['con'],w:8,t:'一家電子廠要建立營運持續計畫,老闆說:「我們不能停工超過一週。」',ch:[
+ {l:'先做營運衝擊分析',c:{k:'pro',b:50,s:.9},ok:{t:'分析找出三條最關鍵的產線,計畫有了重點。',fx:{pro:4,res:40}},ng:{t:'客戶各部門不配合,資料收不齊。',fx:{hp:-3}}},
+ {l:'套用標準範本',ok:{t:'很快完成,但沒有反映客戶的實際情況。',fx:{res:20,rep:-1}}},
+ {l:'婉拒,案子太大',ok:{t:'你守住了團隊的負荷。',fx:{hp:1}}}
+]},
+{id:'q6',n:'唯一的供應商',route:['con'],w:8,t:'客戶的關鍵零件只有一家供應商,而且工廠在颱風區。',ch:[
+ {l:'建議開發第二供應商',ok:{t:'成本變高,但供應鏈穩了。',fx:{rep:3,res:20}}},
+ {l:'建議投保或有營業中斷險',c:{k:'pro',b:50,s:.8},ok:{t:'客戶與經紀人合作,買到合適的保障。',fx:{pro:3,net:2,res:20}},ng:{t:'保險公司不願承保這個供應商。',fx:{hp:-2}}},
+ {l:'建議建立安全庫存',ok:{t:'庫存成本增加,但多了緩衝。',fx:{res:15}}}
+]},
+{id:'q7',n:'順便幫我買保險',route:['con'],w:7,t:'客戶希望你順便幫他買保險,說找你比較方便。',ch:[
+ {l:'轉介給合作的經紀人',ok:{t:'客戶得到專業服務,你也拿到轉介合作的信任。',fx:{net:3,gov:3}}},
+ {l:'自己幫他跟保險公司談',a:.15,ok:{t:'你沒有經紀人執照,這已經觸法。',fx:{gov:-15,rep:-4,st:'watch'}}},
+ {l:'婉拒',ok:{t:'客戶有點失望。',fx:{net:-1}}}
+]},
+{id:'q9',n:'氣候風險揭露',route:['con'],w:7,t:'一家上市公司要依國際架構揭露氣候相關財務風險,請你協助。',ch:[
+ {l:'接下,建立情境分析',c:{k:'pro',b:45,s:1},ok:{t:'報告被投資人稱讚,客戶追加了明年的合約。',fx:{pro:4,rep:4,res:50}},ng:{t:'情境假設被會計師質疑。',fx:{hp:-3,rep:-1}}},
+ {l:'與會計師事務所合作',ok:{t:'分工清楚,利潤少一點。',fx:{net:3,res:25}}},
+ {l:'婉拒',ok:{t:'你覺得團隊還沒準備好。',fx:{hp:1}}}
+]},
+/* ---- 科技新創 ---- */
+{id:'t6',n:'個資外洩',route:['tech'],w:8,t:'平台遭駭客攻擊,數千筆理賠資料外洩。',ch:[
+ {l:'立即通報主管機關與客戶',ok:{t:'坦白讓你保住了大部分客戶。',fx:{gov:8,rep:-2,res:-60}}},
+ {l:'先內部調查再說',a:.2,ok:{t:'事情被媒體揭露,你被批評隱匿。',fx:{gov:-12,rep:-8,st:'media'}}},
+ {l:'請資安公司處理,並啟動資安保險',c:{k:'net',b:50,s:.8},ok:{t:'資安保險支付了大部分處理費用。',fx:{gov:5,res:-20}},ng:{t:'保單有除外條款,只賠了一小部分。',fx:{res:-80}}}
+]},
+{id:'t7',n:'保險公司的門檻',route:['tech'],w:8,t:'一家大型保險公司有興趣導入你的平台,但要求先通過資安稽核與模型驗證。',ch:[
+ {l:'投資做完整驗證',ok:{t:'花了半年,但從此打開大型客戶的大門。',fx:{res:-80,Vm:1.25,gov:5}}},
+ {l:'先做小規模試點',c:{k:'pro',b:50,s:.9},ok:{t:'試點成功,對方決定全面導入。',fx:{Vm:1.15,res:40}},ng:{t:'試點結果不夠漂亮。',fx:{Vm:.95}}},
+ {l:'請經紀公司引薦其他客戶',ok:{t:'找到幾個中型客戶。',fx:{net:3,res:20}}}
+]},
+{id:'t8',n:'自動核定的灰色地帶',route:['tech'],w:7,t:'你們開發了「自動核定賠款」功能,但可能涉及法規灰色地帶。',ch:[
+ {l:'申請金融監理沙盒',c:{k:'rep',b:50,s:.8},ok:{t:'在沙盒中測試成功,取得合規依據。',fx:{gov:8,Vm:1.2}},ng:{t:'申請沒過,要修改設計。',fx:{hp:-2}}},
+ {l:'直接上線',a:.2,ok:{t:'用戶很多,但主管機關找上門。',fx:{gov:-15,Vm:1.1,st:'watch'}}},
+ {l:'改成輔助功能,由人工最後確認',ok:{t:'少了賣點,但合法穩當。',fx:{gov:4}}}
+]}
+);
+
+/* 小插曲:不需要選擇,自動發生 */
+const MINOR=[
+ {t:'你收到一張被保險人手寫的感謝卡。',fx:{rep:1},w:6},
+ {t:'腰痛又犯了,拖了兩週才去看醫生。',fx:{hp:-2},w:6},
+ {t:'公司派你參加損失計算研習。',fx:{pro:1},w:6},
+ {t:'連假在國道上被叫回去處理案件。',fx:{fam:-1,hp:-1},w:5,when:s=>ADJR.includes(s.track)},
+ {t:'年終獎金比預期多。',fx:{cash:8},w:5},
+ {t:'年終縮水,但至少沒被裁員。',fx:{cash:-3},w:4},
+ {t:'你的手機在案場掉進積水裡。',fx:{cash:-2},w:4,when:s=>ADJR.includes(s.track)},
+ {t:'你學會用無人機做空拍勘查。',fx:{pro:2},w:3,when:s=>ADJR.includes(s.track)},
+ {t:'老同學找你喝酒,聊到半夜。',fx:{net:1,hp:-1},w:5},
+ {t:'颱風夜被叫出門,凌晨四點才回家。',fx:{hp:-2,fam:-1},w:5,when:s=>ADJR.includes(s.track)},
+ {t:'你在公會的案例分享被同業轉傳。',fx:{rep:1,net:1},w:4},
+ {t:'你在案場被狗咬了一口。',fx:{hp:-2},w:2,when:s=>ADJR.includes(s.track)},
+ {t:'你終於把健身房會員用回本了。',fx:{hp:2},w:3},
+ {t:'報告被退回三次。',fx:{hp:-1,pro:1},w:5,when:s=>ADJR.includes(s.track)},
+ {t:'客戶升官了,還記得你。',fx:{net:2},w:4},
+ {t:'你在高鐵上寫完一整份報告。',fx:{pro:1,hp:-1},w:4},
+ {t:'一場流感讓你在家躺了一週。',fx:{hp:-2},w:4},
+ {t:'你換了一台車。',fx:{cash:-8},w:3},
+ {t:'你開始用 Excel 寫自己的損失計算模板。',fx:{pro:1},w:4},
+ {t:'你的英文報告被再保人稱讚。',fx:{rep:1,pro:1},w:4,when:s=>s.rank>=2},
+ {t:'孩子畫了一張你戴安全帽的圖。',fx:{fam:2},w:6,when:s=>ADJR.includes(s.track)&&s.kids>0},
+ {t:'你錯過了孩子的運動會。',fx:{fam:-2},w:5,when:s=>s.kids>0},
+ {t:'另一半說,你最近笑得比較多。',fx:{fam:2,hp:1},w:4,when:s=>s.f.married},
+ {t:'家人生日,你在案場。',fx:{fam:-2},w:4,when:s=>s.f.married},
+ {t:'你帶出來的後輩升官了,第一個打給你。',fx:{net:2,rep:1},w:4,when:s=>s.rank>=3},
+ {t:'在倫敦轉機時,你在機場睡了一晚。',fx:{hp:-2,net:1},w:6,when:s=>s.track==='rei'},
+ {t:'學生在期末評鑑寫:「老師的案例最好聽。」',fx:{rep:1,fam:1},w:6,when:s=>s.track==='edu'},
+ {t:'你親手把公證行的招牌擦得發亮。',fx:{rep:1},w:4,when:s=>s.track==='own'},
+ {t:'你在客戶的年終尾牙被拉上台唱歌。',fx:{net:2},w:5,when:s=>s.track==='brk'},
+ {t:'你還清了最後一期學貸。',fx:{fam:2,hp:2},w:60,when:s=>s.fbg==='loan'&&s.age===28},
+ {t:'這個月的房租收入入帳了。',fx:{cash:2},w:4,when:s=>s.f.rent},
+ {t:'公會頒給你一枚年資獎章。',fx:{rep:1},w:8,when:s=>s.age>23&&(s.age-23)%10===0}
+];
+
+/* 知識卡:每則事件一張 */
+const KNOW={
+br1:['公證人、保險公司、經紀人','保險公證人受委託獨立查勘、鑑定損失並出具報告;保險公司負責核賠與給付;保險經紀人代表要保人規劃保險並協助理賠。三者站的位置不同,看同一件理賠的角度也不同。'],
+br2:['再保險','保險公司把承擔的部分風險再轉給再保險公司,以穩定財務、提高承保能量。大型災損最後往往由國際再保人分擔,所以再保人常會參與或查核重大理賠。'],
+br3:['公證報告的獨立性','公證報告的價值來自獨立與專業。無論職涯走到哪個階段,報告都應依證據與保單條款認定,不受委託方或被保險人的壓力左右。'],
+first:['第一時間的現場保全','事故發生後,應盡快拍照、標記、保存起火點與受損物,並記錄時間與在場人員。現場一旦清理或被雨水破壞,原因鑑定就很難回溯。'],
+english:['倫敦市場','倫敦(Lloyd’s 與倫敦公司市場)是全球大型商業風險與再保險的核心市場。許多海上、能源、巨災保單以英文條款為準,條款解釋常參考英國法。'],
+emba:['風險管理與企業決策','企業主越了解風險管理,越會把保險當成財務工具,而不只是成本。保險規劃通常要搭配損失預防、自留額與營運持續計畫一起看。'],
+deadline:['初步報告','初步報告通常在勘查後短期內提出,說明事故經過、初估損失、保單適用與待補文件。資料不完整時,應明確註記假設與限制,之後再以正式報告更新。'],
+bribe:['公證人的誠信','公證人收受利益而影響報告內容,可能涉及刑事責任並失去執業資格。遇到不當利益,應拒絕並留下紀錄,向公司報備。'],
+audit:['理賠稽核','保險公司與再保人會對大額或異常理賠做事後稽核,調閱報告、照片與計算底稿。底稿完整、推算有依據,是公證人最好的保護。'],
+trust:['信譽是公證人的資產','保險公司與經紀人指派公證人時,最看重過往報告的品質與誠信紀錄。一次正直的選擇,常在多年後換來大案的指名。'],
+typhoon:['巨災事件的理賠作業','颱風、地震等巨災會在短時間內產生大量案件。保險公司常啟動簡易理賠流程並分級處理:小額案件快速結案,大額案件安排資深公證人。'],
+quake:['地震險','住宅地震基本保險承保建築物全損與推定全損;商業火險附加的地震險,常有較高的自負額或比例分擔。理賠前先確認適用條款與自負額。'],
+angry:['理賠溝通','被保險人在事故後常處於焦慮狀態。清楚說明流程、所需文件與時程,比爭論金額更能降低衝突。'],
+unsafe:['勘查人員的安全','火災或倒塌現場可能有結構坍塌、有毒氣體與帶電設備。進入前應確認結構安全、配戴防護裝備,必要時等技師評估。沒有任何證據值得用生命交換。'],
+underins:['不足額保險與比例分擔','保險金額低於實際價值時,通常按「保險金額 ÷ 實際價值」的比例賠付。例:價值 5 億、保額 3 億,損失 1 億只賠 6,000 萬。定期依重置成本檢視保額可以避免。'],
+depr:['實際現金價值與重置成本','實際現金價值(ACV)= 重置成本 − 折舊;重置成本(RCV)則按新品價格賠付,不扣折舊。保單採用哪一種基礎,直接決定老舊設備能賠多少。'],
+bi:['營業中斷損失','營業中斷保險賠的是事故造成停工期間的毛利損失與持續費用,以合理復原期間為限。估算重點是停工前的營運基礎、復原時程,以及能否用替代產能減損。'],
+fraud:['保險詐欺的警訊','同一聯絡人重複出現、事故前剛加保、單據格式一致、損失清單異常精確,都是常見的警訊。發現疑點應交由保險公司調查單位處理,並保全證據。'],
+threat:['高爭議案件的自我保護','處理詐欺或高爭議案件時,避免單獨行動、不在私人場合談案。遇到威脅立即報警並通知公司,保留所有紀錄。'],
+media:['災害現場的對外發言','重大災害時,理賠立場通常由保險公司統一對外說明。公證人宜只說明流程與時程,不評論賠不賠、賠多少。'],
+trip:['海外勘查與當地協作','跨國保單在海外出事時,常由當地公證人先行勘查、保全現場,再由主辦公證人統籌報告。事先建立海外合作網絡,能大幅縮短反應時間。'],
+pandemic:['遠端勘查','無法進入現場時,可用視訊、空拍與被保險人拍攝的照片遠端勘查,但要確認拍攝時間與地點,必要時事後補做實地查核。'],
+newcontact:['報告的可驗證性','好的公證報告讓任何人都能從證據推回結論:照片有編號、數字有來源、推算有公式。審核者越挑剔,越需要這種結構。'],
+pressure:['報告的中立','公證人雖受保險公司委託,報告仍應依證據與條款認定。刻意壓低或灌水,都可能讓公證人在訴訟中負擔責任。'],
+lawsuit:['公證報告在訴訟中的角色','理賠爭議進入訴訟時,公證報告常是重要證據,公證人也可能被傳喚作證。報告裡的每個假設,都可能在交互詰問中被逐一檢視。'],
+inflate:['損失清單的查核','庫存損失應以帳冊、進銷存紀錄、盤點表與發票交叉核對。誇大損失可能構成保險詐欺,協助的人也有法律責任。'],
+credit:['底稿與紀錄','理賠分析的計算底稿、版本紀錄與往來郵件,是釐清責任與功勞的依據,也是日後稽核時的保護。'],
+scapegoat:['理賠決策的書面紀錄','重要決策要留下書面紀錄:誰決定、依據什麼、何時通知。出問題時,紀錄是唯一能還原事實的東西。'],
+merger:['產業整合','國際保險經紀與公證公司持續整併。併購後通常會整合系統與流程,專業能力越清楚可見的人,越容易在新組織中找到位置。'],
+freeze:['承保循環','保費與案量會隨承保循環起伏:軟市場保費下降、競爭激烈;硬市場保費上升、承保條件變嚴。從業人員的收入也會跟著波動。'],
+hunter:['理賠人才市場','具備大型商業險、工程險、海上險或再保經驗的理賠人才,在保險公司、經紀公司與公證公司之間都相當搶手。'],
+cert:['專業證照','國際上常見的理賠相關資格,包括英國特許保險學會(CII)與特許理算師學會(CILA)。證照不等於能力,但能讓國際客戶更快信任你。'],
+court:['專家證人','在訴訟中提供專業意見時,要清楚說明方法、依據與限制。法官要的是可理解、可驗證的推論,而不只是結論。'],
+soft:['軟市場','承保能量充足時,保費下降、條件放寬,理賠與公證服務也跟著被壓價。低價常伴隨品質下降,這是長期客戶最在意的風險。'],
+ai:['AI 在理賠的應用','AI 可以協助摘要條款、分類照片、比對單據、草擬報告,但條款解釋與損失認定仍需專業判斷。引用前一定要核對原始條款。'],
+newbie:['經驗傳承','理賠的判斷力大多來自案例。讓新人跟著看現場、讀舊報告、參與計算,是培養公證人最有效的方式。'],
+reins:['再保人的理賠參與','大額理賠常需取得再保人同意(理賠合作或理賠控制條款)。再保人會檢視報告的方法與計算,要求補充資料是常態。'],
+speaker:['案例分享','公會與研討會的案例分享,能讓同業對理賠標準形成共識,也是建立專業名聲的重要管道。'],
+olderr:['報告更正','發現已交付的報告有誤時,應主動通知委託方並出具更正說明。主動更正的成本,遠低於被稽核發現的代價。'],
+startup:['設立公證公司','設立公證人公司須符合主管機關對資格、資本與專業人員的要求,並依規定繳存保證金或投保責任保險。創業前要先算清楚案源、人力與現金流。'],
+broker:['保險經紀人','保險經紀人基於被保險人的利益洽訂保險,並在理賠時協助整理索賠文件、與保險公司協商。好的經紀人會在事故發生前,就把理賠需要的條件設計進保單。'],
+expat:['區域理賠中心','跨國保險集團常在新加坡、香港等地設立區域中心,集中處理亞洲大型案件,讓專業人才與再保資源可以跨國調度。'],
+petro:['聯合公證','超大型損失常由多家公證公司聯合處理,依專業分工(結構、設備、營業中斷),並設主公證人統籌報告與對外溝通。'],
+lastcase:['長尾理賠','部分責任險或工程險案件,事故與求償可能相隔多年。完整保存舊案資料,是處理長尾理賠的關鍵。'],
+earlyout:['退休與年金','提早退休要評估的不只是存款,還有醫療、長照與通膨。年金與醫療保險可以補足退休後的現金流與醫療風險。'],
+b1:['經紀人的立場','經紀人代表客戶,也要與保險公司維持長期關係。最穩的做法,是用證據與條款支持索賠,並誠實告知客戶合理的預期。'],
+b2:['STP 存貨流通保險','Stock Throughput 保單把貨物從原料採購、運輸、倉儲到成品出貨的全程整合在一張保單,減少運輸險與火險之間的缺口,常見於跨國製造業。'],
+b3:['經紀服務的價值','客戶留下來的理由通常不是費率,而是出事時誰能把理賠處理好。防損訓練與理賠成果,是經紀人最有說服力的服務。'],
+i1:['理賠準備金','保險公司要依估計的未決賠款提存準備金。刻意低估可以美化短期財報,但違反提存規範,主管機關檢查時會被要求補提並處分。'],
+i_audit:['主管機關檢查','金融監理機關會定期檢查保險公司的準備金、理賠流程與內控。決策過程有沒有書面紀錄,常是責任歸屬的關鍵。'],
+i2:['理賠效率指標','保險公司常用平均結案天數、未決案件數、客訴率衡量理賠品質。只追求速度而犧牲查核,可能讓詐欺或錯賠增加。'],
+i3:['核保與理賠的回饋','理賠資料是核保最好的教材。把事故原因與損失型態回饋給核保,可以改善費率與承保條件。'],
+r1:['再保理賠協商','再保理賠爭議常涉及條款解釋、損失分配與事件定義。數據與先例越完整,在國際市場越有話語權。'],
+r2:['巨災模型','再保公司用巨災模型評估颱風、地震、洪水的潛在損失,決定承保容量與價格。大型巨災年之後,再保費率通常會上漲。'],
+r3:['72 小時條款','巨災再保合約常約定:連續 72 小時內、同一原因造成的損失視為一次事件。事件怎麼切分,會影響自留額要扣幾次、再保人要賠多少。'],
+o1:['事務所的現金流','公證行的收入取決於報告完成與委託方付款,帳期可能長達數月。準備足夠的營運資金,是小型事務所的基本功。'],
+o2:['客戶集中度','獨家合約帶來穩定案源,也讓公司依賴單一客戶。客戶集中度太高,是小型專業事務所最大的營運風險之一。'],
+o3:['合夥協議','合夥創業應事先約定股權、客戶歸屬、競業與退場機制。沒有書面約定時,拆夥往往兩敗俱傷。'],
+o4:['地區據點','公證業務高度仰賴在地人脈與到場速度。開設據點前,先用駐點方式確認案源與需求。'],
+x1:['火災鑑識','火災原因鑑定會分析燃燒痕跡、起火點、電氣熔痕與助燃劑殘留,是判斷意外、設計缺陷或人為縱火的關鍵。'],
+x2:['專家證人的中立','專家證人對法院負責,而不是對委託人負責。意見要建立在可重現的方法上,並清楚說明不確定性。'],
+x3:['損失計算方法','常見方法包括修復成本法、重置成本扣折舊、毛利損失法。選用哪一種,要看保單基礎與損失型態。'],
+m1:['資深人才與報告品質','公證工作高度依賴資深人員的判斷。裁員或流失資深人員,常直接影響報告品質與客戶信任。'],
+m2:['新興產業的保險需求','再生能源、半導體、物流等產業的保險需求快速成長。具備產業知識的理賠團隊,更容易開拓新客群。'],
+m3:['關鍵人才風險','專業服務公司最大的資產是人。關鍵人才離職可能帶走客戶,企業常以職涯發展、獎酬與競業約定降低風險。'],
+e1:['理賠實務教育','保險公證人須通過國家考試取得資格,執業後也要持續受訓。實務書籍與案例教材,是新人入行最重要的學習資源。'],
+e2:['企業風險管理','企業風險管理要從辨識、評估、控制、移轉四個步驟著手。保險只是「移轉」的一種手段,不是全部。'],
+e3:['國際再保職涯','國際再保公司重視英文、條款理解與數據分析能力。具體的案例與成果,比空泛的推薦更有說服力。'],
+fire1:['故意行為除外','被保險人故意造成的損失屬於除外責任。懷疑人為縱火時,應交由鑑識單位分析,並配合警消調查。'],
+fire2:['倉庫火災的多方求償','公共倉庫失火時,貨主可能分別向自己的保險公司、倉庫業者及其責任保險求償。釐清每批貨的所有權、保險與倉儲契約是第一步。'],
+fire3:['住宅火險的動產舉證','住宅火險承保建築物與屋內動產,但動產需要舉證。平時拍照或保留購買紀錄,事故後能大幅加快理賠。'],
+cargo1:['共同海損','船舶遇險時,為保全船貨所做的犧牲或支出,由船、貨各方按價值比例分攤。貨主通常要提供擔保(多由貨物保險人出具)才能提貨。'],
+cargo2:['溫控貨物','冷鏈貨物理賠的關鍵在溫度紀錄。紀錄缺漏時,要結合原始數據、運輸時序與產品穩定性報告,判斷是否真的受損。'],
+cargo3:['衝擊記錄器','高價設備運輸常裝設衝擊記錄器。數值超標不等於一定受損,要會同原廠開箱檢測,判斷受損範圍。'],
+re1:['太陽能電廠保險','太陽能電廠常投保營運期財產險(含天災)與營業中斷險。颱風損失的爭議常在於:風速是否超過設計規範,還是施工或設計缺陷。'],
+re2:['離岸風電施工險','離岸風電施工期多以營造綜合險承保,海纜損壞是最常見也最昂貴的損失之一。施工船租金高,修復速度直接影響損失金額。'],
+semi1:['半導體的營業中斷','晶圓廠停機的損失常遠大於設備本身,包括報廢晶圓與營業中斷。計算時要考量產能利用率、在製品、訂單與替代產能。'],
+semi2:['煙燻污染','無塵室或電子設備遭煙塵污染,不一定需要整機更換。專業清潔與檢測後,許多設備可以恢復使用,損失會大幅下降。'],
+eng1:['第三人責任','施工造成鄰房損害,屬於營造綜合險的第三人意外責任範圍。施工前的鄰房現況鑑定,是釐清責任的重要依據。'],
+eng2:['減損費用','為避免或減輕損害所支出的必要費用,保險人依保險法第 33 條負償還責任。及時減損,對被保險人與保險公司都有利。'],
+motor1:['過失比例','多車事故依各方過失比例分攤賠償。行車紀錄器、監視器與現場跡證,是重建事故時序的關鍵。'],
+motor2:['公共意外責任險','營業場所因設施或管理疏失造成顧客受傷,由公共意外責任險負擔賠償。告示、清潔紀錄與監視器是判斷過失的重要證據。'],
+love:['成家後的保險檢視','組成家庭後,壽險保額可依房貸、生活費與子女教育費估算,並指定受益人。這是家庭財務規劃的第一步。'],
+baby:['新生兒保險','新生兒可在出生後投保醫療與意外險,部分保單也提供出生前預約投保。規劃以醫療、意外為優先。'],
+house:['住宅火險與地震險','辦房貸通常會要求投保住宅火險,並附加住宅地震基本保險。也要檢視保額是否足以重建,避免不足額。'],
+family:['家庭的最大風險','家中主要收入者的健康與工作能力,是家庭最大的風險。壽險與失能險,是讓家人在意外時仍能維持生活的安排。'],
+crisis:['受益人變更','婚姻狀況改變時,記得檢視並更新壽險受益人與要保人資料,避免保險金給付給不符合原意的人。'],
+kidschool:['教育金規劃','子女教育費的支出時間很明確,適合提早用定期儲蓄或投資準備。保險商品是工具之一,要比較費用與彈性。'],
+parent:['長期照顧險','長照費用長期且高昂。長照險在被保險人符合失能條件時給付,購買前要看清楚給付條件與等待期。'],
+checkup:['告知義務','投保時要誠實告知健康狀況。未告知既往症,保險公司可能在一定期間內解除契約。健康的時候投保,選擇最多。'],
+burnout:['失能險','長期過勞引發的疾病可能讓人無法工作。失能保險在符合失能等級時給付,補上收入中斷的缺口。'],
+invest:['投資型保單','投資型保單的帳戶價值隨市場波動,沒有保證收益。投保前要了解費用結構與投資標的的風險。'],
+marathon:['意外險的定義','意外險承保外來、突發、非疾病引起的傷害。一般路跑受傷通常在承保範圍內,但部分高風險活動可能除外。'],
+midlife:['轉職的保障缺口','離開公司後,團體保險的保障也會跟著消失。轉職或創業前,要先補上個人的醫療與壽險保障。'],
+crash:['強制險與任意險','汽車強制險只賠體傷、失能與死亡,而且有限額;車損與對他人財物的損失,要靠任意車險。被追撞時,可以先向對方的保險求償。'],
+reunion:['人脈與案源','保險業的案源與合作,很多來自同學、前同事與業界人脈。持續經營關係,是專業服務業的長期投資。']
+};
+/* 隨機插曲:結果的好壞變化 */
+const TW={
+ gw:[{t:'主管剛好看到你的處理方式,記在心裡。',fx:{rep:2}},{t:'對方事後介紹了另一個案子給你。',fx:{net:2,cash:5}},{t:'你的處理過程被寫進公司的內部教材。',fx:{pro:2,rep:1}},{t:'保險公司窗口私下傳訊息謝謝你。',fx:{net:2}},{t:'這次經驗讓你想通了一個困擾很久的問題。',fx:{pro:2}},{t:'同業聽說了這件事,對你刮目相看。',fx:{rep:2}},{t:'案子結得比預期快,你多了一個週末。',fx:{hp:2,fam:1}},{t:'客戶在年底送來一張手寫卡片。',fx:{rep:1,net:1}}],
+ bw:[{t:'被保險人事後又改口,你得補一份說明。',fx:{hp:-2}},{t:'報告送出後才發現一個錯字,被窗口挑出來。',fx:{rep:-2}},{t:'這件事拖了很久,你連續幾週都很晚回家。',fx:{hp:-2,fam:-2}},{t:'同事在背後說你處理得太硬。',fx:{net:-2}},{t:'對方在同業群組裡抱怨你。',fx:{rep:-2,net:-1}},{t:'你在現場淋了一場大雨,回家就感冒了。',fx:{hp:-3}},{t:'主管覺得你應該先跟他報告。',fx:{net:-2}},{t:'多跑了兩趟現場,時間和油錢都賠進去。',fx:{cash:-3,hp:-1}}],
+ gl:[{t:'家人說,這是今年最好的決定。',fx:{fam:2}},{t:'那陣子你睡得特別好。',fx:{hp:2}},{t:'朋友聽說了,特地約你吃飯。',fx:{net:1,fam:1}},{t:'事情比想像中順利,還省了一筆錢。',fx:{cash:5}}],
+ bl:[{t:'過程比想像中累,你瘦了兩公斤。',fx:{hp:-2}},{t:'家裡為了這件事吵了一架。',fx:{fam:-3}},{t:'額外花了一筆意料之外的錢。',fx:{cash:-8}},{t:'那陣子你常常失眠。',fx:{hp:-2}}]
+};
+/* 現場變數 */
+const VARS={
+ w:[{n:'證據保存完整',k:'pro',v:10},{n:'對方很配合',k:'net',v:10},{n:'對方很難纏',k:'net',v:-10},{n:'時間非常趕',k:'pro',v:-10},{n:'媒體在現場',k:'rep',v:-10},{n:'你昨晚沒睡好',k:'all',v:-5},{n:'老同事剛好在現場幫忙',k:'all',v:5},{n:'天氣惡劣',k:'hp',v:-10},{n:'客戶是老朋友',k:'net',v:15},{n:'主管全力支持你',k:'rep',v:10}],
+ l:[{n:'家人很支持',k:'fam',v:10},{n:'最近身體狀況很好',k:'hp',v:10},{n:'工作正忙',k:'fam',v:-10},{n:'剛好遇上連假',k:'all',v:5},{n:'手頭有點緊',k:'all',v:-5}]
+};
+const LIFE=new Set(['love','baby','house','family','crisis','kidschool','parent','checkup','burnout','invest','marathon','midlife','crash','reunion','earlyout']);
+/* 保險市場景氣 */
+const MKT={
+ normal:{n:'市場平穩',inc:1,log:'保險市場回到平穩。'},
+ soft:{n:'軟市場',inc:.9,log:'保險市場進入軟市場:保費下滑,同業開始削價競爭。'},
+ hard:{n:'硬市場',inc:1.1,log:'保險市場轉為硬市場:保費上漲,專業人才變得搶手。'},
+ cat:{n:'巨災年',inc:1.15,log:'巨災年:颱風與水災接連發生,案件大量湧入。'}
+};
+const MKTW={soft:{soft:4,freeze:3,o2:2,b3:2,hunter:.4},hard:{hunter:2.5,b2:2,o4:2,m2:2,merger:2},cat:{typhoon:6,quake:5,r2:6,r3:4,petro:3,fire2:3,re1:3,re2:3,trip:3,burnout:2}};
+
+Object.assign(KNOW,{
+j_exp:['技術鑑定團隊','大型公證公司常設有專門的鑑定團隊,處理火災原因、設備損壞與結構問題。技術能力是公證公司在大案競爭中的核心優勢。'],
+j_mgr:['理賠團隊的管理','理賠主管要兼顧案件品質、時效與成本,也要分配案件給合適的人。好的分案,能讓資淺同事在安全的範圍內成長。'],
+j_ins:['保險公司的理賠部門','保險公司理賠部負責核定賠款、管理公證人與律師,並提存準備金。從公證轉到保險公司,視角會從「認定損失」轉為「管理整體理賠成本」。'],
+j_rei:['再保險公司的理賠職能','再保公司的理賠人員負責審查分出公司的大額賠案、管理巨災事件,並參與條款解釋與爭議處理,工作語言多為英文。'],
+j_edu:['保險教育','大學的風險管理與保險相關系所,以及保險事業發展中心等機構,都需要有實務經驗的講師。實務案例是學生最需要的教材。'],
+j_back:['公證公司的合夥制','許多國際公證公司採合夥或資深合夥人制度,以專業能力與帶來的業務量決定合夥資格。'],
+big1:['大型損失的勘查規劃','重大損失發生時,要先決定勘查範圍、分工與證據保全順序,並與共保保險人、再保人同步資訊。第一週的處理,往往決定整件理賠的走向。'],
+big2_fire:['共保與首席保險人','大型火險常由多家保險公司共保,由首席保險人主導理賠。公證報告要同時滿足所有共保人與再保人的審查。'],
+big2_cargo:['擱淺與共同海損理算','船舶擱淺後為脫淺所支出的費用與犧牲,常列入共同海損,由海損理算師依各方價值計算分攤比例。'],
+big2_eng:['營造綜合險的承保範圍','營造綜合險通常分為工程本體(第一部分)與第三人責任(第二部分)。塌陷事故常同時觸發兩部分,責任與限額要分開計算。'],
+big2_re:['設計標準與天災','風機的設計風速依 IEC 等級訂定。損失是否屬於保險事故,常取決於實際風速是否超過設計標準,以及是否有設計或施工缺陷。'],
+big2_semi:['營業中斷的復原期','營業中斷損失的關鍵是「合理復原期」:設備修復、重新校正、良率爬升到事故前水準所需的時間,而不是實際停工多久。'],
+big2_motor:['多重責任的分拆','重大交通事故可能涉及駕駛、雇主、車輛維修業者與道路管理機關。每一方各有不同的保險,理賠要逐一釐清責任比例。'],
+big3:['理賠談判與和解','大型理賠的最後階段,常透過協商、和解或仲裁解決。報告越清楚、依據越完整,談判空間就越小,結案也越快。'],
+fire4:['鋰電池火災與救火損失','鋰電池熱失控容易復燃。為了滅火而造成的水損,通常屬於火災保險的承保範圍,但要分清楚火損與水損,才能正確分配。'],
+fire5:['代位求償','保險公司賠付被保險人後,可以在賠付範圍內向應負責任的第三人求償(保險法第 53 條)。住戶的火險賠完後,保險公司可以再向有過失的餐廳求償。'],
+fire6:['屋頂型光電的保險','屋頂型太陽能常由電廠業者向屋主租用屋頂。屋主的廠房火險與電廠的財產險各自承保,起火原因決定由哪一方負責。'],
+cargo4:['海水損害與艙汗','硝酸銀測試可以判斷鏽蝕是否含氯化物(海水)。艙汗則是溫差造成的凝結。是否理賠要看保單條款,以及包裝與通風是否適當。'],
+cargo5:['內陸運輸竊盜','高價電子產品在內陸運輸階段最容易失竊。常見的防損措施包括 GPS 追蹤、雙駕駛、只停靠指定休息站、封條核對。'],
+cargo6:['包裝不足除外','協會貨物條款將包裝不足或不當造成的損失列為除外。判斷重點是:包裝是否足以承受正常的運送過程。'],
+eng3:['颱風應變措施','營造險通常要求被保險人在颱風前採取合理的防護措施。塔吊沒有依規範解除迴轉鎖定,可能影響責任認定。'],
+eng4:['瑕疵除外','營造險一般不賠瑕疵本身的修正費用,但瑕疵導致其他部分的意外損壞,可能在承保範圍內。界線依保單的瑕疵條款而定。'],
+eng5:['天災與設計洪水','河川工程以「設計洪水頻率」作為設計標準。洪水是否超過設計標準,是判斷天災或設計不足的關鍵。'],
+re3:['發電損失的估算','風機停機的營業中斷損失,常用歷史發電量、同期風況與電價推算。鄰近風機的實際發電量是很好的比對基準。'],
+re4:['保固與保險的分界','光電板的性能衰退與製造瑕疵,通常屬於產品保固範圍,而不是財產保險的突發意外事故。'],
+re5:['關鍵設備與備品','大型變壓器的交期可能長達一年以上。有沒有備品,直接決定營業中斷損失的規模。'],
+semi3:['地震與營業中斷','半導體廠的地震損失,主要來自停機、在製品報廢與重新校正。復機時程是估算營業中斷的核心。'],
+semi4:['腐蝕與逐漸損壞除外','財產保險通常不賠逐漸發生的腐蝕、生鏽或老化,但突發的洩漏造成的腐蝕,可能屬於意外事故。'],
+semi5:['公共設施中斷保險','供水、供電等公共設施中斷造成的營業中斷,一般要另外加保「公共設施中斷」附加條款,且常有等待期。'],
+motor3:['外送平台的保險','外送員多以承攬方式與平台合作,平台通常投保意外險與第三人責任險,但各平台的保障範圍與額度差異很大。'],
+motor4:['電動車火災的責任','充電樁設置者、車主、管委會都可能有責任。車體險先賠付車主後,保險公司可以依代位求償向責任方追償。'],
+motor5:['強制投保的公共意外責任險','部分營業場所,例如遊樂場、旅館、百貨公司,依法須投保公共意外責任險,並有最低保額的規定。']
+});
+
+Object.assign(KNOW,{
+hosp:['過勞與職業災害','長期工時過長引發的疾病,可能被認定為職業病。勞工保險與勞工職業災害保險提供醫療、失能與死亡給付;符合條件時,雇主也要負擔補償責任。'],
+co_found:['設立保險相關公司','公證人公司、保險經紀人公司都須依主管機關規定申請許可,符合資本額、專業人員與保證金或責任保險的要求。顧問公司門檻較低,但不能從事需要執照的業務。'],
+c_crunch:['現金流與營運資金','很多公司不是虧損倒閉,而是現金周轉不過來。專業服務業的應收帳款常要數個月才收得到,營運資金至少要能撐過一個收款週期。'],
+c_inspect:['公司治理與內部控制','主管機關檢查重點包括業務招攬、帳務、個資保護與內控制度。平時把制度落實,檢查只是例行公事。'],
+c_acq:['企業收購與估值','專業服務公司常以獲利倍數或營收倍數估值,客戶穩定度與核心人才是否留任,是買方最在意的事。'],
+c_key:['關鍵人才與競業條款','競業禁止條款在台灣須符合合理範圍,例如期間、地區與補償,過度限制可能無效。真正留住人的,通常是職涯發展與分紅。'],
+c_short:['不當招攬與承諾','保險業者對理賠結果做出保證或誇大承諾,可能違反招攬規範。提案內容應以保單條款為準。'],
+o5:['價格競爭與服務品質','公證費率被壓低時,常見的後果是勘查時間不足、報告品質下降,最終反映在理賠爭議上。'],
+k1:['佣金與回扣','保險經紀人不得以退佣、回扣等不當利益招攬業務。這類行為一旦被查獲,公司與個人都可能被處分。'],
+k2:['賠付率與承保授權','保險公司會依客戶群的賠付率調整承保意願。經紀人可以用防損計畫與風險改善紀錄,爭取保險公司繼續承保。'],
+k3:['經紀人的續約價值','經紀業的收入主要來自續約佣金。客戶留存率高,公司價值就高;理賠服務是客戶續約的最大理由。'],
+k4:['保險經紀人招標','企業公開招標經紀人時,常評比保險規劃能力、理賠服務、市場議價能力與費用。過往理賠案例是最有說服力的證明。'],
+q1:['企業風險管理(ERM)','ERM 從風險辨識、評估、因應到監控,要建立跨部門的風險治理架構。保險只是風險移轉的一種工具。'],
+q2:['顧問報告的責任','風險評估報告若被用於訴訟,方法、假設與資料來源都會被檢驗。報告中寫清楚限制條件,是顧問最好的保護。'],
+q3:['顧問業的收入波動','顧問公司收入多來自專案,容易出現斷層。訓練課程、年度顧問合約等經常性收入,可以平衡專案的波動。'],
+q4:['巨災保險制度','巨災保險常由政府與民間共同分擔,例如住宅地震保險就由地震保險基金與保險業共同承擔風險。'],
+t1:['新創募資與稀釋','募資會稀釋創辦人股權,換來的是加速成長的資金與時間。估值越高,稀釋越少,但也代表投資人期待越高。'],
+t2:['燒錢率','新創每月的淨現金流出稱為燒錢率。帳上現金除以燒錢率,就是公司還能撐幾個月(跑道)。'],
+t3:['大公司進場的應對','大型保險公司資源多,但通常不擅長細分市場。新創常以專業領域或服務速度建立差異。'],
+t4:['AI 理賠的風險','AI 模型可能出現誤判或偏差。理賠決定涉及消費者權益,通常需要保留人工複核與申訴機制。'],
+t5:['公司上市','上市需符合獲利、股權分散、公司治理等條件。上市讓股權有市場價格,也讓公司接受更嚴格的監督。'],
+n_lin1:['報告的基本功','好的公證報告要有清楚的事故經過、原因分析、損失計算與保單適用。前輩的報告,是新人最好的教材。'],
+n_lin2:['同業之間的更正','發現同事報告有誤時,先私下提醒、讓本人主動更正,是業界常見的做法。若涉及重大金額,仍應依公司程序處理。'],
+n_lin_ret:['客戶交接','資深人員退休時,客戶交接要提早規劃。保險公司與被保險人在意的是服務品質不中斷。'],
+n_lin_ref:['業界推薦','保險業圈子不大,資深前輩的推薦往往比履歷更有分量。'],
+n_chen1:['團隊合作與分案','大型理賠常由多人合作完成。主管分案時,考量的除了能力,也包括能不能和團隊合作。'],
+n_chen2:['同儕審閱','重要報告送出前請同事交叉審閱,能大幅降低錯誤。很多公證公司把同儕審閱列為標準流程。'],
+n_chen_poach:['客戶關係的歸屬','客戶跟著人走是專業服務業的常態。公司可以用合約、團隊服務與制度,降低對單一人員的依賴。'],
+n_chen_partner:['合夥創業','合夥前要先談好股權、分工、決策方式與退場機制,並寫成書面協議。'],
+n_wang1:['公證人的獨立性','公證人雖受保險公司委託,但報告的價值來自中立。與委託方維持良好關係,不代表立場要跟著對方走。'],
+n_wang2:['委託方的信任','保險公司理賠主管指派公證人時,最看重過去合作的品質與可靠度。長期的信任,是公證人最穩定的案源。'],
+fb_biz:['企業主的保險規劃','家族企業常同時面對財產、責任、營業中斷與接班風險。懂保險的接班人,能讓公司的風險管理更完整。'],
+fb_inherit:['遺產與保險','壽險理賠金在指定受益人時,原則上不列入遺產,常被用來規劃稅源與預留給特定家人。'],
+fb_borrow:['家人之間的借貸','家人借款最好也留下書面紀錄,並約定還款方式。金額較大時,也要留意贈與稅的問題。'],
+fb_repay:['借貸與贈與','家人之間免還的借款,在稅法上可能被視為贈與。每年有贈與稅免稅額度,超過才需要申報。'],
+fb_parents:['家庭支柱的保障','家中主要收入者應優先規劃壽險與失能險,確保自己發生意外時,家人的生活與教育費用仍有著落。'],
+s_crash:['股災與資產配置','股市大跌時,先確認資金用途:短期要用的錢不該放在股票。長期資金若配置得當,通常不需要在恐慌時出場。'],
+s_bull:['融資與槓桿','融資買股會放大獲利,也會放大虧損。股價下跌到一定程度會被追繳保證金,甚至被強制賣出。'],
+s_scam:['投資詐騙','「老師帶單」「保證獲利」是常見的詐騙手法。遇到可疑群組,可撥 165 反詐騙諮詢專線。'],
+s_annuity:['儲蓄險的特性','儲蓄險強調保本與強迫儲蓄,但前幾年解約通常會虧損,實質報酬也可能追不上通膨。購買前要看清楚預定利率與解約金表。'],
+s_property:['收租房的保險','出租房屋除了住宅火險,也可考慮投保租屋相關的責任保險,保障因房屋設施問題造成房客受傷的賠償責任。']
+});
+
+Object.assign(KNOW,{
+i5:['除外責任與申訴管道','保險只賠保單承保的事故,地震、戰爭、故意行為等常列為除外或需另外加保。被保險人不服時,可向保險公司申訴,或向金融消費評議中心申請評議。'],
+i6:['代位求償的實務','保險公司賠付後,在賠付範圍內取得被保險人對加害人的請求權(保險法第 53 條)。成功求償的關鍵,是保全事故原因的證據。'],
+i7:['金融消費評議中心','金融消費者與金融機構發生爭議時,可先向業者申訴,不滿意再向金融消費評議中心申請評議。一定金額以下的評議結果,業者須接受。'],
+i8:['再保合約的通知條款','再保合約常要求分出公司在賠案可能超過一定金額時盡快通知。延遲通知可能讓再保人有權拒絕或減少攤賠。'],
+i9:['保險詐欺的防制','保險公司設有專責調查單位,並透過同業資料比對找出異常理賠。發現疑點應蒐證調查,而不是直接拒賠。'],
+i10:['數位理賠','線上理賠與自動審核能加快小額案件的處理,但審核規則需要持續調整,避免被利用來詐保。'],
+b4:['保額規劃','保險金額應反映保險標的的實際價值或重置成本。保額不足時,理賠會按比例打折。'],
+b5:['自負額與保費','提高自負額,保費通常會下降,但客戶要自己承擔較多的小額損失。硬市場時,經紀人常用這種方式幫客戶控制成本。'],
+b6:['經紀人在理賠爭議中的角色','經紀人代表被保險人,可以委託獨立專家、整理證據,並與保險公司協商。真的談不攏時,再協助客戶走評議或訴訟。'],
+b7:['營業中斷保險的保額與賠償期間','營業中斷保險以毛利為基礎計算保額,賠償期間要涵蓋從事故到恢復正常營運所需的時間。期間設太短,是常見的保障缺口。'],
+b8:['產品責任險與美國市場','美國的產品責任訴訟常有高額賠償。出口美國的企業,買方常要求一定保額的產品責任險,並要求將買方列為附加被保險人。'],
+b9:['經紀人的忠實義務','保險經紀人應以被保險人的利益為優先,收取保險公司的報酬時,應依規定向客戶揭露。'],
+r4:['比例再保與超額賠款再保','比例再保依約定比例分擔保費與賠款;超額賠款再保則在單一事故損失超過約定金額時,才由再保人負擔超過的部分。'],
+r5:['累積風險','同一地區承保過多風險,一次巨災就可能同時觸發大量賠案。再保人會監控各地區的累積額度,必要時安排轉再保。'],
+r7:['再保續約','許多再保合約在每年 1 月 1 日續約,費率會反映前一年的巨災損失與市場承保能量。'],
+r8:['已發生未報賠款(IBNR)','IBNR 是已經發生、但還沒被報案的賠款。責任險的賠案可能多年後才浮現,準備金要預先估列。'],
+r9:['領頭再保人','再保合約常由一家領頭再保人主導條款與費率,其他再保人跟隨承接份額。領頭者的專業與信譽很重要。'],
+r10:['氣候變遷與巨災模型','氣候變遷可能改變颱風的頻率與強度。巨災模型需要更新參數,才能反映未來的風險,而不只是過去的歷史。'],
+e4:['巨災保險定價','巨災發生頻率低、損失大,歷史資料有限。定價常結合巨災模型、再保成本與風險分散效果。'],
+e5:['保險公證人資格','保險公證人須通過國家考試取得資格,並依規定登錄、受訓後才能執業。實習是進入業界的重要管道。'],
+e6:['保險專業證照','保險業有多種專業證照,例如保險公證人、經紀人、代理人等。證照是專業能力的基本門檻。'],
+e7:['實務與研究的結合','保險研究需要業界資料驗證。與業界合作,能讓研究更貼近實務,也讓業界更願意採用。'],
+e8:['公證人的角色','保險公證人依法受委託,獨立查勘、鑑定與估算損失。委託人可能是保險公司,也可能是被保險人。'],
+e9:['理賠人員的訓練','理賠人員需要持續學習條款解釋、損失計算、法規與溝通技巧。案例教學是最有效的訓練方式。'],
+q5:['營運持續計畫','營運持續計畫(BCP)先做營運衝擊分析(BIA),找出關鍵流程與可容忍的停工時間,再規劃備援與復原步驟。'],
+q6:['或有營業中斷保險','或有營業中斷保險承保因供應商或客戶發生事故,導致自己營業中斷的損失。通常需要列明關鍵供應商。'],
+q7:['顧問與經紀業務的界線','沒有保險經紀人資格的顧問,不能替客戶洽訂保險。風險顧問可以提供建議,但投保要交給合法的經紀人或代理人。'],
+q9:['氣候相關財務揭露','國際架構要求企業揭露氣候變遷對財務的影響,包括實體風險(如颱風、淹水)與轉型風險(如法規、碳價)。'],
+t6:['個資保護與資安保險','發生個資外洩時,企業依個人資料保護法有通知當事人等義務。資安保險可以支付事故處理、通知與法律費用,但要注意除外條款。'],
+t7:['保險業的委外管理','保險公司把作業委外時,要評估委外廠商的資安與作業風險,並保留稽核權。新創要進入保險業,必須先通過這些檢驗。'],
+t8:['金融監理沙盒','金融監理沙盒讓創新業者在有限範圍內測試新服務,暫時排除部分法規限制,測試成功後再推動法規調整。']
+});
+
+/* ===================== 引擎 ===================== */
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const app=document.getElementById('app');
+let P='start',S=null,R=null,EV=null,RES=null,END=null,auto=false,paused=false,speed='mid',T=null,startSeed='',fresh=0,focus='field';
+let yrAcc=0,yrRes=0;
+let detail=false;try{detail=localStorage.getItem('adj-detail')==='1'}catch(e){}
+const now=()=>(typeof performance!=='undefined'?performance.now():Date.now());
+const dur=()=>SPD[speed][0];
+const prog=()=>yrAcc+((P==='run'&&!paused)?now()-yrRes:0);
+function newYear(){yrAcc=0;yrRes=now()}
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const rint=n=>Math.floor(R()*n);
+function wpick(arr,wf){
+  let tot=0;const ws=arr.map(x=>{const w=Math.max(0,wf(x));tot+=w;return w});
+  if(tot<=0)return null;
+  let r=R()*tot;
+  for(let i=0;i<arr.length;i++){r-=ws[i];if(r<=0&&ws[i]>0)return arr[i]}
+  return arr[arr.length-1];
+}
+const sumW=a=>a.reduce((t,x)=>t+x.w,0);
+const pct=(a,x)=>Math.round(x.w/sumW(a)*100);
+const money=v=>Math.round(v).toLocaleString('en-US');
+const LANG='zh';
+function cur(v){
+  if(LANG!=='en')return money(v)+' 萬';
+  const x=v*10000/32,a=Math.abs(x),sg=x<0?'−':'';
+  return sg+'US$'+(a>=1e6?(a/1e6).toFixed(1)+'M':a>=1e3?Math.round(a/1e3)+'K':Math.round(a));
+}
+const val=k=>k==='gov'?(S.co?S.co.gov:50):S[k];
+const sv=c=>c.w?Object.keys(c.w).reduce((t,k)=>t+val(k)*c.w[k],0):val(c.k);
+const mainK=c=>c.w?Object.keys(c.w).sort((a,b)=>c.w[b]-c.w[a])[0]:c.k;
+const cLab=c=>c.w?Object.keys(c.w).map(k=>KN[k]+' '+Math.round(c.w[k]*100)+'%').join(' + '):KN[c.k];
+const varMod=c=>S.vr&&(S.vr.k==='all'||(c.w?(S.vr.k in c.w):S.vr.k===c.k))?S.vr.v:0;
+function bonuses(c){
+  const b=[];if(!EV)return b;
+  const id=EV.id,bg=S.bg.n,k=mainK(c);
+  if(bg==='理工背景'&&TAG.tech.has(id))b.push(['理工背景',8]);
+  if(bg==='法律商管背景'&&TAG.law.has(id))b.push(['法律商管背景',8]);
+  if(bg==='船務海事背景'&&TAG.sea.has(id))b.push(['船務海事背景',8]);
+  if(bg==='保險公司轉職'&&TAG.ins.has(id))b.push(['保險公司經驗',8]);
+  if(bg==='社會新鮮人'&&k==='hp')b.push(['年輕體力',5]);
+  if(EV.spec)b.push(['專長對口',5]);
+  if(EV.route)b.push(['本行經驗',5]);
+  if(S.track==='exp'&&k==='pro')b.push(['技術專家',5]);
+  if(S.track==='mgr'&&k==='net')b.push(['管理經驗',5]);
+  if(S.f.cert&&k==='pro')b.push(['國際證照',3]);
+  if(EV.big&&S.big)b.push([S.big>0?'前一階段的優勢':'前一階段的劣勢',S.big*8]);
+  const T=x=>S.traits.includes(x),work=!LIFE.has(id);
+  if(T('careful')&&k==='pro')b.push(['細心',5,1]);
+  if(T('smooth')&&k==='net')b.push(['圓融',5,1]);
+  if(T('smooth')&&CONFLICT.has(id))b.push(['圓融化解衝突',5]);
+  if(T('stub')&&k==='rep')b.push(['固執',5,1]);
+  if(T('stub')&&k==='net')b.push(['固執',-5,1]);
+  if(T('home')&&HOMEMINUS.has(id))b.push(['顧家',-5]);
+  Object.keys(SK).forEach(x=>{if(!S.skills[x])return;const d=SK[x];if(d.ids.includes(id)||(d.spec&&EV.spec&&EV.spec.includes(d.spec))||(d.tag&&TAG[d.tag].has(id)))b.push([d.n,d.v])});
+  S.st.forEach(z=>{const d=STA[z.id];if(d.ck)Object.keys(d.ck).forEach(q=>{if(q==='all'||q===k)b.push([d.n,d.ck[q],q!=='all'?1:0])})});
+  if(work&&S.hp<30)b.push(['健康不佳',-10]);
+  const yrs=S.age-23;if(k==='pro'&&yrs>=10)b.push(['年資經驗',Math.floor(yrs/10)*3,1]);
+  if(k==='hp'&&S.age>=50)b.push(['年紀',-5,1]);
+  if(S.npc.lin>=40&&!S.f.linRet&&['scapegoat','merger','audit','lawsuit','court'].includes(id))b.push(['林前輩相挺',10]);
+  if(S.npc.chen<=-20&&work&&k==='net')b.push(['陳志明扯後腿',-5,1]);
+  if(TAG.ins.has(id)&&S.npc.wang>=40)b.push(['王經理的信任',5]);
+  if(TAG.ins.has(id)&&S.npc.wang<=-20)b.push(['王經理的不信任',-5]);
+  return b;
+}
+const bsum=c=>bonuses(c).reduce((t,x)=>t+x[1],0);
+const pOf=c=>clamp(c.b+(sv(c)-50)*c.s+varMod(c)+bsum(c),5,95);
+const nm=e=>typeof e.n==='function'?e.n(S):e.n;
+const tx=e=>typeof e.t==='function'?e.t(S):e.t;
+const kn=e=>e.id==='big2'?KNOW['big2_'+S.sp.id]:PVK[e.id]?[PVK[e.id][0],PVK[e.id][1]+SPC[S.sp.id].tip]:KNOW[e.id];
+const evW=e=>typeof e.w==='function'?e.w(S):e.w;
+const lbl=c=>typeof c.l==='function'?c.l(S):c.l;
+const shown=c=>!c.show||c.show(S);
+const open=c=>!c.req||c.req(S);
+const RT=()=>ROUTES[S.track];
+const rankName=()=>RT().r[S.rank];
+
+function newGame(seed){
+  R=mulberry32(seed);
+  const bg=wpick(BG,x=>x.w),sp=wpick(SP,x=>x.w),fm=wpick(FM,x=>x.w);
+  const st={};
+  KEYS.forEach(k=>{st[k]=45+rint(7)-3});
+  Object.entries(bg.fx).forEach(([k,v])=>{st[k]+=v});
+  KEYS.forEach(k=>{st[k]=clamp(st[k],0,100)});
+  const fbg=wpick(Object.keys(FB),x=>FB[x].w);
+  const tp=Object.keys(TR);let t1=tp[rint(tp.length)];
+  const t2c=tp.filter(x=>x!==t1&&!TR_X.some(p=>p.includes(t1)&&p.includes(x)));const t2=t2c[rint(t2c.length)];
+  const tal=KEYS[rint(5)];const wk=KEYS.filter(x=>x!==tal);const weak=wk[rint(4)];
+  S=Object.assign({seed,age:23,rank:0,cash:0,inv:0,home:0,mort:0,strat:'safe',stk:'flat',lr:0,co:null,coFail:-99,prevTrack:null,raise:0,track:'adj',mkt:'normal',vr:null,kids:0,kb:[],f:{},q:[],lj:-99,big:0,bg,sp,fm,fbg,traits:[t1,t2],tal,weak,skills:{},npc:{lin:0,chen:0,wang:0},st:[],log:[],seen:{},hist:[],evc:0},st);
+  if(fbg==='rich'){S.cash=300;S.fam=clamp(S.fam+5,0,100)}
+  if(fbg==='loan'){S.cash=-80;S.hp=clamp(S.hp-3,0,100)}
+  if(fbg==='pillar')S.fam=clamp(S.fam+8,0,100);
+  if(S.traits.includes('sweet'))S.npc.wang=10;
+  focus='field';snap();
+  END=null;EV=null;RES=null;paused=false;
+  S.log.push({age:23,t:'以「助理公證人」身分進入'+fm.n+',專攻'+sp.n+'。',k:'up',m:1});
+}
+function snap(){const o={age:S.age};KEYS.forEach(k=>{o[k]=S[k]});S.hist.push(o)}
+const inFirm=()=>['adj','exp','mgr'].includes(S.track);
+const hasT=x=>S.traits.includes(x);
+const NW=()=>S.cash+S.inv+S.home-S.mort+(S.co?S.co.V+Math.max(0,S.co.res):0);
+function growFx(fx){const o=Object.assign({},fx);KEYS.forEach(k=>{if(o[k]>0)o[k]=Math.max(1,Math.round(o[k]*(k===S.tal?1.4:k===S.weak?0.7:1)))});return o}
+function addSt(id){const e=S.st.find(z=>z.id===id);if(e)e.y=STA[id].y;else S.st.push({id,y:STA[id].y})}
+function hasSt(id){return S.st.some(z=>z.id===id)}
+function learn(id){if(!id||S.skills[id])return;S.skills[id]=1;if(id==='eng')S.f.eng=true;S.log.push({age:S.age,t:'學會新技能:'+SK[id].n,k:'up'})}
+function fixCash(){if(S.cash<0&&S.inv>0){const x=Math.min(S.inv,-S.cash);S.inv-=x;S.cash+=x}}
+function found(t,fcap){
+  const cap=fcap||CO[t].cap,rf=t==='tech'?.4:.2;
+  S.cash-=cap;fixCash();
+  S.prevTrack=CO[S.track]?'adj':S.track;
+  S.co={t,V:cap*(1-rf),res:cap*rf,sz:1,gov:70,pol:'steady',y:0,lp:0};
+  setRoute(t);
+}
+function bust(){
+  S.co=null;S.f.failed=true;S.coFail=S.age;S.rep=clamp(S.rep-15,0,100);
+  const back=S.prevTrack||'adj';S.track=back;S.rank=clamp(S.rank,1,3);
+  S.log.push({age:S.age,t:'公司結束營業。投入的資金全部歸零,你回到「'+ROUTES[back].n+'」重新開始。',k:'bad',m:1});
+}
+function sellCo(m,ending){
+  const got=(S.co.V+Math.max(0,S.co.res))*m;S.cash+=got;S.co=null;S.f.sold=true;
+  S.log.push({age:S.age,t:'公司出售,入帳 '+cur(got)+'。',k:'up',m:1});
+  if(!ending){S.track='mgr';S.rank=Math.max(S.rank,4)}
+}
+function stockStep(){
+  const was=S.stk;
+  if(was==='crash')S.stk='bear';
+  else if(R()<0.06)S.stk='crash';
+  else if(R()<0.2){const o=['flat','bull','bear'].filter(x=>x!==was);S.stk=o[rint(o.length)]}
+  if(S.stk!==was)S.log.push({age:S.age+1,t:{flat:'股市進入盤整。',bull:'股市轉為多頭,指數屢創新高。',bear:'股市轉為空頭,投資人信心低迷。',crash:'股災!指數一個月內重挫。'}[S.stk],k:'mk'});
+}
+function investStep(){
+  const m=STK[S.stk].m;let r=0;
+  if(S.inv>0){
+    if(S.strat==='agg')r=7+m*1.4+(R()*2-1)*25;
+    else if(S.strat==='mid')r=5+m+(R()*2-1)*10;
+    else r=1.5;
+    S.inv*=1+r/100;S.lr=r;
+    if(Math.abs(r)>=20&&S.inv>50)S.log.push({age:S.age+1,t:'投資組合今年'+(r>0?'大漲 +':'重挫 ')+Math.round(r)+'%。',k:r>0?'up':'bad'});
+  }else S.lr=0;
+  if(S.cash>0)S.cash*=1.015;
+  const L=S.cash+S.inv;
+  if(L>0){const fr={safe:0,mid:.5,agg:.8}[S.strat];S.inv=Math.max(0,(L-30)*fr);S.cash=L-S.inv}
+  if(S.home>0)S.home*=1.02+R()*0.03;
+  if(S.mort>0)S.mort=Math.max(0,S.mort-30);
+  if(S.f.rent)S.cash+=24;
+}
+function companyStep(){
+  const c=S.co;if(!c)return;const d=CO[c.t];
+  c.y++;
+  const q=(0.35*S.net+0.35*S.rep+0.3*S.pro)/60;
+  let perf=q-1.02+(R()*2-1)*d.vol;
+  if(c.y<=2)perf-=.15;
+  perf+={hard:.1,soft:-.1,cat:c.t==='own'?.2:c.t==='con'?.1:0,normal:0}[S.mkt];
+  if(c.pol==='grow')perf+=(R()*2-1)*d.vol*.3;
+  if(c.pol==='lean')perf+=.08;
+  if(c.gov<40)perf-=.15;
+  if(c.t==='tech'&&c.y<=3)perf-=.3;
+  if(c.t==='bro')perf+=Math.min(.3,c.y*.04);
+  const profit=d.P*c.sz*perf;c.lp=profit;
+  if(profit>=0){c.res+=profit*.5;S.cash+=profit*.5}else c.res+=profit;
+  c.V=Math.max(0,c.V*(1+perf*(c.t==='tech'?1:.5))+(c.pol==='grow'&&perf>0?c.V*.1:0));
+  if(perf>0)c.sz+=c.pol==='grow'?.3:c.pol==='steady'?.1:0;
+  if(c.pol==='lean')c.sz-=.05;
+  if(perf<-.3)c.sz-=.1;
+  c.sz=clamp(c.sz,.5,5);
+  c.gov=clamp(c.gov+(c.pol==='grow'?-3:c.pol==='lean'?0:-1),0,100);
+  if(c.pol==='grow')S.hp=clamp(S.hp-2,0,100);
+  if(c.res<0&&!S.q.some(x=>x.id==='c_crunch')){c.cr=(c.cr||[]).filter(a=>S.age+1-a<=3);c.cr.push(S.age+1)}
+  if(c.res<0&&!S.q.some(x=>x.id==='c_crunch'))S.q.unshift({id:'c_crunch',at:S.age+1});
+}
+function monthly(){return RANK[S.rank].m*RT().m*(inFirm()?S.fm.m:1)*(1+S.raise)*(1+(S.pro-50)/250)*(S.f.semi?0.5:1)*MKT[S.mkt].inc*(['ins','rei','edu','tech'].includes(S.track)?1:1+clamp(S.npc.wang,-50,100)/1000)*(1+Math.max(0,S.rep-60)*0.005)*(hasSt('halo')?1.1:1)}
+function drain(){return Math.max(0,(RT().d===null?S.fm.d:RT().d)*(S.f.semi?0.3:1)-(hasT('opt')?0.5:0))}
+function saveRate(){return Math.max(0.05,0.3-(S.mort>0?0.08:0)-0.04*S.kids-(S.fbg==='loan'&&S.age<28?0.1:0)-(S.fbg==='pillar'&&S.age<40?0.1:0))}
+function setRoute(r){
+  if(CO[r])S.rank=1;
+  else if(r==='edu')S.rank=S.rank>=3?2:1;
+  else if(['brk','ins','rei'].includes(r))S.rank=clamp(S.rank,1,3);
+  S.track=r;
+  S.log.push({age:S.age,t:'職涯轉向「'+ROUTES[r].n+'」,職稱:'+rankName(),k:'up',m:2});
+}
+function apply(fx){
+  if(!fx)return;
+  KEYS.forEach(k=>{if(fx[k])S[k]=clamp(S[k]+fx[k],0,100)});
+  if(fx.cash)S.cash+=fx.cash;
+  if(fx.raise)S.raise=Math.max(-.2,S.raise+fx.raise);
+  if(fx.unflag)delete S.f[fx.unflag];
+  if(fx.flag)S.f[fx.flag]=true;
+  if(fx.kid){S.kids++;S.kb.push(S.age)}
+  if(fx.big)S.big=fx.big<=-9?0:S.big+fx.big;
+  ['lin','chen','wang'].forEach(k=>{if(fx[k])S.npc[k]=clamp(S.npc[k]+fx[k],-50,100)});
+  if(fx.flag==='linRet'&&!S.f.linRet&&S.npc.lin>=30)S.q.push({id:'n_lin_ref',at:S.age+2+rint(3)});
+  if(fx.st)addSt(fx.st);
+  if(fx.sk)learn(fx.sk);
+  if(fx.strat)S.strat=fx.strat;
+  if(fx.focus)focus=fx.focus;
+  if(fx.invSell){const x=S.inv*fx.invSell;S.inv-=x;S.cash+=x}
+  if(fx.invBuy){const x=Math.max(0,S.cash)*fx.invBuy;S.cash-=x;S.inv+=x}
+  if(fx.home)S.home+=fx.home;
+  if(fx.mort)S.mort+=fx.mort;
+  if(fx.rent)S.f.rent=true;
+  if(fx.flag==='house'&&S.home<=0){S.home=1000;S.mort=700}
+  if(fx.found)found(fx.found,fx.fcap);
+  if(S.co){
+    if(fx.res)S.co.res+=fx.res;
+    if(fx.gov)S.co.gov=clamp(S.co.gov+fx.gov,0,100);
+    if(fx.sz)S.co.sz=clamp(S.co.sz+fx.sz,.5,5);
+    if(fx.Vm)S.co.V*=fx.Vm;
+    if(fx.pol)S.co.pol=fx.pol;
+    if(fx.ipo)S.f.ipo=true;
+    if(fx.sell)sellCo(fx.sell,!!fx.end);
+    else if(fx.bust)bust();
+  }
+  fixCash();
+  if(fx.route)setRoute(fx.route);
+  if(fx.sched){const [a,b]=fx.sched.in;S.q.push({id:fx.sched.id,at:S.age+a+rint(b-a+1)})}
+}
+function survive(){if(S.hp<=0&&!S.f.hosp){S.f.hosp=true;S.hp=15;if(!S.q.some(x=>x.id==='hosp'))S.q.unshift({id:'hosp',at:S.age});return true}return false}
+function checkEnd(){if(S.hp<=0&&!survive())return 'collapse';if(S.rep<=0)return 'banned';if(S.age>=65)return 'retire';return null}
+function mortal(){
+  if(S.age<=45)return false;
+  return R()<0.0003*(S.age-45)*(1+Math.max(0,60-S.hp)/40);
+}
+function eligible(e){
+  const yrs=S.age-23;
+  return evW(e)>0&&!(e.once&&S.seen[e.id])
+    &&(!e.spec||e.spec.includes(S.sp.id))
+    &&(!e.route||e.route.includes(S.track))
+    &&(!ROUTE_OK[e.id]||ROUTE_OK[e.id].includes(S.track))
+    &&(!e.yrs||(yrs>=e.yrs[0]&&yrs<=e.yrs[1]))
+    &&(!e.job||(S.age-S.lj>=3&&(!S.co||e.id==='co_found')))
+    &&(!e.when||e.when(S));
+}
+function pickEvent(){
+  const c=E.filter(eligible);
+  if(!c.length)return null;
+  return wpick(c,e=>evW(e)*(e.spec?3:1)*(e.route?2.5:1)*(e.job?2.5*(hasT('amb')?1.5:1):1)*(S.seen[e.id]?0.4:1)*(S.fbg==='pillar'&&['parent','fb_parents'].includes(e.id)?2:1)*(e.id==='credit'&&S.npc.chen<0?2:1)*(e.id==='pressure'&&S.npc.wang<0?2:1)*((MKTW[S.mkt]||{})[e.id]||1));
+}
+function pickMinor(){return wpick(MINOR.filter(m=>!m.when||m.when(S)),m=>m.w)}
+function promote(){
+  if(S.co){const nr=clamp(Math.round(S.co.sz*1.2),1,5);if(nr!==S.rank){const up=nr>S.rank;S.rank=nr;S.log.push({age:S.age,t:(up?'公司成長,':'公司縮編,')+'職稱:'+rankName(),k:up?'up':'bad',m:up?1:0})}return}
+  const nx=RANK[S.rank+1];if(!nx||S.f.semi)return;
+  const o=RT().off;
+  const ok=S.age-23>=nx.y&&S.pro>=nx.pro+(o.pro||0)&&S.rep>=nx.rep+(o.rep||0)&&S.net>=nx.net+(o.net||0);
+  if(ok&&R()<(S.f.sprint?0.5:0.35)+(hasT('amb')?0.1:0)){S.rank++;S.log.push({age:S.age,t:'升任「'+rankName()+'」',k:'up',m:1})}
+}
+
+function marketStep(){
+  const was=S.mkt;
+  if(was==='cat')S.mkt=S.mkt0||'normal';
+  else if(R()<0.07){S.mkt0=was;S.mkt='cat'}
+  else if(R()<0.16){const o=['normal','soft','hard'].filter(x=>x!==was);S.mkt=o[rint(o.length)]}
+  if(S.mkt!==was)S.log.push({age:S.age+1,t:MKT[S.mkt].log,k:'mk'});
+  if(S.mkt==='cat')S.hp=clamp(S.hp-3,0,100);
+}
+/* 每一年 */
+function tick(){
+  marketStep();stockStep();
+  const f=FOCUS.find(x=>x.id===focus);
+  let ffx=Object.assign({},f.fx);
+  if(f.id==='field'&&hasT('work'))ffx=scaleFx(ffx,1,1.3);
+  if(f.id==='field'&&hasSt('back'))ffx=scaleFx(ffx,1,0.7);
+  if(f.id==='rest'&&hasT('home'))ffx=scaleFx(ffx,1,1.5);
+  ffx=growFx(ffx);
+  KEYS.forEach(k=>{if(ffx[k])S[k]=clamp(S[k]+ffx[k],0,100)});
+  S.hp=clamp(S.hp-drain()-Math.max(0,S.age-40)*0.06-(S.fam<30?2:0)+(S.hp<40?1:0),0,100);
+  S.fam=clamp(S.fam-(hasSt('honey')?0:1.5)-(hasT('work')?1:0)-(hasT('amb')?0.5:0),0,100);
+  S.pro=clamp(S.pro-0.5,0,100);S.net=clamp(S.net-0.5+(hasT('sweet')?1:0),0,100);
+  S.cash+=monthly()*12*saveRate()*(f.inc||1)*(f.id==='field'&&hasT('work')?1.1:1);
+  investStep();companyStep();
+  S.st.forEach(z=>z.y--);S.st.filter(z=>z.y<=0).forEach(z=>S.log.push({age:S.age+1,t:'狀態結束:'+STA[z.id].n,k:'yr'}));S.st=S.st.filter(z=>z.y>0);
+  S.age++;
+  promote();
+  if(S.hp<=0)survive();
+  if(f.id==='study'&&R()<0.25){const left=Object.keys(SK).filter(x=>!S.skills[x]);if(left.length)learn(wpick(left,x=>x===SPSK[S.sp.id]?3:1))}
+  let ev=null;
+  const di=S.q.findIndex(q=>q.at<=S.age);
+  if(di>=0){ev=E.find(e=>e.id===S.q[di].id);S.q.splice(di,1);if(ev.id==='c_crunch'&&(!S.co||S.co.res>=0))ev=null;if(ev&&ROUTE_OK[ev.id]&&!ROUTE_OK[ev.id].includes(S.track)){if(/^big/.test(ev.id))S.big=0;ev=null}}
+  else if(R()<0.6)ev=pickEvent();
+  let line=null,lfx=null;
+  if(!ev&&R()<0.6){const m=pickMinor();if(m){const mf=growFx(m.fx);apply(mf);line=m.t;lfx=mf}}
+  if(!line){const g=f.id==='field'?fGroup():null;const ph=g&&FPH[g]?FPH[g]:f.ph;line=ph[rint(ph.length)]}
+  S.log.push({age:S.age,t:line,k:'yr',fx:lfx});
+  snap();fresh=S.log.length;
+  const end=checkEnd()||(mortal()?'sick':null);
+  if(end)return finish(end);
+  if(ev){EV=ev;S.vr=(!ev.br&&R()<0.6)?(LIFE.has(ev.id)?VARS.l:VARS.w)[rint(LIFE.has(ev.id)?VARS.l.length:VARS.w.length)]:null;P='event'}else newYear();
+  render();
+}
+/* 每個選項的可能結果 */
+function statOf(ch){
+  if(ch.c)return mainK(ch.c);
+  if(ch.hid)return ch.hid.k;
+  if(ch.hs)return 'pro';
+  let best=LIFE.has(EV.id)||/^fb_|^s_/.test(EV.id)?'fam':'rep',bv=0;
+  KEYS.forEach(k=>{const v=ch.ok.fx[k]||0;if(v>bv){bv=v;best=k}});
+  return best;
+}
+const cOf=ch=>ch.c||{k:statOf(ch)};
+function outs(ch){
+  if(ch.ok.fx.end)return [{n:'確定',p:100,g:'m',r:ch.ok}];
+  if(ch.c){
+    const p=Math.round(pOf(ch.c));
+    const rm=hasT('risk')?1.5:1,wm=hasSt('watch')?2:1;
+    const g=Math.max(1,Math.round(p*(ch.gr?0.2:0.12)*rm)),bf=Math.min(100-p,Math.max(1,Math.round((100-p)*0.2*rm*wm)));
+    return [{n:'大成功',p:g,g:'g',r:ch.gr||null,tw:ch.gr?0:2},{n:'成功',p:p-g,g:'g',r:ch.ok},{n:'失敗',p:100-p-bf,g:'b',r:ch.ng},{n:'大失敗',p:bf,g:'b',r:ch.ng,tw:-2}];
+  }
+  const c=cOf(ch),p=Math.round(clamp(70+(val(c.k)-50)*0.5+varMod(c)+bsum(c),20,92)),g=Math.round(p*0.3);
+  return [{n:'順利',p:g,g:'g',r:ch.ok,tw:1},{n:'如預期',p:p-g,g:'m',r:ch.ok},{n:'出狀況',p:100-p,g:'b',r:ch.ok,tw:-1}];
+}
+function addFx(a,b,m){const o=Object.assign({},a);Object.keys(b).forEach(k=>{o[k]=(o[k]||0)+Math.round(b[k]*m)});return o}
+function scaleFx(fx,sign,m){const o=Object.assign({},fx);KEYS.concat(['cash']).forEach(k=>{if(o[k]&&Math.sign(o[k])===sign)o[k]=Math.round(o[k]*m)});return o}
+function choose(i){
+  const ev=EV,ch=ev.ch[i];
+  if(!ch||!shown(ch)||!open(ch))return;
+  const O=outs(ch),roll=rint(100)+1,c=cOf(ch);
+  let acc=0,o=O[O.length-1];
+  for(const x of O){acc+=x.p;if(roll<=acc){o=x;break}}
+  const life=LIFE.has(ev.id);
+  let base=o.r||ch.ok,tw=null,fx=base.fx,flav=null;
+  if(o.tw){
+    const pool=o.tw>0?(life?TW.gl:TW.gw):(life?TW.bl:TW.bw);
+    tw=pool[rint(pool.length)];
+    fx=addFx(base.fx,tw.fx,Math.abs(o.tw)>1?2:1);
+  }
+  const k=mainK(c),v=val(k);
+  if(O.length>1&&o.g==='g'&&v>=75&&HI[k]){flav=HI[k][rint(2)];fx=scaleFx(fx,1,1.3)}
+  else if(O.length>1&&o.g==='b'&&v<35&&LO[k]){flav=LO[k][rint(2)];fx=scaleFx(fx,-1,1.3)}
+  if(o.g==='b'&&hasT('opt'))fx=scaleFx(fx,-1,0.8);
+  if(hasT('just')&&JUST.has(ev.id+':'+i)&&fx.rep>0)fx=Object.assign({},fx,{rep:Math.round(fx.rep*1.5)});
+  fx=growFx(fx);
+  const r={t:base.t,fx};
+  const bs=bonuses(c);
+  const line=O.length>1?'擲出 '+roll+' · 依'+cLab(c)+'('+Math.round(sv(c))+')'+(bs.length?' · 加成 '+bs.map(x=>x[0]+(x[1]>0?'+':'')+x[1]).join('、'):'')+(S.vr?' · 變數 '+S.vr.n:'')+' · '+O.map(x=>x.n+' '+x.p+'%').join(' / '):'';
+  apply(fx);
+  if(ev.job)S.lj=S.age;
+  S.seen[ev.id]=1;S.evc++;
+  S.log.push({age:S.age,t:nm(ev)+'|'+lbl(ch)+'('+o.n+')。'+r.t+(flav?' '+flav:'')+(tw?' '+tw.t:''),k:o.g==='b'?'bad':'ev',fx,m:0});
+  snap();fresh=S.log.length;
+  RES={ev,ch,r,o,tw,flav,line,end:fx.end?'special':checkEnd()};
+  P='result';render();
+}
+function cont(){
+  if(RES&&RES.end)return finish(RES.end,RES.r.fx.end);
+  RES=null;EV=null;S.vr=null;P='run';newYear();render();
+}
+function score(kind){
+  const avg=KEYS.reduce((t,k)=>t+S[k],0)/5;
+  return Math.round(clamp(avg*0.6+S.rank*5+clamp(NW()/400,0,10)+(kind==='retire'?5:0),0,100));
+}
+const ENDINGS=36;
+function finish(kind,sp){
+  let t,d;const tr=S.track,r=S.rank;
+  if(kind==='special'){t=sp.t;d=sp.d}
+  else if(kind==='collapse'){t='過勞倒下';d='你在案場旁的臨時帳篷裡昏倒,再也沒有醒來。那份報告最後是別人替你交的。'}
+  else if(kind==='sick'){t='病逝任上';d='你沒有等到退休的那一天。同事整理你的辦公桌時,發現抽屜裡有一疊你寫滿註記的舊案。'}
+  else if(kind==='banned'){t='被業界除名';d='公會的函文寄到公司那天,你的名字從名冊上被劃掉了。專業不是被奪走的,是你自己一點一點讓出去的。'}
+  else if(S.co&&S.co.t==='tech'&&(S.f.ipo||S.co.V>=1500)){t=S.f.ipo?'上市公司創辦人':'新創創辦人';d=S.f.ipo?'敲鐘那天的照片掛在辦公室牆上。你的理賠平台,現在每天處理上萬件案子。':'你的新創活了下來,也改變了一部分理賠的做法。'}
+  else if(S.co&&S.co.t==='own'&&(r>=5||S.co.V>=800)){t=r>=5?'公證集團董事長':'公證公司創辦人';d=r>=5?'當年的小工作室,如今在三個城市都有辦公室。':'你當年那個賭注贏了。公司的名字比你的名片更有分量,接班人也已就位。'}
+  else if(S.co&&S.co.t==='bro'&&S.co.V>=800){t='經紀公司創辦人';d='你的經紀公司靠一件件理賠累積口碑,客戶續約率是同業最高。'}
+  else if(S.co&&S.co.t==='con'&&S.co.V>=500){t='顧問公司創辦人';d='企業遇到風險問題,第一個想到的是你的顧問公司。'}
+  else if(r>=4&&tr==='exp'){t=r>=5?'鑑識權威':'首席技術專家';d='法院、保險公司、再保人遇到最難的技術爭議,第一個想到的名字都是你。'}
+  else if(r>=4&&tr==='mgr'){t=r>=5?'公證公司總經理':'一線退下的主管';d=r>=5?'你從案場走到董事會。退休那天,整層樓的人都站起來鼓掌。':'你帶過團隊、簽過大案,也送走了不少新人變前輩。'}
+  else if(r>=4&&tr==='brk'){t='經紀業理賠總監';d='你從勘查現場的人,變成替客戶設計整套理賠策略的人。你處理過的大案,成了經紀公司對外簡報的案例。'}
+  else if(r>=4&&tr==='ins'){t=r>=5?'保險公司副總經理':'保險公司理賠主管';d='你站在保險公司這一側三十年,知道每一筆賠款背後都是一個家庭或一間工廠。'}
+  else if(r>=4&&tr==='rei'){t=r>=5?'全球再保理賠總監':'亞太再保理賠主管';d='你的護照蓋滿了章。倫敦、蘇黎世、新加坡的同業,都叫得出你的名字。'}
+  else if(r>=4&&tr==='edu'){t='桃李滿天下的教授';d='產險圈裡有一半的年輕公證人,上過你的課。'}
+  else if(S.f.semi&&S.fam<82){t='退居二線的顧問';d='最後十五年,你把速度放慢。年輕人遇到難題會來敲你的門,你泡一壺茶,慢慢講。'}
+  else if(r>=5&&S.rep>=80){t='業界傳奇';d='你退休那天,保險公司、再保人與經紀人都派了代表。有人說,你寫的報告是教科書。'}
+  else if(S.f.abroad&&r>=4){t='亞洲區首席公證人';d='新加坡那三年改變了你。退休前,你的名字出現在半個亞洲的大型災損報告裡。'}
+  else if(r>=4){t='一線退下的主管';d='你帶過團隊、簽過大案,也送走了不少新人變前輩。退休後仍有人打電話問:「這件事你怎麼看?」'}
+  else if(S.pro>=72&&S.rep>=65){t='專家中的專家';d='你始終沒有爬到最高的位子,但每個疑難雜症都有人想先問你。'}
+  else if(S.fam>=82&&S.hp>=45){t='圓滿的一生';d='你不是業界最亮的名字,但回家時總有人等你吃飯。這很稀有。'}
+  else if(S.f.sold){t='成功出場的創業家';d='你創過業,也把公司賣在好價錢。之後的日子,你只接自己真正想接的案子。'}
+  else if(S.f.failed&&r>=3){t='跌倒後再站起來的人';d='公司倒閉那年,你以為一切都完了。後來你回到職場,一步一步爬回原來的位置,甚至更高。'}
+  else if(NW()>=8000){t='投資致富的公證人';d='你的薪水只是起點,真正讓你財務自由的,是三十年來的紀律與複利。'}
+  else if(NW()>=3500){t='財務自由的公證人';d='你把案子做完,把錢存下來,也終於可以挑自己想接的案。'}
+  else if(S.fam<=20){t='功成身退,孤身一人';d='報告很漂亮,家裡很安靜。你開始想,當年是不是有哪一次該請假。'}
+  else if(r>=3){t='團隊的中流砥柱';d='你不是最耀眼的那個,但每個團隊都需要你這樣的人。出事的時候,大家第一個打給你。'}
+  else{t='平凡而可靠的專業人';d='你做完了該做的案子,也守住了該守的底線。'}
+  END={kind,t,d,score:score(kind)};
+  S.log.push({age:S.age,t:'結局:'+t,k:(kind==='retire'||kind==='special')?'up':'bad',m:1});
+  P='end';auto=false;render();
+}
+
+/* 自動模式 */
+function autoFocus(){
+  if(S.hp<45||S.fam<30)return 'rest';
+  const w={study:110-S.pro,field:35,net:100-S.net,rest:((100-S.hp)+(100-S.fam))/2};
+  return wpick(FOCUS,f=>w[f.id]).id;
+}
+function autoChoice(){
+  const idx=EV.ch.map((_,i)=>i).filter(i=>shown(EV.ch[i])&&open(EV.ch[i]));
+  return wpick(idx,j=>{const c=EV.ch[j];return (c.c?pOf(c.c):60)*(c.a===undefined?1:c.a)});
+}
+function loop(){
+  clearTimeout(T);
+  if(!S)return;
+  if(P==='run'&&!paused){
+    T=setTimeout(()=>{if(auto)focus=autoFocus();tick()},Math.max(0,dur()-prog()));
+  }else if(auto&&P==='event'){
+    T=setTimeout(()=>choose(autoChoice()),1200);
+  }else if(auto&&P==='result'){
+    T=setTimeout(cont,1500);
+  }
+}
+
+/* ===================== 像素場景 ===================== */
+const ADULT=[
+'...HHHH...','..HHHHHH..','..HHHHHH..','..HSSSSH..','..SESSES..','..SSSSSS..','..SSMMSS..','...SSSS...',
+'..TTWWTT..','.TTTAATTT.','.TTTAATTT.','.TTTAATTT.','.STTTTTTS.','..PPPPPP..','..PP..PP..','..PP..PP..','..BB..BB..'];
+const SPOUSE=[
+'...HHHH...','..HHHHHH..','.HHHHHHHH.','.HHSSSSHH.','.HSESSESH.','.HSSSSSSH.','.HSSMMSSH.','.HHSSSSHH.',
+'..CCCCCC..','.CCCCCCCC.','.CCCCCCCC.','.SCCCCCCS.','..CCCCCC..','..CCCCCC..','...S..S...','...S..S...','...B..B...'];
+const KID0=['.HHHH.','HSSSSH','SESSES','.SMMS.','.CCCC.','SCCCCS','.PPPP.','.B..B.'];
+const KID1=['.HHHH.','HHHHHH','HSSSSH','SESSES','.SMMS.','.CCCC.','SCCCCS','SCCCCS','.PPPP.','.P..P.','.B..B.'];
+const KID2=['..HHHH..','.HHHHHH.','.HSSSSH.','.SESSES.','.SSSSSS.','..SMMS..','.CCCCCC.','CCCCCCCC','SCCCCCCS','.CCCCCC.','.PPPPPP.','.PP..PP.','.PP..PP.','.BB..BB.'];
+const DOG=['......DD','D.....DE','DDDDDDDD','.DDDDDD.','.D.D.D.D'];
+const CAR1=['....CCCCC......','...CGGCGGC.....','.CCCCCCCCCCCC..','CCCCCCCCCCCCCCC','CCCCCCCCCCCCCCC','.KKK.......KKK.'];
+const CAR2=['.....CCCCCCC........','....CGGGCGGGC.......','.CCCCCCCCCCCCCCCCC..','CCCCCCCCCCCCCCCCCCCC','CCCCCCCCCCCCCCCCCCCC','.KKK..........KKK...'];
+const STONE=['..GGGG..','.GGGGGG.','GGGDGGGG','GGDDDGGG','GGGDGGGG','GGGGGGGG','GGGGGGGG','GGGGGGGG','GGGGGGGG','GGGGGGGG'];
+const PLANE=['..W.....','WWWWWWWW','..W.....'];
+
+function hex(c){return [1,3,5].map(i=>parseInt(c.slice(i,i+2),16))}
+function toHex(a){return '#'+a.map(v=>Math.round(clamp(v,0,255)).toString(16).padStart(2,'0')).join('')}
+function mix(a,b,t){const A=hex(a),B=hex(b);return toHex(A.map((v,i)=>v+(B[i]-v)*t))}
+function skyAt(t){
+  const st=[[0,'#a8dcff'],[.35,'#86c8f2'],[.65,'#f4cf93'],[.85,'#ee9a72'],[1,'#7a5a96']];
+  for(let i=1;i<st.length;i++)if(t<=st[i][0]){const [a,ca]=st[i-1],[b,cb]=st[i];return mix(ca,cb,(t-a)/(b-a))}
+  return st[st.length-1][1];
+}
+function hairAt(age){return age<42?'#2a2522':age<52?'#5e5853':age<60?'#9d9893':'#dcdad6'}
+function outfit(){
+  const r=S.rank,tr=S.track,sp=END&&END.kind==='special';
+  if(sp||S.f.semi)return {T:'#4f9ac7',A:'#3f86b3',W:'#4f9ac7',P:'#c8b991'};
+  if(tr==='edu')return {T:'#5d7d4a',A:'#f2efe6',W:'#f2efe6',P:'#6e604c',glass:1,book:1};
+  if(tr==='brk')return {T:'#1f3554',A:'#d9a521',W:'#ffffff',P:'#1f3554',bag:1};
+  if(tr==='ins')return {T:'#6b7380',A:'#2d6cb5',W:'#ffffff',P:'#5b636f',bag:1};
+  if(tr==='rei')return {T:'#23262c',A:'#8a2343',W:'#ffffff',P:'#23262c',bag:1};
+  if(tr==='own')return {T:'#5b4636',A:'#2e7d5b',W:'#ffffff',P:'#4d3b2e',bag:1};
+  if(tr==='bro')return {T:'#2b2f3a',A:'#d9a521',W:'#ffffff',P:'#2b2f3a',bag:1};
+  if(tr==='con')return {T:'#4a5c6e',A:'#e0a030',W:'#ffffff',P:'#3b4a5a',glass:1,bag:1};
+  if(tr==='tech')return {T:'#333a44',A:'#333a44',W:'#333a44',P:'#4a6fa5'};
+  if(tr==='exp'&&r>=3)return {T:'#eef0f2',A:'#5a8fbf',W:'#5a8fbf',P:'#4a5562',glass:1,bag:1};
+  if((tr==='mgr'||tr==='adj')&&r>=3)return {T:'#3a3f48',A:'#b8322a',W:'#ffffff',P:'#3a3f48',bag:1};
+  if(r>=2)return {T:'#9cc3e6',A:'#22395a',W:'#ffffff',P:'#3b4a5a',helm:'#f4f4f4',bag:1};
+  return {T:'#f07f1f',A:'#e9e9e2',W:'#f07f1f',P:'#3b4a5a',helm:'#f5c400',board:1};
+}
+function homeKind(){return S.home>0?(NW()>=1500?'villa':'apt'):'room'}
+function carKind(){const n=NW();return n>=1000?2:n>=150?1:0}
+function sceneCaption(){
+  const h={room:'租屋雅房',apt:'公寓',villa:'透天厝'}[homeKind()];
+  const c=['沒有車','小型車','房車'][carKind()];
+  const fam=[];
+  if(S.f.married)fam.push('配偶');if(S.kids)fam.push(S.kids+' 個孩子');if(S.fam>=75)fam.push('一隻狗');
+  return MKT[S.mkt].n+' · '+RT().n+' · '+rankName()+' · '+h+' · '+c+(fam.length?' · '+fam.join('、'):'')+(S.f.abroad?' · 有外派經歷':'');
+}
+function drawScene(cv){
+  if(!cv||!cv.getContext)return;
+  const c=cv.getContext('2d');if(!c)return;
+  const W=120;
+  const px=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
+  const spr=(map,x,y,pal)=>map.forEach((row,j)=>{for(let i=0;i<row.length;i++){const k=pal[row[i]];if(k)px(x+i,y+j,1,1,k)}});
+  const dead=END&&(END.kind==='collapse'||END.kind==='sick');
+  const t=clamp((S.age-23)/42,0,1);
+  const night=dead||t>.93;
+  /* 天空:年紀越大,天色從早晨走向黃昏 */
+  const sky=dead?'#1c2240':skyAt(t);
+  for(let i=0;i<4;i++)px(0,i*11,W,11,mix(sky,'#ffffff',i*0.06));
+  if(night){
+    [[8,5],[20,12],[33,4],[47,9],[61,3],[75,11],[84,6],[110,4]].forEach(([x,y])=>px(x,y,1,1,'#f4f1d0'));
+    px(100,6,5,5,'#f2efcf');px(102,6,3,2,sky);
+  }else{
+    const sx=Math.round(6+t*104),sy=Math.round(24-Math.sin(Math.PI*t)*18),sc=t>.7?'#ffb46b':'#ffe48a';
+    px(sx-2,sy-3,5,7,sc);px(sx-3,sy-2,7,5,sc);
+  }
+  const cl=(x,y)=>{const col=night?'#3a4166':'#ffffff';px(x,y,9,2,col);px(x+2,y-1,5,1,col);px(x+1,y+2,7,1,col)};
+  const off=(S.seed%50)+S.age*3;
+  cl((off%140)-12,9);cl(((off+64)%140)-12,15);
+  if(S.mkt==='cat'&&!dead){
+    px(0,0,W,44,'rgba(70,80,96,0.35)');
+    for(let i=0;i<40;i++){const x=(i*37+S.age*11)%W,y=(i*13+S.age*7)%40+2;px(x,y,1,2,'#c9d6e3')}
+  }
+  if(S.f.abroad||S.track==='rei')spr(PLANE,((S.age*7+S.seed)%90)+10,5,{W:night?'#c9cbe0':'#ffffff'});
+  /* 地面 */
+  px(0,44,W,12,'#79b85a');px(0,44,W,1,'#5f9a45');px(0,46,W,3,'#cbbfa3');px(0,49,W,1,'#b3a68a');px(0,52,W,4,'#6aa64e');
+  /* 住處 */
+  const kind=homeKind(),lit=night?'#ffe6a0':'#6a7c8c';
+  let top=24;
+  if(kind==='room'){
+    px(90,24,24,22,'#b8afa3');px(90,24,24,2,'#9c9388');
+    for(let r=0;r<3;r++)for(let k=0;k<2;k++)px(94+k*10,28+r*6,5,3,lit);
+    px(101,41,3,2,'#e6e6e6');px(106,40,4,6,'#6b4a35');
+  }else if(kind==='apt'){
+    top=12;px(88,12,28,34,'#d8c9b0');px(88,12,28,2,'#bfae92');
+    for(let r=0;r<5;r++)for(let k=0;k<4;k++)px(91+k*6,16+r*5,4,3,(night&&(r+k)%2)?'#ffe6a0':'#6a7c8c');
+    px(99,40,6,6,'#5d4636');
+  }else{
+    top=17;px(90,24,26,22,'#efe0c4');
+    for(let i=0;i<7;i++)px(88+i*2,23-i,30-i*4,1,'#b8432f');
+    px(94,28,6,5,night?'#ffe6a0':'#86b6d6');px(106,28,6,5,night?'#ffe6a0':'#86b6d6');px(92,35,22,1,'#9a8a70');px(101,37,6,9,'#7a4b2e');
+  }
+  if(S.co||(END&&END.kind==='special')){
+    const sc=S.co?{own:'#f5c400',bro:'#d9a521',con:'#7fb2d6',tech:'#a98be0'}[S.co.t]:'#3f9c7a';
+    px(92,top-7,22,5,sc);for(let k=0;k<5;k++)px(94+k*4,top-5,2,1,'#1b1500');px(95,top-2,1,2,'#555555');px(110,top-2,1,2,'#555555');
+  }
+  /* 車 */
+  const ck=carKind();
+  if(ck===1)spr(CAR1,4,43,{C:'#d2463c',G:'#a8d4ee',K:'#1d1d1d'});
+  if(ck===2)spr(CAR2,2,43,{C:'#2b3240',G:'#a8d4ee',K:'#111111'});
+  /* 配偶 */
+  if(S.f.married)spr(SPOUSE,38,32,{H:hairAt(S.age),S:'#f1c7a1',E:'#2b2b2b',M:'#a2533f',C:'#c0507a',B:'#2a2a2a'});
+  /* 主角:髮色隨年齡、服裝隨職級與路線、表情隨健康與家庭 */
+  const o=outfit(),age=S.age,mood=(S.hp+S.fam)/2;
+  const m=ADULT.slice();
+  if(o.helm&&!END){m[0]='...YYYY...';m[1]='..YYYYYY..';m[2]='.YYYYYYYY.'}
+  else if(age>=58){m[0]='..........';m[2]='..HSSSSH..'}
+  if(o.glass||age>=48)m[4]='..GEGGEG..';
+  if(mood<35){m[5]='..SDSSDS..';m[6]='..SMMMMS..'}
+  else if(mood>=62){m[6]='..SMSSMS..';m[7]='...SMMS...'}
+  const X=51,Y=32;
+  if(dead){
+    spr(STONE,X+1,Y+7,{G:'#8d939c',D:'#5c626b'});
+    [[X,'#e05a6a'],[X+2,'#f5c400'],[X+7,'#e05a6a'],[X+9,'#ffffff']].forEach(([x,col])=>px(x,45,1,1,col));
+  }else{
+    spr(m,X,Y,{H:hairAt(age),Y:o.helm,S:'#f1c7a1',D:'#cf9a78',E:'#2b2b2b',G:'#3a3a3a',M:'#a2533f',T:o.T,A:o.A,W:o.W,P:o.P,B:'#2a2a2a'});
+    if(END&&END.kind==='banned'){px(X+1,Y+10,8,5,'#b88a52');px(X+1,Y+12,8,1,'#8a6438')}
+    else if(!END||END.kind!=='special'){
+      if(o.bag&&!S.f.semi){px(X+8,Y+13,3,3,'#6b4428');px(X+9,Y+12,1,1,'#6b4428')}
+      if(o.book)px(X+8,Y+11,2,3,'#b8322a');
+      if(o.board)px(X-1,Y+10,2,3,'#c8a36a');
+    }
+    if(S.rep>=80)px(X+2,Y+9,1,1,'#ffd23f');
+    if(S.f.cert)px(X+7,Y+9,1,1,'#6fd0ff');
+  }
+  /* 孩子:隨年齡長大 */
+  const kc=['#3e9e6a','#e0a030'];
+  S.kb.slice(0,2).forEach((b,i)=>{
+    const ka=S.age-b,x=64+i*9,pal={H:'#2a2522',S:'#f1c7a1',E:'#2b2b2b',M:'#a2533f',C:kc[i],P:'#3b4a5a',B:'#2a2a2a'};
+    const mp=ka<4?KID0:ka<12?KID1:KID2;
+    spr(mp,x,49-mp.length,pal);
+  });
+  if(S.fam>=75&&!dead)spr(DOG,80,44,{D:'#b07a45',E:'#222222'});
+  if(S.pro>=80&&!dead){px(30,45,6,1,'#2f5d7c');px(31,44,5,1,'#b8322a');px(30,43,6,1,'#e0a030')}
+}
+
+/* ===================== 畫面 ===================== */
+const chip=(t,c)=>'<span class="chip '+c+'">'+t+'</span>';
+const TRS={careful:'判斷技術問題比較有把握',smooth:'擅長化解衝突、建立關係',stub:'堅持原則,但不容易交朋友',work:'衝現場收穫更多,家庭容易被犧牲',home:'陪家人時收穫更多,不喜歡長期出差',opt:'身體比較耐操,遇到挫折也恢復得快',amb:'升遷比較快、機會比較多,但容易忽略家庭',sweet:'人脈累積得快,保險公司窗口特別喜歡你',just:'拒絕不當利益時,名聲加分更多',risk:'容易大成功,也容易大失敗'};
+const FBS={rich:'家裡有一筆起步資金,家人也支持你',normal:'一般家庭,沒有特別的助力或負擔',loan:'畢業就背著學貸,前幾年存錢比較慢',pillar:'你是家裡的經濟支柱,很顧家,但要分擔家計'};
+const lvl=v=>v>=75?'頂尖':v>=60?'優秀':v>=50?'不錯':v>=40?'普通':v>=25?'偏弱':'很差';
+const rel=v=>v>=40?'交情深厚':v>=15?'關係不錯':v>-15?'普通':v>-35?'有心結':'交惡';
+const odds=p=>p>=80?'勝算很高':p>=60?'勝算不錯':p>=40?'一半一半':p>=20?'有點冒險':'很冒險';
+function arrows(fx){
+  if(!fx)return '';
+  const o=[],ar=(v,big)=>(v>0?'↑':'↓')+(Math.abs(v)>=big?(v>0?'↑':'↓'):'');
+  KEYS.forEach(k=>{if(fx[k])o.push(chip(KN[k]+' '+ar(fx[k],6),fx[k]>0?'up':'dn'))});
+  if(fx.cash)o.push(chip('存款 '+ar(fx.cash,100),fx.cash>0?'up':'dn'));
+  if(fx.raise)o.push(chip('薪水 '+ar(fx.raise,.1),fx.raise>0?'up':'dn'));
+  ['lin','chen','wang'].forEach(k=>{if(fx[k])o.push(chip(NPCN[k]+' '+(fx[k]>0?'♥':'✕'),fx[k]>0?'up':'dn'))});
+  if(fx.res)o.push(chip('公司資金 '+ar(fx.res,100),fx.res>0?'up':'dn'));
+  if(fx.gov)o.push(chip('公司紀律 '+ar(fx.gov,10),fx.gov>0?'up':'dn'));
+  if(fx.sz)o.push(chip('公司規模 '+ar(fx.sz,.3),fx.sz>0?'up':'dn'));
+  if(fx.Vm)o.push(chip('公司估值 '+ar(fx.Vm-1,.3),fx.Vm>=1?'up':'dn'));
+  if(fx.home)o.push(chip('房產 ↑','up'));
+  const FL={married:'結婚',house:'購屋',abroad:'外派',divorced:'分開',eng:'英文能力',cert:'國際證照',sprint:'衝刺模式',semi:'放慢腳步'};
+  if(fx.flag&&FL[fx.flag])o.push(chip(FL[fx.flag],'hk'));
+  if(fx.kid)o.push(chip('家中添丁','hk'));
+  if(fx.route)o.push(chip('轉向'+ROUTES[fx.route].n,'hk'));
+  if(fx.found)o.push(chip('創立'+CO[fx.found].n,'hk'));
+  if(fx.st)o.push(chip(STA[fx.st].n,'hk'));
+  if(fx.sk)o.push(chip('學會'+SK[fx.sk].n,'hk'));
+  if(fx.strat)o.push(chip('理財改為'+STRAT[fx.strat].n,'hk'));
+  if(fx.invSell)o.push(chip('賣出投資','hk'));
+  if(fx.invBuy)o.push(chip('加碼投資','hk'));
+  if(fx.pol)o.push(chip('公司'+POL[fx.pol].n,'hk'));
+  if(fx.big&&fx.big>-9)o.push(chip('大案'+(fx.big>0?'優勢':'劣勢'),fx.big>0?'up':'dn'));
+  if(fx.sched)o.push(chip(/^big/.test(fx.sched.id)?'大案下一階段':'埋下伏筆','hk'));
+  if(fx.sell)o.push(chip('出售公司','hk'));
+  if(fx.bust)o.push(chip('公司結束','dn'));
+  if(fx.ipo)o.push(chip('公司上市','hk'));
+  if(fx.end)o.push(chip('人生轉折','hk'));
+  return o.join('');
+}
+const fxView=fx=>detail?fxChips(fx):arrows(fx);
+function fxChips(fx){
+  if(!fx)return '';
+  const o=[];
+  KEYS.forEach(k=>{if(fx[k])o.push(chip(KN[k]+(fx[k]>0?'+':'')+fx[k],fx[k]>0?'up':'dn'))});
+  if(fx.cash)o.push(chip('現金'+(fx.cash>0?'+':'−')+cur(Math.abs(fx.cash)),fx.cash>0?'up':'dn'));
+  if(fx.raise)o.push(chip('薪資'+(fx.raise>0?'+':'')+Math.round(fx.raise*100)+'%',fx.raise>0?'up':'dn'));
+  const FL={married:'結婚',house:'購屋',abroad:'外派',divorced:'分開',eng:'英文能力',cert:'國際證照',sprint:'衝刺模式',semi:'退居二線'};
+  if(fx.flag&&FL[fx.flag])o.push(chip(FL[fx.flag],'hk'));
+  if(fx.kid)o.push(chip('家中添丁','hk'));
+  if(fx.route)o.push(chip('轉向'+ROUTES[fx.route].n,'hk'));
+  if(fx.big&&fx.big>-9)o.push(chip('大案'+(fx.big>0?'優勢 +':'劣勢 ')+fx.big,fx.big>0?'up':'dn'));
+  if(fx.sched)o.push(chip(/^big/.test(fx.sched.id)?'大案下一階段':'埋下伏筆','hk'));
+  ['lin','chen','wang'].forEach(k=>{if(fx[k])o.push(chip(NPCN[k]+'好感'+(fx[k]>0?'+':'')+fx[k],fx[k]>0?'up':'dn'))});
+  if(fx.st)o.push(chip('狀態:'+STA[fx.st].n+'('+STA[fx.st].y+' 年)','hk'));
+  if(fx.sk)o.push(chip('學會:'+SK[fx.sk].n,'hk'));
+  if(fx.strat)o.push(chip('理財改為'+STRAT[fx.strat].n,'hk'));
+  if(fx.invSell)o.push(chip('賣出'+(fx.invSell<1?'一半':'全部')+'投資','hk'));
+  if(fx.invBuy)o.push(chip('加碼投資','hk'));
+  if(fx.home)o.push(chip('房產 +'+cur(fx.home),'up'));
+  if(fx.found)o.push(chip('創立'+CO[fx.found].n,'hk'));
+  if(fx.res)o.push(chip('公司準備金'+(fx.res>0?'+':'−')+cur(Math.abs(fx.res)),fx.res>0?'up':'dn'));
+  if(fx.gov)o.push(chip('治理'+(fx.gov>0?'+':'')+fx.gov,fx.gov>0?'up':'dn'));
+  if(fx.sz)o.push(chip('公司規模'+(fx.sz>0?'+':'')+fx.sz,fx.sz>0?'up':'dn'));
+  if(fx.Vm)o.push(chip('公司估值 ×'+fx.Vm,fx.Vm>=1?'up':'dn'));
+  if(fx.pol)o.push(chip('方針改為'+POL[fx.pol].n,'hk'));
+  if(fx.sell)o.push(chip('出售公司','hk'));
+  if(fx.bust)o.push(chip('公司結束','dn'));
+  if(fx.ipo)o.push(chip('公司上市','hk'));
+  if(fx.end)o.push(chip('人生轉折','hk'));
+  return o.join('');
+}
+function mast(){return '<div class="mast"><b>冒險公證人</b><span class="code">人生代碼 '+S.seed+'</span></div>'}
+function stage(){
+  let bar='';
+  if(P==='run'){
+    bar='<div class="yb"><span>'+(paused?'暫停中':'時間流逝中')+'</span><b>'+S.age+' → '+(S.age+1)+' 歲</b></div>'
+      +'<div class="ytrack"><u class="run'+(paused?' pz':'')+'" style="animation-duration:'+dur()+'ms;animation-delay:-'+Math.round(prog())+'ms"></u></div>';
+  }else if(P==='event'||P==='result'){
+    bar='<div class="yb"><span>十字路口,時間暫停</span><b>'+S.age+' 歲</b></div><div class="ytrack"><u class="hold"></u></div>';
+  }
+  const L=a=>((a-23)/42*100).toFixed(2)+'%';
+  const marks=S.log.filter(e=>e.m&&e.age>23).map(e=>'<'+(e.m===2?'i class="done"':'em')+' style="left:'+L(e.age)+'"></'+(e.m===2?'i':'em')+'>').join('');
+  const life=END?'':'<div class="life"><div class="yb"><span>人生進度 · 菱形為轉職,黃點為升遷</span><b>'+Math.round((S.age-23)/42*100)+'%</b></div>'
+    +'<div class="ltrack"><u style="width:'+L(Math.min(S.age,65))+'"></u>'+marks+'</div>'
+    +'<div class="lscale">'+[23,35,45,55,65].map(a=>'<span style="left:'+L(a)+'">'+a+'</span>').join('')+'</div></div>';
+  return '<section class="stage"><canvas class="scene" id="scene" width="120" height="56" role="img" aria-label="人物與生活場景"></canvas>'
+    +'<p class="cap">'+sceneCaption()+'</p>'+(!END&&S.hp<25?'<p class="var warn">身體在發出警訊。'+(S.f.hosp?'你已經倒下過一次,再倒下可能就醒不來了。':'')+'建議把人生重心換成「休養陪家人」。</p>':'')+bar+life+'</section>';
+}
+function finLine(){
+  if(!detail){let h='<p class="cap">理財:'+STRAT[S.strat].n+(S.home>0?' · 有房產':'')+(S.mort>0?' · 還房貸中':'')+'</p>';if(S.co){const c=S.co,st=c.res<CO[c.t].cap*.1||c.lp<0?'吃緊':c.lp>CO[c.t].P*.15?'成長中':'穩定';h+='<div class="var">'+CO[c.t].n+' · 營運'+st+' · 公司紀律'+(c.gov>=70?'良好':c.gov>=45?'普通':'鬆散')+' · 方針:'+POL[c.pol].n+'</div>'}return h}
+  const p=['現金 '+cur(S.cash)+'','投資 '+cur(S.inv)+'('+STRAT[S.strat].n+(S.inv>0?',今年 '+(S.lr>=0?'+':'')+Math.round(S.lr)+'%':'')+')'];
+  if(S.home>0)p.push('房產 '+cur(S.home)+''+(S.mort>0?'(房貸 '+cur(S.mort)+')':''));
+  let h='<p class="cap mono">'+p.join(' · ')+'</p>';
+  if(S.co){const c=S.co;h+='<div class="var">'+CO[c.t].n+' · 規模 '+c.sz.toFixed(1)+' · 去年'+(c.lp>=0?'獲利 +':'虧損 ')+cur(c.lp)+' · 公司價值 '+cur(c.V)+' · 準備金 '+cur(c.res)+' · 治理 '+Math.round(c.gov)+' · 方針:'+POL[c.pol].n+'</div>'}
+  return h;
+}
+function profLine(){
+  const rows=[];
+  rows.push('<b>特質</b> '+S.traits.map(x=>TR[x].n).join('、')+' · <b>擅長</b> '+KN[S.tal]+' · <b>較弱</b> '+KN[S.weak]);
+  const sk=Object.keys(S.skills).map(x=>SK[x].n);rows.push('<b>技能</b> '+(sk.length?sk.join('、'):'尚未學會'));
+  rows.push('<b>人物</b> '+Object.keys(NPCN).map(x=>NPCN[x]+' '+(detail?(S.npc[x]>0?'+':'')+S.npc[x]:rel(S.npc[x]))).join(' · '));
+  if(S.st.length)rows.push('<b>狀態</b> '+S.st.map(z=>STA[z.id].n+(detail?'(剩 '+z.y+' 年)':'')).join('、'));
+  return '<div class="cap prof">'+rows.map(r=>'<span>'+r+'</span>').join('')+'</div>';
+}
+function head(){
+  const bars=KEYS.map(k=>'<div class="st"><span>'+KN[k]+'</span><i><u style="width:'+S[k]+'%;background:var(--s-'+k+')"></u></i><b class="'+(S[k]<25?'low':'')+'">'+(detail?Math.round(S[k]):(S[k]<25?'危險':''))+'</b></div>').join('');
+  const tg=[MKT[S.mkt].n,STK[S.stk].n];
+  if(S.f.married)tg.push('已婚');if(S.f.divorced)tg.push('離婚');
+  if(S.kids)tg.push('子女 '+S.kids);if(S.mort>0)tg.push('有房貸');if(S.f.rent)tg.push('收租中');
+  if(S.f.abroad)tg.push('外派經歷');if(S.f.eng)tg.push('英文能力');if(S.f.cert)tg.push('國際證照');
+  if(S.f.sprint)tg.push('衝刺模式');if(S.f.semi)tg.push('退居二線');
+  const pend=S.q.filter(q=>!/^big/.test(q.id)).length;if(S.q.some(q=>/^big/.test(q.id)))tg.push('大案進行中');if(pend)tg.push('伏筆 '+pend+' 件');
+  return '<section class="hdr"><div class="kvs">'
+   +'<div class="kv"><span>年齡</span><b>'+S.age+'</b></div>'
+   +'<div class="kv"><span>路線</span><b class="zh">'+RT().n+'</b></div>'
+   +'<div class="kv"><span>職稱</span><b class="zh">'+rankName()+'</b></div>'
+   +(detail?'<div class="kv"><span>月薪(估)</span><b>'+monthly().toFixed(1)+' 萬</b></div>':'')
+   +'<div class="kv"><span>淨資產</span><b>'+cur(NW())+'</b></div>'
+   +'</div>'+finLine()+'<div class="sts">'+bars+'</div>'+profLine()
+   +(tg.length?'<div class="tags">'+tg.map(x=>chip(x,'pr')).join('')+'</div>':'')
+   +'</section>';
+}
+function controls(){
+  const run=P==='run';
+  const fb=FOCUS.map(f=>'<button data-a="focus" data-v="'+f.id+'" class="'+(focus===f.id?'on':'')+'">'+fName(f)+'</button>').join('');
+  const sb=Object.keys(SPD).map(k=>'<button data-a="speed" data-v="'+k+'" class="'+(speed===k?'on':'')+'">'+SPD[k][1]+'</button>').join('');
+  return '<section class="ctrl">'
+   +'<span class="lbl">人生重心(隨時可換)</span><div class="seg s4">'+fb+'</div>'
+   +'<span class="lbl">理財策略</span><div class="seg s3">'+Object.keys(STRAT).map(k=>'<button data-a="strat" data-v="'+k+'" class="'+(S.strat===k?'on':'')+'">'+STRAT[k].n+'</button>').join('')+'</div>'
+   +(S.co?'<span class="lbl">公司方針</span><div class="seg s3">'+Object.keys(POL).map(k=>'<button data-a="pol" data-v="'+k+'" class="'+(S.co.pol===k?'on':'')+'">'+POL[k].n+'</button>').join('')+'</div>':'')
+   +'<span class="lbl">時間速度</span><div class="ctrl-row">'
+   +(run?'<button class="pbtn '+(paused?'go':'')+'" data-a="pause">'+(paused?'繼續':'暫停')+'</button>':'')
+   +'<div class="seg s3" style="flex:1;min-width:150px">'+sb+'</div></div>'
+   +'<label class="auto"><input type="checkbox" id="autoBox"'+(auto?' checked':'')+'> 自動抉擇(重心與事件都交給系統)</label>'
+   +'<button class="linkbtn" data-a="detail">'+(detail?'隱藏詳細數據':'顯示詳細數據')+'</button>'
+   +'</section>';
+}
+function feedHTML(limit){
+  const L=S.log.slice(-limit).reverse();
+  return '<ul class="feed">'+L.map((e,i)=>{
+    const [a,b]=e.t.split('|');
+    const isNew=fresh&&(S.log.length-i)===fresh;
+    return '<li class="'+e.k+(isNew?' new':'')+'"><span>'+e.age+' 歲</span><div>'
+      +(b?'<b>'+a+'</b><span>'+b+'</span>':'<span>'+a+'</span>')
+      +(e.fx?'<span class="row">'+fxView(e.fx)+'</span>':'')+'</div></li>';
+  }).join('')+'</ul>';
+}
+function probHTML(){
+  const rows=a=>a.map(x=>'<tr><td>'+x.n+'</td><td class="r">'+pct(a,x)+'%</td></tr>').join('');
+  const rk=RANK.slice(1).map((r,i)=>'<tr><td>第 '+(i+2)+' 階</td><td class="r">'+r.y+'</td><td class="r">'+r.pro+'</td><td class="r">'+r.rep+'</td><td class="r">'+r.net+'</td><td class="r">'+r.m+'</td></tr>').join('');
+  const sg=v=>v?(v>0?'+':'')+v:'—';
+  const rt=Object.values(ROUTES).map(r=>'<tr><td>'+r.n+'<br><span class="mute" style="font-size:12px">'+r.r[1]+' → '+r.r[5]+'</span></td><td class="r">×'+r.m+'</td><td class="r">'+(r.d===null?'依公司':r.d)+'</td><td class="r">'+sg(r.off.pro)+'</td><td class="r">'+sg(r.off.rep)+'</td><td class="r">'+sg(r.off.net)+'</td></tr>').join('');
+  return '<div class="dbody">'
+   +'<p class="mute">所有機率都是遊戲設計,不是真實統計。</p>'
+   +'<div class="tbl"><table><tr><th>入行背景</th><th></th></tr>'+rows(BG)+'</table></div>'
+   +'<div class="tbl"><table><tr><th>專長領域</th><th></th></tr>'+rows(SP)+'</table></div>'
+   +'<div class="tbl"><table><tr><th>任職公司</th><th></th></tr>'+rows(FM)+'</table></div>'
+   +'<div class="tbl"><table><tr><th>職涯路線</th><th class="r">月薪</th><th class="r">健康耗損</th><th class="r">專業門檻</th><th class="r">信譽門檻</th><th class="r">人脈門檻</th></tr>'+rt+'</table></div>'
+   +'<div class="tbl"><table><tr><th>升遷基準</th><th class="r">年資</th><th class="r">專業</th><th class="r">信譽</th><th class="r">人脈</th><th class="r">月薪(萬)</th></tr>'+rk+'</table></div>'
+   +'<table>'
+   +'<tr><td>時間</td><td>年齡自動推進。黃色橫條是「這一年」的進度,下方深色橫條是 23 到 65 歲的人生進度,菱形是轉職,黃點是升遷。遇到事件時間暫停。</td></tr>'
+   +'<tr><td>轉職機會</td><td>完全隨機,沒有固定年齡,也沒有保底。各種邀請(技術組、管理職、保險公司、經紀公司、再保公司、大學、創業、老東家)依你的數值、年齡與目前路線決定能不能出現;兩次轉職邀請之間至少間隔 3 年。</td></tr>'
+   +'<tr><td>數值與加成</td><td>部分選項綜合多項數值判定(例:專業 60% + 人脈 40%)。入行背景對應的案件 +8%(理工:技術案;法律商管:條款爭議;船務海事:貨物海事;保險公司轉職:與保險公司打交道),專長對口 +5%,所在路線的專屬事件 +5%,技術專家線的專業判定、管理線的人脈判定各 +5%,有國際證照的專業判定 +3%。</td></tr>'
+   +'<tr><td>隱藏選項</td><td>某項數值夠高時,才會出現的高手選項(例:專業 ≥ 75)。</td></tr>'
+   +'<tr><td>數值與結果</td><td>結果偏好時,若主要數值 ≥ 75,正面效果 ×1.3;結果偏壞時,若主要數值 < 35,負面效果 ×1.3,並附上對應的敘述。</td></tr>'
+   +'<tr><td>三階段大案</td><td>入行 6 年後可能接到大案:勘查、計算、談判,分 1–2 年依序發生。每一階段的表現會累積成優勢或劣勢,每點影響後續判定 ±8%。</td></tr>'
+   +'<tr><td>事件</td><td>每年 60% 觸發十字路口。沒有事件的年份,60% 發生小插曲。專長相符的事件權重 ×3,所在路線的專屬事件權重 ×2.5,看過的事件權重 ×0.4。</td></tr>'
+   +'<tr><td>判定</td><td>每個選項都有多種結果。有判定的選項:成功率 = 基準 + (相關數值 − 50) × 係數 + 現場變數,限制在 5%–95%;成功中約 12–20% 為大成功,失敗中 20% 為大失敗。其他選項依最相關的數值:成功率 = 70 + (數值 − 50) × 0.5,限制在 20%–92%,其中 30% 為「順利」,其餘為「如預期」,失敗為「出狀況」。大成功、順利、出狀況、大失敗會附帶隨機插曲。</td></tr>'
+   +'<tr><td>現場變數</td><td>非職涯分岔的事件,有 60% 機率抽到一個現場變數,讓特定數值的判定 ±5–15%。</td></tr>'
+   +'<tr><td>市場景氣</td><td>每年 7% 機率進入巨災年(只持續一年,收入 ×1.15、健康 −3、颱風與地震類事件增加);否則有 16% 機率在平穩、軟市場(收入 ×0.9)、硬市場(收入 ×1.1)之間切換。</td></tr>'
+   +'<tr><td>伏筆</td><td>部分選擇會在 1–6 年後觸發後續事件。</td></tr>'
+   +'<tr><td>升遷</td><td>達到門檻(基準 + 路線調整)後,每年 35% 機率升遷;衝刺模式 50%;野心特質 +10%;退居二線不升遷。自己開公司時,職稱依公司規模決定。</td></tr>'
+   +'<tr><td>開局條件</td><td>家庭背景(富裕 15%、小康 55%、學貸 20%、家中經濟支柱 10%);隨機 2 個個性特質(圓融與固執、工作狂與顧家不會同時出現);1 項天賦(成長 ×1.4)與 1 項短板(成長 ×0.7)。</td></tr>'
+   +'<tr><td>個性特質</td><td>'+Object.values(TR).map(x=>x.n+':'+x.d).join(';')+'。</td></tr>'
+   +'<tr><td>技能</td><td>選「苦讀專業」時每年 25% 機率學會一項技能(專長相關的技能機率 ×3),部分事件也會教你技能。技能對相關案件判定 +5–8%,並解鎖技能專屬選項。</td></tr>'
+   +'<tr><td>人物</td><td>林前輩、陳志明、王經理的好感度從 −50 到 100。林前輩好感 ≥ 40 會在危機時相挺,≥ 30 會在退休後推薦你;陳志明好感低會搶功、挖角,好感高可能找你合夥;王經理的好感影響案量(收入 −5% 到 +10%)與保險公司相關判定。</td></tr>'
+   +'<tr><td>持續狀態</td><td>'+Object.values(STA).map(x=>x.n+' '+x.y+' 年').join('、')+'。媒體點名:信譽判定 −5%;業界得獎:人脈判定 +5%;腰傷:健康判定 −8%、衝現場收益 ×0.7;新婚期:家庭不下降;被稽核盯上:大失敗機率加倍;大案光環:收入 +10%;燃燒殆盡:所有判定 −5%。</td></tr>'
+   +'<tr><td>數值連動</td><td>健康 < 30:工作判定 −10%;家庭 < 30:健康每年多 −2;信譽每高於 60 一點,收入 +0.5%;年資每 10 年專業判定 +3%;50 歲後健康判定 −5%。</td></tr>'
+   +'<tr><td>理財</td><td>每年儲蓄存入現金(利率 1.5%),再依理財策略分配:保守全放現金;穩健 50% 投資,平均 5%,波動 ±10%;積極 80% 投資,平均 7%,波動 ±25%,股市影響 ×1.4。股市狀態:多頭 +8%、空頭 −10%、股災 −28%(每年 6% 機率發生,隔年轉空頭)。買房後房產每年增值 2–5%,房貸每年減少 30 萬。</td></tr>'
+   +'<tr><td>創業</td><td>公證公司 300 萬、經紀公司 500 萬、顧問公司 200 萬、科技新創 800 萬。每年損益 = 公司基準 × 規模 ×(能力係數 − 1.02 ± 波動 + 景氣 + 方針;成立前 2 年再 −0.15);能力係數 =(人脈 35% + 信譽 35% + 專業 30%)÷ 60。獲利一半成為你的分紅,一半留在公司;虧損由公司準備金吸收,準備金用完會觸發「現金告急」。方針:擴張(規模成長快、治理每年 −3、健康 −2)、穩健(治理每年 −1)、節流(獲利 +8%、治理不下降、規模慢慢縮小)。3 年內第二次現金告急時,銀行不再放款。治理分數 < 40 時獲利 −15%,主管機關檢查更頻繁。倒閉後投入歸零、信譽 −15,回到原本職涯,4 年後可再創業。</td></tr>'
+   +'<tr><td>過勞</td><td>健康第一次歸零時會被送醫(強制事件),可以選擇休養、回去工作或換輕鬆的工作;第二次歸零才會過勞死。健康低於 40 時每年自然恢復 1。</td></tr>'
+   +'<tr><td>每年消耗</td><td>家庭 −1.5;專業與人脈各 −0.5;健康 −(路線或公司耗損);40 歲後再 −0.06 ×(年齡 − 40)。退居二線時健康耗損 ×0.3、薪水 ×0.5。</td></tr>'
+   +'<tr><td>儲蓄</td><td>年收入 × 30%;還房貸期間 −8%,每個孩子 −4%,學貸(28 歲前)與家中經濟支柱(40 歲前)各 −10%,最低 5%。</td></tr>'
+   +'<tr><td>場景</td><td>天色隨年齡從早晨走到黃昏。住處:租屋雅房 → 買房後公寓 → 淨資產 1,500 萬以上換透天。車:淨資產 150 萬小車、1,000 萬房車。開公司後屋頂掛招牌。服裝隨路線與職級改變(安全帽、襯衫、西裝、白袍、毛衣)。家庭 ≥ 75 有狗,專業 ≥ 80 有一疊書,信譽 ≥ 80 胸前別金徽章,有證照別藍徽章。表情隨健康與家庭平均值改變。</td></tr>'
+   +'<tr><td>病逝</td><td>45 歲後每年 0.03% ×(年齡 − 45)×(1 + max(0, 60 − 健康)÷ 40)。</td></tr>'
+   +'<tr><td>總評</td><td>五項平均 × 0.6 + 職階 × 5 + min(淨資產 ÷ 400, 10) + 退休加 5,上限 100。</td></tr>'
+   +'<tr><td>可重現</td><td>相同人生代碼、相同的重心與選擇,會得到相同的人生。</td></tr>'
+   +'</table></div>';
+}
+function startView(){
+  return '<section class="hero"><span class="stamp">案件卷宗 · 保險公證人</span>'
+   +'<h1>冒險公證人</h1>'
+   +'<p class="lede">你是一名保險公證人。從 23 歲入行到 65 歲退休,時間會自己往前走。你決定人生重心、在十字路口做選擇。轉職機會隨機出現,可能來得很早,也可能一輩子都沒來。入行背景、專長、任職公司、家庭背景與個性特質都由系統抽籤,不能挑。存下來的錢可以投資,錢夠了也能自己開公司。</p>'
+   +'<div class="facts"><div><b>'+E.length+'</b><span>互動事件</span></div><div><b>'+MINOR.length+'</b><span>人生小插曲</span></div><div><b>'+Object.keys(ROUTES).length+'</b><span>職涯路線</span></div><div><b>'+ENDINGS+'</b><span>種結局</span></div></div></section>'
+   +'<div><span class="tab">開案設定</span><div class="card">'
+   +'<div class="field"><label for="seed">人生代碼(留空則隨機)</label><input id="seed" inputmode="numeric" maxlength="9" placeholder="例如 482913" value="'+startSeed+'"></div>'
+   +'<button class="btn" data-a="begin">抽籤入行</button></div></div>'
+   +'<details><summary>機率與規則說明</summary>'+probHTML()+'</details>'
+   +'<p class="foot">內容純屬虛構。機率為遊戲設計,非真實統計。</p>'
+   +'<p class="foot"><a class="linkbtn" href="index.html">切換語言 · Language</a></p>';
+}
+function birthView(){
+  const row=(k,v,p)=>'<div class="rowkv"><span class="k">'+k+'</span><span class="v">'+v+'</span>'+(detail?'<span class="p">抽中機率 '+p+'%</span>':'')+'</div>';
+  const st=KEYS.map(k=>chip(KN[k]+' '+(detail?Math.round(S[k]):lvl(S[k])),'pr')).join('');
+  return mast()+stage()
+   +'<div><span class="tab">入行檔案</span><div class="card">'
+   +row('入行背景',S.bg.n+'。'+S.bg.d,pct(BG,S.bg))
+   +row('專長領域',S.sp.n,pct(SP,S.sp))
+   +row('任職公司',S.fm.n+'。'+S.fm.x,pct(FM,S.fm))
+   +row('家庭背景',FB[S.fbg].n+'。'+(detail?FB[S.fbg].d:FBS[S.fbg]),FB[S.fbg].w)
+   +'<div class="rowkv"><span class="k">個性特質</span>'+S.traits.map(x=>'<span class="v">'+TR[x].n+':'+(detail?TR[x].d:TRS[x])+'</span>').join('')+'</div>'
+   +'<div class="rowkv"><span class="k">成長天賦</span><span class="v">'+(detail?'天賦:'+KN[S.tal]+'(成長 ×1.4) · 短板:'+KN[S.weak]+'(成長 ×0.7)':KN[S.tal]+'進步得特別快 · '+KN[S.weak]+'進步得比較慢')+'</span></div>'
+   +'<div class="rowkv"><span class="k">起始存款</span><span class="v">'+cur(S.cash)+'</span></div>'
+   +'<div class="rowkv"><span class="k">起始屬性</span><div class="row">'+st+'</div></div>'
+   +'<p class="mute" style="font-size:14px">按下開始後,年齡會自動前進。黃色橫條是這一年的進度。你可以隨時切換人生重心、調整速度或暫停。</p>'
+   +'<button class="linkbtn" data-a="detail">'+(detail?'隱藏詳細數據':'顯示詳細數據')+'</button>'
+   +'<button class="btn" data-a="enter">開始職涯</button></div></div>';
+}
+function eventCard(){
+  if(P==='event'){
+    const br=!!(EV.br||EV.job),bigc=!!EV.big;
+    const vr=S.vr?'<p class="var">現場狀況:'+S.vr.n+(detail?'('+(S.vr.k==='all'?'所有判定':KN[S.vr.k]+'相關判定')+' '+(S.vr.v>0?'+':'−')+Math.abs(S.vr.v)+'%)':'')+'</p>':'';
+    const opts=EV.ch.map((c,i)=>{
+      if(!shown(c))return '';
+      const ok=open(c);
+      let tags='';
+      if(c.hid)tags+=chip(detail?'隱藏選項 · '+KN[c.hid.k]+' ≥ '+c.hid.v+' 解鎖':'高手選項','hk');
+      if(c.hs)tags+=chip(detail?'技能選項 · '+SK[c.hs].n:'技能:'+SK[c.hs].n,'hk');
+      if(!ok)tags+=chip('條件:'+c.lk,'lk');
+      else if(!detail){
+        const O=outs(c),cc=cOf(c);
+        if(O.length>1){const p=O.filter(x=>x.g!=='b').reduce((t,x)=>t+x.p,0);tags+=chip('靠'+KN[mainK(cc)],'pr')+chip(odds(p),p>=60?'up':p>=40?'pr':'dn')}
+      }
+      else{
+        const O=outs(c),cc=cOf(c),bs=bsum(cc);
+        tags+=(O.length>1?chip('依'+cLab(cc)+'判定','pr'):'')+(O.length>1&&bs?chip('加成 '+(bs>0?'+':'')+bs+'%',bs>0?'up':'dn'):'')+O.map(x=>chip(x.n+' '+x.p+'%',x.g==='g'?'up':x.g==='b'?'dn':'pr')).join('');
+      }
+      const rr=c.ok.fx.route||c.ok.fx.found,rt=rr?chip(ROUTES[rr].n+':'+ROUTES[rr].x,'pr'):'';
+      return '<button class="opt" data-a="opt" data-v="'+i+'"'+(ok?'':' disabled')+'><b>'+lbl(c)+'</b><span class="row">'+tags+rt+'</span></button>';
+    }).join('');
+    const bl=bonuses({k:'pro'}).filter(x=>!x[2]&&!['技術專家','國際證照','年輕體力'].includes(x[0]));
+    const bline=bl.length?'<p class="var">'+(detail?'你的優勢:'+bl.map(x=>x[0]+(x[1]>0?' +':' ')+x[1]+'%').join('、'):(bl.some(x=>x[1]>0)?'對你有利:'+bl.filter(x=>x[1]>0).map(x=>x[0]).join('、'):'')+(bl.some(x=>x[1]<0)?(bl.some(x=>x[1]>0)?' · ':'')+'對你不利:'+bl.filter(x=>x[1]<0).map(x=>x[0]).join('、'):''))+'</p>':'';
+    return '<div id="evbox"><span class="tab'+(br?' br':'')+'">'+S.age+' 歲 · '+(br?'職涯機會':bigc?'大案':'十字路口')+'</span><div class="card '+(br?'br':'ev')+'"><h2>'+nm(EV)+'</h2><p>'+tx(EV)+'</p>'+vr+bline+'<div class="opts">'+opts+'</div></div></div>';
+  }
+  if(P==='result'){
+    const K=kn(RES.ev);
+    return '<div id="evbox"><span class="tab">'+S.age+' 歲 · 結果</span><div class="card ev"><h2>'+nm(RES.ev)+'</h2>'
+     +'<p class="mute">你選擇:'+lbl(RES.ch)+'</p>'
+     +'<span class="tier '+RES.o.g+'">'+RES.o.n+'</span>'
+     +(RES.line&&detail?'<p class="last">'+RES.line+'</p>':'')
+     +'<p>'+RES.r.t+'</p>'+(RES.flav?'<p class="twist">'+RES.flav+'</p>':'')+(RES.tw?'<p class="twist">'+RES.tw.t+'</p>':'')
+     +'<div class="row">'+fxView(RES.r.fx)+'</div>'
+     +(K?'<div class="know"><span class="kt">'+(LIFE.has(RES.ev.id)?'保險小常識':'理賠小教室')+'</span><b>'+K[0]+'</b><p>'+K[1]+'</p></div>':'')
+     +'<button class="btn" data-a="cont">'+(RES.end?'查看結局':'繼續人生')+'</button></div></div>';
+  }
+  return '';
+}
+function playView(){
+  return mast()+stage()+eventCard()+head()+controls()
+   +'<div><span class="tab dark">職涯日誌</span><div class="card">'+feedHTML(40)+'</div></div>';
+}
+function chartSVG(){
+  const H=S.hist,W=320,Ht=150,l=28,r=8,t=8,b=20;
+  const a0=23,a1=Math.max(H[H.length-1].age,a0+1);
+  const x=a=>l+(a-a0)/(a1-a0)*(W-l-r),y=v=>t+(1-v/100)*(Ht-t-b);
+  let g=[0,50,100].map(v=>'<line class="gl" x1="'+l+'" x2="'+(W-r)+'" y1="'+y(v)+'" y2="'+y(v)+'"/><text class="tx" x="'+(l-5)+'" y="'+(y(v)+3)+'" text-anchor="end">'+v+'</text>').join('');
+  g+='<text class="tx" x="'+l+'" y="'+(Ht-5)+'">'+a0+' 歲</text><text class="tx" x="'+(W-r)+'" y="'+(Ht-5)+'" text-anchor="end">'+a1+' 歲</text>';
+  const ls=KEYS.map(k=>'<polyline fill="none" stroke-width="2" stroke-linejoin="round" style="stroke:var(--s-'+k+')" points="'+H.map(h=>x(h.age).toFixed(1)+','+y(h[k]).toFixed(1)).join(' ')+'"/>').join('');
+  const lg=KEYS.map(k=>'<span><i style="background:var(--s-'+k+')"></i>'+KN[k]+'</span>').join('');
+  return '<svg class="ch" viewBox="0 0 '+W+' '+Ht+'" role="img" aria-label="五項屬性隨年齡變化">'+g+ls+'</svg><div class="legend">'+lg+'</div>';
+}
+function endView(){
+  const share='我的《冒險公證人》人生:'+END.t+'|'+RT().n+'・'+rankName()+'|淨資產 '+cur(NW())+'|'+S.age+' 歲|經歷 '+S.evc+' 個十字路口|總評 '+END.score+'|人生代碼 '+S.seed;
+  const fin=KEYS.map(k=>chip(KN[k]+' '+(detail?Math.round(S[k]):lvl(S[k])),'pr')).join('');
+  return mast()+stage()
+   +'<div><span class="tab">結案報告</span><div class="card">'
+   +'<h2>'+END.t+'</h2><p>'+END.d+'</p>'
+   +'<div class="score"><b class="mono">'+END.score+'</b><span>職涯總評 / 100</span></div>'
+   +'<div class="row">'+chip(S.age+' 歲','pr')+chip(RT().n,'pr')+chip(rankName(),'pr')+chip('淨資產 '+cur(NW())+'','pr')+chip(S.evc+' 個十字路口','pr')+fin+'</div>'
+   +chartSVG()
+   +'<div class="field"><label for="share">分享文字</label><textarea id="share" readonly>'+share+'</textarea></div>'
+   +'<button class="btn sec" data-a="copy">複製分享文字</button>'
+   +'<button class="btn" data-a="again">重新抽籤,再活一次</button>'
+   +'<button class="btn sec" data-a="same">用同一個人生代碼重玩</button></div></div>'
+   +'<details><summary>完整職涯紀錄('+S.log.length+' 筆)</summary><div class="dbody">'+feedHTML(999)+'</div></details>';
+}
+let lastP='';
+function render(){
+  let h='';
+  if(P==='start')h=startView();
+  else if(P==='birth')h=birthView();
+  else if(P==='run'||P==='event'||P==='result')h=playView();
+  else if(P==='end')h=endView();
+  app.innerHTML=h;
+  if(S&&P!=='start')drawScene(document.getElementById('scene'));
+  if(P!==lastP){
+    if(P==='start'||P==='birth'||P==='end')window.scrollTo(0,0);
+    if(P==='event'){const b=document.getElementById('evbox');if(b&&b.getBoundingClientRect().top>window.innerHeight*0.7)b.scrollIntoView({block:'start',behavior:'smooth'})}
+  }
+  lastP=P;
+  loop();
+}
+
+app.addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]');if(!b||b.disabled)return;
+  const a=b.dataset.a,v=b.dataset.v;
+  if(a==='begin'){
+    const s=document.getElementById('seed');
+    const n=s?parseInt(s.value.replace(/\D/g,''),10):NaN;
+    newGame(n>0?n:Math.floor(100000+Math.random()*900000));P='birth';render();
+  }
+  else if(a==='enter'){P='run';newYear();render()}
+  else if(a==='focus'){focus=v;render()}
+  else if(a==='strat'){S.strat=v;render()}
+  else if(a==='detail'){detail=!detail;try{localStorage.setItem('adj-detail',detail?'1':'0')}catch(e){}render()}
+  else if(a==='pol'){if(S.co)S.co.pol=v;render()}
+  else if(a==='speed'){const f=prog()/dur();speed=v;yrAcc=f*dur();yrRes=now();render()}
+  else if(a==='pause'){if(!paused){yrAcc+=now()-yrRes;paused=true}else{paused=false;yrRes=now()}render()}
+  else if(a==='opt')choose(+v);
+  else if(a==='cont')cont();
+  else if(a==='again'){startSeed='';P='start';S=null;END=null;render()}
+  else if(a==='same'){newGame(S.seed);P='birth';render()}
+  else if(a==='copy'){
+    const ta=document.getElementById('share');
+    const done=ok=>{b.textContent=ok?'已複製':'請長按文字手動複製'};
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(ta.value).then(()=>done(true),()=>{ta.focus();ta.select();done(false)});
+    }else{ta.focus();ta.select();done(false)}
+  }
+});
+app.addEventListener('change',e=>{if(e.target.id==='autoBox'){auto=e.target.checked;render()}});
+app.addEventListener('input',e=>{if(e.target.id==='seed')startSeed=e.target.value});
+render();
+</script>
+
+</body>
+</html>
