@@ -269,10 +269,10 @@ const FM=[
  {n:'保險公司理賠部',w:25,m:0.92,d:0.5,x:'穩定,天花板較低'}
 ];
 const FOCUS=[
- {id:'study',n:'苦讀專業',fx:{pro:5,hp:-2,fam:-1},ph:['你把週末泡在條款與判例裡。','你啃完一整套損失計算教材。','你開始習慣在報告後面附上推算依據。','你把十年來的舊案重新讀了一遍。']},
- {id:'field',n:'衝現場',fx:{pro:2,rep:2,hp:-2,fam:-3},inc:1.15,ph:['你一年跑了上百個案場。','你的安全鞋換了第二雙。','你在國道休息站吃了太多次晚餐。','你的車上永遠放著雨鞋和捲尺。']},
- {id:'net',n:'經營人脈',fx:{net:5,rep:1,hp:-1,fam:-1},ph:['你和幾家保險公司的窗口吃了不少頓飯。','你的名片夾又厚了一層。','你在公會活動認識了不少新面孔。','經紀人開始會主動打電話給你。']},
- {id:'rest',n:'休養陪家人',fx:{hp:5,fam:5,pro:-1},ph:['你準時下班,週末陪家人。','你開始規律運動。','你把年假真的休完了。','你學會在晚上十點後不看手機。']}
+ {id:'bal',n:'均衡發展',fx:{pro:1,rep:1,net:2,hp:-1,fam:-1},sk:.1,ph:['你在工作、學習與生活之間找到自己的節奏。','你不搶第一,但每件事都做得很穩。','你的行事曆上有案子,也有家人。','你每週留一個晚上讀點新東西。']},
+ {id:'field',n:'衝刺工作',fx:{pro:2,rep:2,net:2,hp:-3,fam:-3},inc:1.2,ph:['你一年跑了上百個案場。','你的安全鞋換了第二雙。','你在國道休息站吃了太多次晚餐。','你的車上永遠放著雨鞋和捲尺。']},
+ {id:'study',n:'充實知識',fx:{pro:5,net:1,hp:-2,fam:-1},sk:.25,ph:['你把週末泡在條款與判例裡。','你啃完一整套損失計算教材。','你在公會的進修課程認識了幾位同業。','你把十年來的舊案重新讀了一遍。']},
+ {id:'rest',n:'顧家休養',fx:{hp:5,fam:5,pro:-1},ph:['你準時下班,週末陪家人。','你開始規律運動。','你把年假真的休完了。','你學會在晚上十點後不看手機。']}
 ];
 const SPD={slow:[2200,'慢'],mid:[1300,'中'],fast:[600,'快']};
 
@@ -940,8 +940,8 @@ const TR={
  careful:{n:'細心',d:'專業判定 +5%'},
  smooth:{n:'圓融',d:'人脈判定 +5%;衝突類事件 +5%'},
  stub:{n:'固執',d:'信譽判定 +5%,人脈判定 −5%'},
- work:{n:'工作狂',d:'衝現場收益 ×1.3;家庭每年多 −1'},
- home:{n:'顧家',d:'休養陪家人效果 ×1.5;外派與巨災類判定 −5%'},
+ work:{n:'工作狂',d:'衝刺工作收益 ×1.3;家庭每年多 −1'},
+ home:{n:'顧家',d:'顧家休養效果 ×1.5;外派與巨災類判定 −5%'},
  opt:{n:'樂天',d:'健康耗損每年少 0.5;壞結果損失 ×0.8'},
  amb:{n:'野心',d:'升遷機率 +10%,轉職邀請增加;家庭每年多 −0.5'},
  sweet:{n:'嘴甜',d:'人脈每年 +1;王經理起始好感 +10'},
@@ -1268,7 +1268,7 @@ const FPH={
  tech:['你連續幾個月睡在辦公室。','你一週開了二十場客戶簡報。','你和工程師一起熬夜修系統。']
 };
 const fGroup=()=>ADJR.includes(S.track)?null:['bro'].includes(S.track)?'brk':['con'].includes(S.track)?'co':S.track;
-const fName=f=>f.id==='field'&&!ADJR.includes(S.track)?'拚工作':f.n;
+const fName=f=>f.n;
 
 /* 專長案例:不同職業的視角 */
 const SPC={
@@ -2538,7 +2538,7 @@ Object.assign(KNOW,{
 /* ===================== 引擎 ===================== */
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const app=document.getElementById('app');
-let P='start',S=null,R=null,EV=null,RES=null,END=null,auto=false,paused=false,speed='mid',T=null,startSeed='',fresh=0,focus='field';
+let P='start',S=null,R=null,EV=null,RES=null,END=null,auto=false,paused=false,speed='slow',T=null,startSeed='',fresh=0,focus='bal';
 let yrAcc=0,yrRes=0;
 let detail=false;try{detail=localStorage.getItem('adj-detail')==='1'}catch(e){}
 const now=()=>(typeof performance!=='undefined'?performance.now():Date.now());
@@ -2630,7 +2630,7 @@ function newGame(seed){
   if(fbg==='loan'){S.cash=-80;S.hp=clamp(S.hp-3,0,100)}
   if(fbg==='pillar')S.fam=clamp(S.fam+8,0,100);
   if(S.traits.includes('sweet'))S.npc.wang=10;
-  focus='field';snap();
+  focus='bal';snap();
   END=null;EV=null;RES=null;paused=false;
   S.log.push({age:23,t:'以「助理公證人」身分進入'+fm.n+',專攻'+sp.n+'。',k:'up',m:1});
 }
@@ -2820,7 +2820,7 @@ function tick(){
   S.age++;
   promote();
   if(S.hp<=0)survive();
-  if(f.id==='study'&&R()<0.25){const left=Object.keys(SK).filter(x=>!S.skills[x]);if(left.length)learn(wpick(left,x=>x===SPSK[S.sp.id]?3:1))}
+  if(f.sk&&R()<f.sk){const left=Object.keys(SK).filter(x=>!S.skills[x]);if(left.length)learn(wpick(left,x=>x===SPSK[S.sp.id]?3:1))}
   let ev=null;
   const di=S.q.findIndex(q=>q.at<=S.age);
   if(di>=0){ev=E.find(e=>e.id===S.q[di].id);S.q.splice(di,1);if(ev.id==='c_crunch'&&(!S.co||S.co.res>=0))ev=null;if(ev&&ROUTE_OK[ev.id]&&!ROUTE_OK[ev.id].includes(S.track)){if(/^big/.test(ev.id))S.big=0;ev=null}if(ev&&/^brp_/.test(ev.id)&&S.br[S.track])ev=null}
@@ -2935,7 +2935,7 @@ function finish(kind,sp){
 /* 自動模式 */
 function autoFocus(){
   if(S.hp<45||S.fam<30)return 'rest';
-  const w={study:110-S.pro,field:35,net:100-S.net,rest:((100-S.hp)+(100-S.fam))/2};
+  const w={bal:55,study:110-S.pro,field:30+Math.max(0,60-S.net),rest:((100-S.hp)+(100-S.fam))/2};
   return wpick(FOCUS,f=>w[f.id]).id;
 }
 function autoChoice(){
@@ -3095,7 +3095,7 @@ function drawScene(cv){
 
 /* ===================== 畫面 ===================== */
 const chip=(t,c)=>'<span class="chip '+c+'">'+t+'</span>';
-const TRS={careful:'判斷技術問題比較有把握',smooth:'擅長化解衝突、建立關係',stub:'堅持原則,但不容易交朋友',work:'衝現場收穫更多,家庭容易被犧牲',home:'陪家人時收穫更多,不喜歡長期出差',opt:'身體比較耐操,遇到挫折也恢復得快',amb:'升遷比較快、機會比較多,但容易忽略家庭',sweet:'人脈累積得快,保險公司窗口特別喜歡你',just:'拒絕不當利益時,名聲加分更多',risk:'容易大成功,也容易大失敗'};
+const TRS={careful:'判斷技術問題比較有把握',smooth:'擅長化解衝突、建立關係',stub:'堅持原則,但不容易交朋友',work:'衝刺工作收穫更多,家庭容易被犧牲',home:'陪家人時收穫更多,不喜歡長期出差',opt:'身體比較耐操,遇到挫折也恢復得快',amb:'升遷比較快、機會比較多,但容易忽略家庭',sweet:'人脈累積得快,保險公司窗口特別喜歡你',just:'拒絕不當利益時,名聲加分更多',risk:'容易大成功,也容易大失敗'};
 const FBS={rich:'家裡有一筆起步資金,家人也支持你',normal:'一般家庭,沒有特別的助力或負擔',loan:'畢業就背著學貸,前幾年存錢比較慢',pillar:'你是家裡的經濟支柱,很顧家,但要分擔家計'};
 const lvl=v=>v>=75?'頂尖':v>=60?'優秀':v>=50?'不錯':v>=40?'普通':v>=25?'偏弱':'很差';
 const rel=v=>v>=40?'交情深厚':v>=15?'關係不錯':v>-15?'普通':v>-35?'有心結':'交惡';
@@ -3178,7 +3178,7 @@ function stage(){
     +'<div class="ltrack"><u style="width:'+L(Math.min(S.age,65))+'"></u>'+marks+'</div>'
     +'<div class="lscale">'+[23,35,45,55,65].map(a=>'<span style="left:'+L(a)+'">'+a+'</span>').join('')+'</div></div>';
   return '<section class="stage"><canvas class="scene" id="scene" width="120" height="56" role="img" aria-label="人物與生活場景"></canvas>'
-    +'<p class="cap">'+sceneCaption()+'</p>'+(!END&&S.hp<25?'<p class="var warn">身體在發出警訊。'+(S.f.hosp?'你已經倒下過一次,再倒下可能就醒不來了。':'')+'建議把人生重心換成「休養陪家人」。</p>':'')+bar+life+'</section>';
+    +'<p class="cap">'+sceneCaption()+'</p>'+(!END&&S.hp<25?'<p class="var warn">身體在發出警訊。'+(S.f.hosp?'你已經倒下過一次,再倒下可能就醒不來了。':'')+'建議把人生重心換成「顧家休養」。</p>':'')+bar+life+'</section>';
 }
 function finLine(){
   if(!detail){let h='<p class="cap">理財:'+STRAT[S.strat].n+(S.home>0?' · 有房產':'')+(S.mort>0?' · 還房貸中':'')+'</p>';if(S.co){const c=S.co,st=c.res<CO[c.t].cap*.1||c.lp<0?'吃緊':c.lp>CO[c.t].P*.15?'成長中':'穩定';h+='<div class="var">'+CO[c.t].n+' · 營運'+st+' · 公司紀律'+(c.gov>=70?'良好':c.gov>=45?'普通':'鬆散')+' · 方針:'+POL[c.pol].n+'</div>'}return h}
@@ -3270,9 +3270,10 @@ function probHTML(){
    +'<tr><td>升遷</td><td>達到門檻(基準 + 路線調整)後,每年 35% 機率升遷;衝刺模式 50%;野心特質 +10%;退居二線不升遷。自己開公司時,職稱依公司規模決定。</td></tr>'
    +'<tr><td>開局條件</td><td>家庭背景(富裕 15%、小康 55%、學貸 20%、家中經濟支柱 10%);隨機 2 個個性特質(圓融與固執、工作狂與顧家不會同時出現);1 項天賦(成長 ×1.4)與 1 項短板(成長 ×0.7)。</td></tr>'
    +'<tr><td>個性特質</td><td>'+Object.values(TR).map(x=>x.n+':'+x.d).join(';')+'。</td></tr>'
-   +'<tr><td>技能</td><td>選「苦讀專業」時每年 25% 機率學會一項技能(專長相關的技能機率 ×3),部分事件也會教你技能。技能對相關案件判定 +5–8%,並解鎖技能專屬選項。</td></tr>'
+   +'<tr><td>人生重心</td><td>每年依人生重心調整數值。均衡發展(預設):專業 +1、信譽 +1、人脈 +2、健康 −1、家庭 −1。衝刺工作:專業 +2、信譽 +2、人脈 +2、健康 −3、家庭 −3,收入 ×1.2。充實知識:專業 +5、人脈 +1、健康 −2、家庭 −1。顧家休養:健康 +5、家庭 +5、專業 −1。</td></tr>'
+   +'<tr><td>技能</td><td>選「充實知識」時每年 25%、「均衡發展」時每年 10% 機率學會一項技能(專長相關的技能機率 ×3),部分事件也會教你技能。技能對相關案件判定 +5–8%,並解鎖技能專屬選項。</td></tr>'
    +'<tr><td>人物</td><td>林前輩、陳志明、王經理的好感度從 −50 到 100。林前輩好感 ≥ 40 會在危機時相挺,≥ 30 會在退休後推薦你;陳志明好感低會搶功、挖角,好感高可能找你合夥;王經理的好感影響案量(收入 −5% 到 +10%)與保險公司相關判定。</td></tr>'
-   +'<tr><td>持續狀態</td><td>'+Object.values(STA).map(x=>x.n+' '+x.y+' 年').join('、')+'。媒體點名:信譽判定 −5%;業界得獎:人脈判定 +5%;腰傷:健康判定 −8%、衝現場收益 ×0.7;新婚期:家庭不下降;被稽核盯上:大失敗機率加倍;大案光環:收入 +10%;燃燒殆盡:所有判定 −5%。</td></tr>'
+   +'<tr><td>持續狀態</td><td>'+Object.values(STA).map(x=>x.n+' '+x.y+' 年').join('、')+'。媒體點名:信譽判定 −5%;業界得獎:人脈判定 +5%;腰傷:健康判定 −8%、衝刺工作收益 ×0.7;新婚期:家庭不下降;被稽核盯上:大失敗機率加倍;大案光環:收入 +10%;燃燒殆盡:所有判定 −5%。</td></tr>'
    +'<tr><td>數值連動</td><td>健康 < 30:工作判定 −10%;家庭 < 30:健康每年多 −2;信譽每高於 60 一點,收入 +0.5%;年資每 10 年專業判定 +3%;50 歲後健康判定 −5%。</td></tr>'
    +'<tr><td>理財</td><td>每年儲蓄存入現金(利率 1.5%),再依理財策略分配:保守全放現金;穩健 50% 投資,平均 5%,波動 ±10%;積極 80% 投資,平均 7%,波動 ±25%,股市影響 ×1.4。股市狀態:多頭 +8%、空頭 −10%、股災 −28%(每年 6% 機率發生,隔年轉空頭)。買房後房產每年增值 2–5%,房貸每年減少 30 萬。</td></tr>'
    +'<tr><td>創業</td><td>公證公司 300 萬、經紀公司 500 萬、顧問公司 200 萬、科技新創 800 萬。每年損益 = 公司基準 × 規模 ×(能力係數 − 1.02 ± 波動 + 景氣 + 方針;成立前 2 年再 −0.15);能力係數 =(人脈 35% + 信譽 35% + 專業 30%)÷ 60。獲利一半成為你的分紅,一半留在公司;虧損由公司準備金吸收,準備金用完會觸發「現金告急」。方針:擴張(規模成長快、治理每年 −3、健康 −2)、穩健(治理每年 −1)、節流(獲利 +8%、治理不下降、規模慢慢縮小)。3 年內第二次現金告急時,銀行不再放款。治理分數 < 40 時獲利 −15%,主管機關檢查更頻繁。倒閉後投入歸零、信譽 −15,回到原本職涯,4 年後可再創業。</td></tr>'
