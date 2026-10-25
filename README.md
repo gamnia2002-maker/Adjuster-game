@@ -14,5 +14,10 @@ A loss adjuster life-sim set in Taiwan. From 23 to retirement at 65, make choice
 - 條款解讀題:讀保單條款、選出正確解讀 · Clause-reading questions on real policy wordings
 - 改編自真實事件的案例(921 地震、長賜輪、CrowdStrike 等) · Cases based on real events (921 earthquake, Ever Given, CrowdStrike…)
 - 理賠小教室知識卡圖鑑,跨局收集 · A Claims 101 card collection that carries across lives
+- 結案小卡、人生摘要與人生故事,小卡可下載 · An end-of-life ID card, one-line summary and short life story; the card can be downloaded
+- 隱藏人生目標:開局抽 3 個,結案揭曉,達成加分 · Three hidden life goals, revealed at the end, each worth bonus points
+- 伏筆連鎖與人物線:當年的選擇會在多年後回來,還有一位可以帶出來的徒弟 · Follow-up chains: old choices come back years later, plus an apprentice you can train
+- 72 種結局,包括各專精分支的專屬結局 · 72 endings, including one for each specialty
+- 術語小字典:點一下虛線底線的術語就能看解釋 · Tap any dotted-underlined term for a quick explanation
 
 內容純屬虛構,機率為遊戲設計,非真實統計。 · Entirely fictional; probabilities are game design, not real statistics.

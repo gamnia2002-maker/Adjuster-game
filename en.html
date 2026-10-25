@@ -228,6 +228,21 @@ td.r,th.r{text-align:right;font-family:var(--f-mono);white-space:nowrap}
 .endbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .hint{font-size:12px;color:var(--mute);text-align:center;margin:-6px 0 0}
 .linkbtn.inl{display:inline;font-size:12px;align-self:auto}
+.term{border-bottom:1px dashed var(--steel);cursor:help}
+.term:focus-visible{outline:2px solid var(--steel);outline-offset:1px}
+.gpop{position:absolute;z-index:50;background:var(--card);color:var(--ink);border:1px solid var(--steel);border-radius:8px;padding:10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.2);font:400 14px/1.7 var(--f-body)}
+.gpop b{display:block;color:var(--steel);font-size:14px;margin-bottom:2px}
+.gpop p{margin:0}
+.works,.goals{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.works li{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:baseline;border-top:1px dashed var(--line);padding-top:8px;font-size:15px}
+.works li span{font-size:12px;color:var(--mute)}
+.works li em{font-style:normal;font:700 12px var(--f-mono);color:var(--good)}
+.goals li{display:flex;gap:10px;align-items:flex-start;border-top:1px dashed var(--line);padding-top:8px}
+.goals li i{font-style:normal;font:700 14px var(--f-mono);width:20px;flex:none;text-align:center}
+.goals li.ok i{color:var(--good)}.goals li.no i{color:var(--mute)}
+.goals li div{display:flex;flex-direction:column}
+.goals li b{font-size:15px}.goals li span{font-size:13px;color:var(--mute)}
+.goals li.no b{color:var(--mute)}
 </style>
 </head>
 <body>
@@ -2541,6 +2556,232 @@ Object.assign(KNOW,{
 });
 
 
+const gE=id=>E.find(e=>e.id===id);
+const addS=(id,i,sid,a,b,ex)=>{const c=gE(id).ch[i];[c.ok,c.ng,c.gr].forEach(r=>{if(r)r.fx=Object.assign({},r.fx,ex||{},sid?{sched:{id:sid,in:[a,b]}}:{})})};
+
+addS('inflate',0,'fs_inflate',5,9);
+addS('pressure',0,'fs_pressure',5,9);
+addS('expat',0,'fs_expat',6,10);addS('expat',1,'fs_expat',6,10);
+addS('reunion',0,'fs_reunion',4,9);
+addS('typhoon',1,'fs_typhoon',4,8);
+addS('n_chen2',0,'fs_chen',4,8);
+addS('credit',2,'fs_credit',4,8);
+CLW.okW.fx=Object.assign({},CLW.okW.fx,{sched:{id:'fs_clause',in:[3,6]}});
+
+addS('newbie',0,'ap_err',2,4,{apr:25,flag:'apr'});
+addS('newbie',1,'ap_err',2,4,{apr:5,flag:'apr'});
+gE('love').w=s=>s.age<=30?30:s.age<=35?20:10;gE('love').ch[0].c.b=62;
+gE('n_lin1').w=20;gE('newbie').w=14;
+gE('n_wang2').w=s=>s.npc.wang>=15?10:0;
+gE('n_chen_partner').w=s=>s.npc.chen>=20?10:0;
+E.push(
+{id:'fs_inflate',n:'The old stock ledger',w:0,t:'Years ago, a company asked you to “add a bit” to its stock ledger. Prosecutors have now found it committed insurance fraud for years. Your report from back then is the only document that stands up to scrutiny. The prosecutor wants you to testify.',ch:[
+ {l:'Testify and explain the old records clearly',c:{k:'rep',b:55,s:.6},ok:{t:'Your testimony settles the case. Insurers and peers remember your name.',fx:{rep:6,net:2,hp:-2}},ng:{t:'Defense counsel hammers every detail and it is a rough day in court, but your testimony is accepted.',fx:{rep:3,hp:-4}}},
+ {l:'Give a written statement instead of appearing',ok:{t:'The written statement helps, but it carries less weight.',fx:{rep:2}}},
+ {l:'Say you can’t remember',a:.2,ok:{t:'The prosecutor looks at you differently now.',fx:{rep:-3}}}
+]},
+{id:'fs_pressure',n:'Someone who won’t bend',w:0,t:'Years ago you insisted on deciding a case on the evidence. That insured is now chief risk officer of a listed company. He calls: “For our new plant’s insurance, I want someone who won’t bend to pressure.”',ch:[
+ {l:'Take it on and design the program yourself',c:{k:'pro',b:55,s:.7},ok:{t:'The work goes well, and he gradually brings you the whole group’s business.',fx:{net:5,rep:3,cash:40}},ng:{t:'The job is more complex than expected, but he is patient.',fx:{net:2,hp:-2}}},
+ {l:'Recommend a better-suited peer',ok:{t:'He appreciates your candor and keeps coming to you for advice.',fx:{net:3,rep:1}}}
+]},
+{id:'fs_expat',n:'An old colleague from Singapore',w:0,t:'A colleague you pulled all-nighters with in Singapore now runs the regional headquarters. He asks: “There’s a big cross-border case in Asia. Want to lead it?”',ch:[
+ {l:'Accept and fly out again',c:{w:{net:.5,pro:.5},b:55,s:.7},ok:{t:'You close the case with a multinational team, and your name spreads across Asia.',fx:{rep:5,net:4,cash:50,hp:-3,st:'halo'}},ng:{t:'Jet lag and family pull you both ways. The case closes, and you are worn out.',fx:{rep:2,hp:-6,fam:-3}}},
+ {l:'Recommend a young adjuster from Taiwan',ok:{t:'Your pick shines, and everyone says you have a good eye.',fx:{net:3,rep:2}}},
+ {l:'Decline. You want more time with family now',ok:{t:'Your old colleague says: “I get it. Come have a drink in Singapore sometime.”',fx:{fam:4}}}
+]},
+{id:'fs_reunion',n:'A call at midnight',w:0,t:'A classmate you swapped cards with at the reunion calls in the middle of the night. His company’s factory is on fire: “I don’t know what to do.”',ch:[
+ {l:'Go over that night and show him how to mitigate and preserve the scene',c:{k:'pro',b:55,s:.7},ok:{t:'You walk him through it step by step, and the claim goes smoothly. He says he owes you for life.',fx:{net:4,rep:2,hp:-2}},ng:{t:'By the time you arrive, the site has mostly been cleared and much of the evidence is gone.',fx:{net:2,hp:-3}}},
+ {l:'Tell him by phone who to call and what to do first',ok:{t:'He follows your advice and things slowly get back on track.',fx:{net:2}}}
+]},
+{id:'fs_typhoon',n:'The little shop from the typhoon year',w:0,t:'In the typhoon year, you insisted on handling every small claim properly. One small shop owner now runs more than ten chain stores. He says: “Back then, you were the only one who took my loss seriously.”',ch:[
+ {l:'Take on his chain’s risk planning',ok:{t:'His stores become your steadiest client.',fx:{net:4,cash:30,rep:2}}},
+ {l:'Thank him and refer him to a specialist peer',ok:{t:'He still talks about you often.',fx:{net:2,rep:1}}}
+]},
+{id:'fs_chen',n:'Chen Zhiming repays a favor',w:0,t:'Years ago you looked over a botched report for Chen Zhiming. Now he runs a company and calls: “I owe you one from last time. Here’s my repayment.” He introduces a major client to you.',ch:[
+ {l:'Accept and take him to dinner to catch up',ok:{t:'Two old peers talk until the restaurant closes.',fx:{net:4,chen:10,cash:30}}},
+ {l:'Accept, but keep it strictly business',ok:{t:'The client is satisfied, and Chen Zhiming finds you very professional.',fx:{net:3,rep:1,cash:30,chen:3}}}
+]},
+{id:'fs_credit',n:'The files you kept',w:0,t:'The colleague who once took credit for your work is found to have falsified several reports. Investigators dig up old files and discover one of the analyses was actually yours. The copies you kept finally matter.',ch:[
+ {l:'Hand over your files and explain what happened',ok:{t:'The truth comes out, and your expertise is recognized again.',fx:{rep:5,pro:1}}},
+ {l:'Explain only your part and don’t kick him while he’s down',ok:{t:'Everyone says you are decent.',fx:{rep:3,net:2}}}
+]},
+{id:'fs_clause',n:'A clause dispute from an old case',w:0,t:'A case from a few years ago, where your clause reading “passed,” resurfaces in an audit. The auditor questions whether your reading holds up.',ch:[
+ {l:'Admit the reading was wrong and help correct it',ok:{t:'It costs you something, but people see your honesty.',fx:{rep:-2,pro:3}}},
+ {l:'Find more support and stand by your reading',c:{k:'rep',b:40,s:.6},ok:{t:'You narrowly convince the auditor. You get through again.',fx:{hp:-2}},ng:{t:'The audit report records your error, and you are put on a watch list.',fx:{rep:-6,st:'watch'}}}
+]},
+
+{id:'ap_err',n:'Your apprentice’s mistake',w:0,t:'Zhou Ziqing, the junior you trained, sent a report that doubled the business interruption loss, and the client already has it. She stands at your office door, eyes red.',ch:[
+ {l:'Share the blame, redo the numbers with her and explain to the client',ok:{t:'You spend two nights recalculating. She says: “From now on, I’ll check every report three times.”',fx:{apr:20,rep:-1,hp:-2,sched:{id:'ap_fork',in:[3,6]}}}},
+ {l:'Let her explain to the client herself, then review it together',ok:{t:'She steels herself and goes. She comes back noticeably more mature.',fx:{apr:8,pro:1,sched:{id:'ap_fork',in:[3,6]}}}},
+ {l:'Review it publicly at the department meeting',ok:{t:'Everyone remembers the mistake, and she remembers that meeting.',fx:{apr:-15,rep:1,sched:{id:'ap_fork',in:[3,6]}}}}
+]},
+{id:'ap_fork',n:'Your apprentice’s next move',w:0,t:s=>s.npc.apr>=30?'Zhou Ziqing has an offer from an international adjusting firm. She asks you: “If you need me, I’ll stay.”':'You hear Zhou Ziqing is leaving. The one poaching her is Chen Zhiming.',ch:[
+ {l:'Encourage her to go for the bigger stage',show:s=>s.npc.apr>=30,ok:{t:'On her last day, she leaves a card on your desk.',fx:{apr:15,net:3,sched:{id:'ap_star',in:[6,10]}}}},
+ {l:'Ask her to stay and build things together',show:s=>s.npc.apr>=30,ok:{t:'She stays and becomes your right hand.',fx:{apr:8,pro:2,flag:'aprStay',sched:{id:'ap_star',in:[6,10]}}}},
+ {l:'Send her a message wishing her well',show:s=>s.npc.apr<30,ok:{t:'She replies: “Thank you for teaching me.”',fx:{apr:10,sched:{id:'ap_star',in:[6,10]}}}},
+ {l:'Cut contact',show:s=>s.npc.apr<30,ok:{t:'After that, your names only cross in industry news.',fx:{apr:-10,chen:-5}}}
+]},
+{id:'ap_star',n:'The student surpasses the teacher',w:0,t:s=>s.npc.apr>=40?'Zhou Ziqing has become a rising star. At the association’s annual conference, her first words are: “My mentor taught me that a report must stand up to anyone’s scrutiny.”':'You see in the news that Zhou Ziqing has been promoted to a senior post. You haven’t been in touch for a long time.',ch:[
+ {l:'Go and hear her speak',show:s=>s.npc.apr>=40,ok:{t:'She spots you from the stage, pauses for a second, then smiles.',fx:{rep:3,fam:1,flag:'aprStar'}}},
+ {l:'Message her your congratulations',show:s=>s.npc.apr>=40,ok:{t:'She says: “Next time, dinner’s on me.”',fx:{net:1,flag:'aprStar'}}},
+ {l:'Send a congratulations message',show:s=>s.npc.apr<40,ok:{t:'She replies quickly, warmer than you expected.',fx:{apr:5,net:1}}},
+ {l:'Turn off the news',show:s=>s.npc.apr<40,ok:{t:'You think back to that miscalculated report.',fx:{fam:1}}}
+]}
+);
+NPCN.apr='Zhou Ziqing';
+Object.assign(KNOW,{
+ fs_inflate:['The adjuster’s report in fraud cases','When insurance fraud goes to court, the adjuster’s report is often key evidence. The more complete its calculations, photos and interview records, the better it stands up in court.'],
+ fs_pressure:['Independence is a long-term asset','Independence and expertise are an adjuster’s or broker’s most valuable assets. Standing firm may offend people in the short run, but it builds trust over time.'],
+ fs_expat:['Coordinating cross-border claims','Large cross-border losses are often run from a regional headquarters, with local teams surveying in each country. The lead has to coordinate different laws, languages and time zones.'],
+ fs_reunion:['First steps after a loss','After an incident, first make sure people are safe, then take reasonable steps to mitigate the loss, preserve the scene and evidence, and notify the insurer and broker as soon as possible.'],
+ fs_typhoon:['Small claims build reputation too','When a catastrophe floods the system, small claims are easily handled carelessly. Treating every case seriously is a professional’s best long-term investment.'],
+ fs_chen:['Industry networks','The insurance world is small. Peers, former colleagues and competitors may well be your future clients or partners.'],
+ fs_credit:['Keeping working papers','Keeping working papers, versions and correspondence is basic practice for clarifying responsibility and protecting yourself, and it is the basis for later audits.'],
+ fs_clause:['Correcting a misreading after the fact','A wrong clause reading can surface in an audit even if no one caught it at the time. Correcting it yourself usually costs far less than being found out.'],
+ ap_err:['Report review','A junior’s report should be reviewed by a senior before it goes out. When a mistake happens, finding the cause together and fixing the process prevents repeats better than blaming one person.'],
+ ap_fork:['Developing talent','A good mentor teaches judgment and attitude, not just technique. People stay for growth, not only for salary.'],
+ ap_star:['Passing it on','Claims judgment mostly comes from experience handed down. A good mentor often shapes not just one person, but a whole generation of practitioners.']
+});
+
+
+const GOALS=[
+ {id:'g_r4',n:'Early success',d:'Reach rank 5 before 45',ck:s=>s.ms.some(x=>x.k==='promo'&&x.r>=4&&x.a<=45)},
+ {id:'g_clean',n:'Clean hands',d:'Turn down improper benefits at least twice',ck:s=>s.honest>=2},
+ {id:'g_fam',n:'Family first',d:'End life with Family at “Excellent” or above',ck:s=>s.fam>=60},
+ {id:'g_hp',n:'Healthy to the end',d:'Retire safely with Health at “Good” or above',ck:(s,k)=>k==='retire'&&s.hp>=50},
+ {id:'g_rich',n:'Financial freedom',d:'Net worth above US$1.56M',ck:()=>NW()>=5000},
+ {id:'g_abroad',n:'The world is my loss site',d:'Work an overseas posting',ck:s=>!!s.f.abroad},
+ {id:'g_boss',n:'Be your own boss',d:'Start a company that doesn’t fail',ck:s=>s.ms.some(x=>x.k==='route'&&CO[x.r])&&!s.f.failed},
+ {id:'g_routes',n:'Many careers',d:'Work in 3 or more career routes',ck:s=>new Set(['adj'].concat(s.ms.filter(x=>x.k==='route').map(x=>x.r))).size>=3},
+ {id:'g_skills',n:'Polymath',d:'Learn 4 or more skills',ck:s=>Object.keys(s.skills).length>=4},
+ {id:'g_clause',n:'Clause master',d:'Answer 2 or more clause readings correctly',ck:s=>s.clr>=2},
+ {id:'g_hist',n:'Witness to history',d:'Live through 3 real events',ck:s=>s.ms.filter(x=>x.k==='hist').length>=3},
+ {id:'g_big',n:'Big case veteran',d:'See a three-stage big case through to the end',ck:s=>s.ms.some(x=>x.k==='big')},
+ {id:'g_apr',n:'Great mentor, great apprentice',d:'Train an apprentice who becomes a rising star',ck:s=>!!s.f.aprStar},
+ {id:'g_kids',n:'A full house',d:'Have two children',ck:s=>s.kids>=2},
+ {id:'g_rep',n:'A gold-standard name',d:'Reach 95 Reputation',ck:s=>s.rep>=95},
+ {id:'g_lin',n:'Mentor and protégé',d:'Stay on good terms with Mr. Lin, who brought you into the profession',ck:s=>s.npc.lin>=11},
+ {id:'g_study',n:'Lifelong learner',d:'Spend 8 years with your life focus on “Keep learning”',ck:s=>((s.fy||{}).study||0)>=8}
+];
+function goalsEval(kind){return (S.goals||[]).map(id=>{const G=GOALS.find(x=>x.id===id);return {n:G.n,d:G.d,ok:!!G.ck(S,kind)}})}
+
+
+const BREND={
+ ins_cl:['The anchor of the claims department','The company’s toughest claims always end up on your desk. On the day you retire, the whole claims department stands and applauds.'],
+ ins_uw:['Underwriting’s gatekeeper','The risks you turned down earned more thanks than the policies you approved. Years later, people realized how many times those “no”s saved the company.'],
+ ins_ri:['Reinsurance strategist','Every renewal season you shuttle between London, Zurich and Taipei. The company came through several catastrophes, thanks to the accumulation map you drew.'],
+ brk_mar:['Godfather of marine claims','From quay to hold, from bill of lading to general average, young marine brokers with a hard problem think of you first.'],
+ brk_pro:['Chief navigator of property claims','The major fire claims you led became textbook cases for brokers. Clients say: when something happens, having you there settles their nerves.'],
+ brk_enr:['Chief adviser for energy and high tech','Fabs, wind farms and power plants all run on insurance programs you designed. You found cover for the most expensive risks.'],
+ rei_tr:['Asia’s treaty reinsurance authority','At every 1 January renewal, your view often sets the price. Cedants say you are the reinsurer who understands Asia best.'],
+ rei_fac:['Chief facultative underwriter','Facultative placements for fabs, petrochemical plants and power stations only fill once you sign. The lead reinsurer line often carries your name.'],
+ rei_cat:['Asia’s leading catastrophe modeler','The models you corrected brought the whole market’s typhoon and earthquake estimates closer to reality. When the next big one hits, yours is the model people open first.'],
+ edu_res:['Grand scholar of insurance','Your papers have been cited thousands of times, and regulators often draw on your research. Students say you gave insurance a human touch.'],
+ edu_tch:['Master teacher of claims practice','Half the claims staff in non-life insurance have taken your course. Your notes are passed down year after year, still bearing your handwritten comments.'],
+ edu_pol:['Architect of the system','Residential earthquake insurance, compulsory liability insurance, the ombudsman system: all bear your mark. You believe good systems help more people get back on their feet after a disaster.'],
+ con_bcp:['Business continuity master','Several companies survived disasters because of a supply chain map you drew years earlier.'],
+ con_erm:['The board’s risk counselor','When listed company boards face a hard call, they first ask: “What do you think?” You turned risk management from spreadsheets into decisions.'],
+ con_esg:['Climate risk pioneer','You saw the bill for climate change earlier than most. When floods and heat became routine, companies realized how accurate your reports had been.'],
+ own_mar:['Renowned marine surveyor','Your adjusting firm is known in every port. When something goes wrong, P&I Clubs, cargo owners and insurers call you first.'],
+ own_cat:['King of catastrophe adjusting','After every typhoon and earthquake, your team is first on site. Your firm became a byword for catastrophe claims.'],
+ own_vol:['King of claims efficiency','You turned adjusting into a precise process, handling tens of thousands of cases a year with the lowest error rate in the industry.'],
+ bro_sme:['Small business’s insurance backstop','Over a thousand small and medium businesses entrust their insurance to you. To them you are not just a broker, but the first call when something goes wrong.'],
+ bro_mnc:['Driver of global programs','Most Taiwanese companies’ factories around the world run on insurance programs you designed. Your brokerage followed its clients across the globe.'],
+ bro_spe:['Specialty lines pioneer','Cyber, D&O, professional liability: lines others thought niche, you turned into a good business.'],
+ tech_b2b:['The force behind claims systems','Half of Taiwan’s non-life insurers handle claims on your system every day. Few know your name, but everyone benefits from your product.'],
+ tech_ai:['AI loss estimation pioneer','You proved AI can estimate losses fairly and accurately. Your model governance report became the industry template.'],
+ tech_emb:['Embedded insurance trailblazer','Much of the cover added when people buy flights, phones or hotel stays was designed by you. You made insurance as natural as breathing.']
+};
+function brEnd(){
+  const b=BR(),r=S.rank,tr=S.track;if(!b||!BREND[b.id])return null;
+  if(['ins','brk','rei','edu'].includes(tr)&&r<4)return null;
+  if(tr==='own'&&!(S.co&&(r>=5||S.co.V>=800)))return null;
+  if(tr==='bro'&&!(S.co&&S.co.V>=800))return null;
+  if(tr==='con'&&!(S.co&&S.co.V>=500))return null;
+  if(tr==='tech'&&(!S.co||S.f.ipo||S.co.V<1500))return null;
+  return BREND[b.id];
+}
+
+const LEGS={fire:['Fire claims legend','On the day you retire, insurers, reinsurers and brokers all send representatives. Everyone says there was no fire scene you couldn’t read.'],cargo:['Marine claims legend','On the day you retire, shipowners, cargo owners and insurers all send representatives. Everyone says there was no general average you couldn’t work out.'],eng:['Engineering claims legend','On the day you retire, contractors, project owners and insurers all send representatives. Everyone says there was no site accident you couldn’t explain.'],re:['Renewable energy claims legend','On the day you retire, wind farm and power plant owners all come. Half of Taiwan’s major renewable energy claims passed through your hands.'],semi:['Fab claims legend','On the day you retire, managers from several fabs all come. You could account for every hour of downtime.'],motor:['Liability claims legend','On the day you retire, courts, insurers and lawyers all send representatives. However complex the apportionment, you made every party accept it.']};
+const EXPS={fire:['The last word on fire investigation','You never reached the very top, but every fire whose cause no one could explain ended up in your hands.'],cargo:['A walking encyclopedia of cargo damage','You never reached the very top, but every unexplained cargo loss ended up in your hands.'],eng:['Solver of engineering accidents','You never reached the very top, but every engineering accident with no clear cause ended up in your hands.'],re:['Wind and solar forensics expert','You never reached the very top, but every unexplained turbine or solar incident ended up in your hands.'],semi:['The cleanroom detective','You never reached the very top, but every unexplained fab shutdown ended up in your hands.'],motor:['Accident reconstruction expert','You never reached the very top, but every unexplained major accident ended up in your hands.']};
+
+
+/*GLOSS*/const GLOSS=[
+ {t:'Deductible',a:['deductible','deductibles'],d:'The part of each loss the insured bears themselves. A higher deductible usually means a lower premium.'},
+ {t:'Subrogation',a:['subrogation','subrogate','subrogated'],d:'After paying a claim, the insurer takes over the insured’s right to recover from whoever caused the loss, up to the amount paid (Article 53 of Taiwan’s Insurance Act).'},
+ {t:'Sum insured',a:['sum insured','sums insured'],d:'The most the policy will pay, normally set at the actual value or replacement cost of what is insured.'},
+ {t:'Underinsurance (average)',a:['underinsurance','underinsured','average clause','condition of average'],d:'When the sum insured is below the actual value, the claim is cut in proportion: sum insured ÷ value.'},
+ {t:'General average',a:['general average'],d:'Sacrifices or costs incurred to save ship and cargo in an emergency are shared by all parties in proportion to their values.'},
+ {t:'Average adjuster',a:['average adjuster','average adjusters'],d:'A specialist who calculates each party’s share in a general average.'},
+ {t:'Reinsurance',a:['reinsurance','reinsurer','reinsurers'],d:'An insurer passes part of the risk it has taken on to a reinsurer, to steady its results and increase its capacity.'},
+ {t:'Cedant',a:['cedant','cedants','ceding company','ceding insurer'],d:'The original insurer that passes risk to a reinsurer.'},
+ {t:'Retention',a:['retention','retentions'],d:'The amount an insurer keeps for its own account on each loss, without passing it to reinsurers.'},
+ {t:'Retrocession',a:['retrocession','retrocessionaire','retrocessionaires'],d:'A reinsurer passes on part of the risk it has assumed: reinsurance of reinsurance.'},
+ {t:'Facultative reinsurance',a:['facultative reinsurance','facultative'],d:'Reinsurance arranged risk by risk, usually for a single large risk such as a fab or a petrochemical plant.'},
+ {t:'Treaty reinsurance',a:['treaty reinsurance','treaty','treaties','quota share'],d:'Reinsurance that automatically covers a whole book of business under terms agreed in advance.'},
+ {t:'Excess of loss',a:['excess of loss','XoL'],d:'When a single loss exceeds the retention, the reinsurer pays the excess up to an agreed limit.'},
+ {t:'Sliding scale commission',a:['sliding scale commission','sliding scale','sliding commission'],d:'Reinsurance commission that moves with the loss ratio: the lower the loss ratio, the higher the commission, so both sides want the same thing.'},
+ {t:'Business interruption',a:['business interruption'],d:'When an incident halts or reduces operations, this pays the lost gross profit and the expenses that keep running.'},
+ {t:'Contingent business interruption',a:['contingent business interruption','CBI'],d:'Your own interruption loss caused by an incident at a supplier or customer. Usually only named suppliers or customers are covered.'},
+ {t:'Indemnity period',a:['indemnity period'],d:'How long business interruption cover keeps paying until the business recovers, capped at an agreed maximum.'},
+ {t:'Waiting period',a:['waiting period'],d:'Claims start only after an interruption lasts longer than a set number of hours, like a deductible measured in time.'},
+ {t:'Claims-made',a:['claims-made','claims made'],d:'Cover applies only when a claim is made and notified during the policy period. Common in D&O and professional liability.'},
+ {t:'Extended reporting period',a:['extended reporting period'],d:'An extra period, bought after a claims-made policy expires, during which claims can still be made.'},
+ {t:'Additional insured',a:['additional insured','additional insureds'],d:'A third party named on the policy and covered within set limits, such as a buyer or project owner.'},
+ {t:'Insurable interest',a:['insurable interest'],d:'The financial stake the insured has in what is insured. Without it, the contract has no effect.'},
+ {t:'Actual cash value',a:['actual cash value'],d:'Replacement cost minus depreciation.'},
+ {t:'Replacement cost',a:['replacement cost'],d:'The cost of rebuilding or buying the same item new, with no deduction for depreciation.'},
+ {t:'Probable maximum loss',a:['probable maximum loss','PML'],d:'The largest loss one incident could cause if protections partly fail. A key input for underwriting and reinsurance.'},
+ {t:'Parametric insurance',a:['parametric insurance','parametric'],d:'Pays when an objective index such as wind speed or earthquake intensity reaches a trigger, without surveying the actual loss.'},
+ {t:'Basis risk',a:['basis risk'],d:'The risk that a parametric payout doesn’t match the actual loss: a loss may go unpaid, and a payout may come with no loss.'},
+ {t:'Catastrophe bond',a:['catastrophe bond','catastrophe bonds','cat bond','cat bonds'],d:'A bond that passes catastrophe risk to capital market investors, who may lose their principal if the catastrophe happens.'},
+ {t:'Accumulation',a:['accumulation','accumulations','aggregate exposure'],d:'The total sums insured that one area or one event could trigger at once. The core of catastrophe management.'},
+ {t:'Reserves',a:['claims reserves','reserves','reserving'],d:'Money an insurer sets aside in advance for claims it will have to pay.'},
+ {t:'IBNR',a:['IBNR'],d:'Claims that have happened but have not yet been reported. Insurers must estimate reserves for them in advance.'},
+ {t:'P&I Club',a:['P&I Clubs','P&I Club','P&I'],d:'A mutual association that covers shipowners’ liability to third parties: cargo damage, oil pollution, crew injury and more.'},
+ {t:'Bill of lading',a:['bill of lading','bills of lading'],d:'The transport document issued by the carrier, which is also the document of title for collecting the goods.'},
+ {t:'Institute Cargo Clauses',a:['Institute Cargo Clauses'],d:'Standard international cargo clauses in three forms: (A), (B) and (C). (A) is the widest.'},
+ {t:'War risks',a:['war risks','war risk'],d:'Add-on cover for war, strikes and similar risks. Standard clauses exclude them, so they are bought separately.'},
+ {t:'Time bar',a:['time bar','time-barred','limitation period'],d:'The legal deadline for bringing a claim. After it, the right may lapse or the other side may refuse.'},
+ {t:'Ex gratia',a:['ex gratia'],d:'A payment outside the policy cover that the insurer makes anyway, for the relationship or other reasons.'},
+ {t:'Condition precedent',a:['condition precedent','conditions precedent'],d:'A condition that must be met before a right arises. If it is breached, the other side may owe nothing at all.'},
+ {t:'Mitigation',a:['mitigation','mitigate','mitigating','salvage costs','sue and labour'],d:'Steps taken during an incident to avoid or reduce loss. The insurer reimburses necessary mitigation costs (Article 33 of Taiwan’s Insurance Act).'},
+ {t:'Co-insurance',a:['co-insurance','co-insurers','co-insurer','coinsurance'],d:'Several insurers share the same risk, with one leader handling the claim.'},
+ {t:'OCIP',a:['owner-controlled insurance program','OCIP','wrap-up'],d:'The project owner insures all contractors under one program, avoiding gaps and duplicate cover.'},
+ {t:'Marine warranty surveyor',a:['marine warranty surveyor','warranty surveyor','MWS'],d:'An independent surveyor who checks, for insurers, that major marine operations such as heavy lifts and tows are safe.'},
+ {t:'Construction all risks',a:['construction all risks','contractors’ all risks','erection all risks','engineering insurance'],d:'Covers damage to the works and third-party liability during construction.'},
+ {t:'Sub-limit',a:['sub-limit','sub-limits','sublimit'],d:'A lower cap set for a specific risk or item within the overall sum insured.'},
+ {t:'Financial Ombudsman',a:['Financial Ombudsman Institution','Financial Ombudsman','ombudsman'],d:'Taiwan’s body for disputes between consumers and financial institutions. Below a set amount, firms must accept its decisions.'},
+ {t:'Capital adequacy',a:['capital adequacy','risk-based capital'],d:'A measure of whether an insurer’s capital can bear its risks; key to judging solvency.'},
+ {t:'Stock throughput',a:['stock throughput','STP'],d:'One policy covering raw materials, transit, storage and finished goods through to shipment.'},
+ {t:'Interim payment',a:['interim payment','interim payments','payment on account'],d:'Part of the claim paid on a preliminary assessment, before the final adjustment is complete.'},
+ {t:'Default interest',a:['default interest','late-payment interest','interest for late payment'],d:'Interest an insurer must add by law when it delays payment for reasons on its side (10% a year in Taiwan).'},
+ {t:'Duty of disclosure',a:['duty of disclosure','non-disclosure'],d:'When buying insurance, the duty to truthfully disclose facts that would affect the insurer’s view of the risk.'}
+];/*/GLOSS*/
+const GLX=[];GLOSS.forEach((g,i)=>g.a.forEach(a=>GLX.push([a,i])));GLX.sort((x,y)=>y[0].length-x[0].length);
+function glz(s){
+  if(!s||typeof s!=='string')return s;
+  const src=LANG==='en'?s.toLowerCase():s,used=new Set(),mk=[];
+  const okB=(p,n)=>LANG!=='en'||(!/[a-z0-9]/i.test(s[p-1]||'')&&!/[a-z0-9]/i.test(s[p+n]||''));
+  for(const [al,i] of GLX){
+    if(used.has(i))continue;const a=LANG==='en'?al.toLowerCase():al;let p=src.indexOf(a);
+    while(p>=0){if(okB(p,a.length)&&!mk.some(m=>p<m[1]&&p+a.length>m[0])){mk.push([p,p+a.length,i]);used.add(i);break}p=src.indexOf(a,p+1)}
+    if(mk.length>=4)break;
+  }
+  mk.sort((x,y)=>x[0]-y[0]);let o='',q=0;
+  mk.forEach(([x,y,i])=>{o+=s.slice(q,x)+'<span class="term" role="button" tabindex="0" data-g="'+i+'">'+s.slice(x,y)+'</span>';q=y});
+  return o+s.slice(q);
+}
+function glHide(){if(typeof document==='undefined'||!document.getElementById)return;const d=document.getElementById('gpop');if(d&&d.remove)d.remove()}
+function glShow(el){
+  glHide();const g=GLOSS[+el.dataset.g];if(!g)return;
+  const d=document.createElement('div');d.className='gpop';d.id='gpop';d.setAttribute('role','dialog');
+  d.innerHTML='<b>'+g.t+'</b><p>'+g.d+'</p>';document.body.appendChild(d);
+  const r=el.getBoundingClientRect(),w=Math.min(300,window.innerWidth-24);d.style.width=w+'px';
+  const x=Math.max(12,Math.min(r.left,window.innerWidth-w-12));d.style.left=(x+window.scrollX)+'px';d.style.top=(r.bottom+window.scrollY+8)+'px';
+}
+
+
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const app=document.getElementById('app');
 let P='start',S=null,R=null,EV=null,RES=null,END=null,auto=false,paused=false,speed='slow',T=null,startSeed='',fresh=0,focus='bal';
@@ -2585,6 +2826,7 @@ function bonuses(c){
   if(EV.spec)b.push(['Matching specialty',5]);
   if(EV.route)b.push(['Relevant experience',5]);
   if(EV.brn)b.push(['Specialty match',5]);
+  if(S.npc.apr>=40&&EV.big)b.push(['Apprentice’s help',5]);
   if(S.track==='exp'&&k==='pro')b.push(['Technical expert',5]);
   if(S.track==='mgr'&&k==='net')b.push(['Management experience',5]);
   if(S.f.cert&&k==='pro')b.push(['International qualification',3]);
@@ -2630,11 +2872,13 @@ function newGame(seed){
   const tp=Object.keys(TR);let t1=tp[rint(tp.length)];
   const t2c=tp.filter(x=>x!==t1&&!TR_X.some(p=>p.includes(t1)&&p.includes(x)));const t2=t2c[rint(t2c.length)];
   const tal=KEYS[rint(5)];const wk=KEYS.filter(x=>x!==tal);const weak=wk[rint(4)];
-  S=Object.assign({seed,age:23,rank:0,cash:0,inv:0,home:0,mort:0,strat:'safe',stk:'flat',lr:0,co:null,coFail:-99,prevTrack:null,raise:0,track:'adj',mkt:'normal',vr:null,kids:0,kb:[],f:{},q:[],lj:-99,big:0,bg,sp,fm,fbg,traits:[t1,t2],tal,weak,skills:{},npc:{lin:0,chen:0,wang:0},st:[],log:[],seen:{},hist:[],evc:0,br:{},hy:0,nc:0,ms:[],honest:0},st);
+  S=Object.assign({seed,age:23,rank:0,cash:0,inv:0,home:0,mort:0,strat:'safe',stk:'flat',lr:0,co:null,coFail:-99,prevTrack:null,raise:0,track:'adj',mkt:'normal',vr:null,kids:0,kb:[],f:{},q:[],lj:-99,big:0,bg,sp,fm,fbg,traits:[t1,t2],tal,weak,skills:{},npc:{lin:0,chen:0,wang:0,apr:0},st:[],log:[],seen:{},hist:[],evc:0,br:{},hy:0,nc:0,ms:[],honest:0,clr:0,cases:[],goals:[]},st);
   if(fbg==='rich'){S.cash=300;S.fam=clamp(S.fam+5,0,100)}
   if(fbg==='loan'){S.cash=-80;S.hp=clamp(S.hp-3,0,100)}
   if(fbg==='pillar')S.fam=clamp(S.fam+8,0,100);
   if(S.traits.includes('sweet'))S.npc.wang=10;
+  S.q.push({id:'love',at:26+rint(6)},{id:'n_lin1',at:24+rint(3)});
+  {const gp=GOALS.map(x=>x.id);for(let i=0;i<3;i++)S.goals.push(gp.splice(rint(gp.length),1)[0])}
   focus='bal';snap();
   END=null;EV=null;RES=null;paused=false;
   S.log.push({age:23,t:'Joined as an Assistant Adjuster at '+fm.n+', specializing in '+sp.n+'.',k:'up',m:1});
@@ -2731,12 +2975,12 @@ function apply(fx){
   if(fx.raise)S.raise=Math.max(-.2,S.raise+fx.raise);
   if(fx.unflag)delete S.f[fx.unflag];
   if(fx.flag)S.f[fx.flag]=true;
-  if(fx.flag==='married'&&!S.ms.some(x=>x.k==='marry'))S.ms.push({k:'marry',a:S.age});
+  if(fx.flag==='married'&&!S.ms.some(x=>x.k==='marry')){S.ms.push({k:'marry',a:S.age});if(!S.q.some(x=>x.id==='baby'))S.q.push({id:'baby',at:S.age+1+rint(3)})}
   if(fx.flag==='divorced')S.ms.push({k:'div',a:S.age});
-  if(fx.kid){S.kids++;S.kb.push(S.age)}
+  if(fx.kid){S.kids++;S.kb.push(S.age);if(S.kids===1&&R()<0.5&&!S.q.some(x=>x.id==='baby'))S.q.push({id:'baby',at:S.age+2+rint(3)})}
   if(fx.big)S.big=fx.big<=-9?0:S.big+fx.big;
-  ['lin','chen','wang'].forEach(k=>{if(fx[k])S.npc[k]=clamp(S.npc[k]+fx[k],-50,100)});
-  if(fx.flag==='linRet'&&!S.f.linRet&&S.npc.lin>=30)S.q.push({id:'n_lin_ref',at:S.age+2+rint(3)});
+  ['lin','chen','wang','apr'].forEach(k=>{if(fx[k])S.npc[k]=clamp(S.npc[k]+fx[k],-50,100)});
+  if(fx.flag==='linRet'&&S.npc.lin>=20&&!S.q.some(x=>x.id==='n_lin_ref'))S.q.push({id:'n_lin_ref',at:S.age+2+rint(3)});
   if(fx.st)addSt(fx.st);
   if(fx.sk)learn(fx.sk);
   if(fx.strat)S.strat=fx.strat;
@@ -2811,7 +3055,7 @@ function marketStep(){
 
 function tick(){
   marketStep();stockStep();
-  const f=FOCUS.find(x=>x.id===focus);
+  const f=FOCUS.find(x=>x.id===focus);S.fy=S.fy||{};S.fy[f.id]=(S.fy[f.id]||0)+1;
   let ffx=Object.assign({},f.fx);
   if(f.id==='field'&&hasT('work'))ffx=scaleFx(ffx,1,1.3);
   if(f.id==='field'&&hasSt('back'))ffx=scaleFx(ffx,1,0.7);
@@ -2830,7 +3074,7 @@ function tick(){
   if(f.sk&&R()<f.sk){const left=Object.keys(SK).filter(x=>!S.skills[x]);if(left.length)learn(wpick(left,x=>x===SPSK[S.sp.id]?3:1))}
   let ev=null;
   const di=S.q.findIndex(q=>q.at<=S.age);
-  if(di>=0){ev=E.find(e=>e.id===S.q[di].id);S.q.splice(di,1);if(ev.id==='c_crunch'&&(!S.co||S.co.res>=0))ev=null;if(ev&&ROUTE_OK[ev.id]&&!ROUTE_OK[ev.id].includes(S.track)){if(/^big/.test(ev.id))S.big=0;ev=null}if(ev&&/^brp_/.test(ev.id)&&S.br[S.track])ev=null}
+  if(di>=0){ev=E.find(e=>e.id===S.q[di].id);S.q.splice(di,1);if(ev.id==='c_crunch'&&(!S.co||S.co.res>=0))ev=null;if(ev&&ROUTE_OK[ev.id]&&!ROUTE_OK[ev.id].includes(S.track)){if(/^big/.test(ev.id))S.big=0;ev=null}if(ev&&/^brp_/.test(ev.id)&&S.br[S.track])ev=null;if(ev&&(ev.id==='love'||ev.id==='baby')&&!ev.when(S))ev=null;if(ev&&ev.once&&S.seen[ev.id])ev=null}
   else if(R()<0.6){ev=histPick();if(!ev)ev=pickEvent()}
   let line=null,lfx=null;
   if(!ev&&R()<0.6){const m=pickMinor();if(m){const mf=growFx(m.fx);apply(mf);line=m.t;lfx=mf}}
@@ -2891,6 +3135,8 @@ function choose(i){
   if(ev.hy)S.ms.push({k:'hist',a:S.age,src:ev.src});
   if(ev.id==='big3')S.ms.push({k:'big',a:S.age,g:o.g});
   if(JUST.has(ev.id+':'+i))S.honest++;
+  if(ev.cl&&ch.ans)S.clr++;
+  if(o.g==='g'&&!LIFE.has(ev.id)&&!ev.br&&!ev.job&&!/^(brp_|fb_|s_|n_|ap_|hosp|c_)/.test(ev.id)){const w=(ev.id==='big3'?10:ev.big?6:ev.hy?5:/^fs_/.test(ev.id)?4:0)+(o.n==='Great success'?4:o.n==='Success'?2:1)+(ev.cl&&ch.ans?2:0)+((ev.brn||ev.spec)?1:0);S.cases.push({a:S.age,n:nm(ev),o:o.n,w})}
   if(ev.job)S.lj=S.age;
   S.seen[ev.id]=1;S.evc++;
   S.log.push({age:S.age,t:nm(ev)+'|'+lbl(ch)+'('+o.n+').'+r.t+(flav?' '+flav:'')+(tw?' '+tw.t:''),k:o.g==='b'?'bad':'ev',fx,m:0});
@@ -2907,13 +3153,14 @@ function score(kind){
   const avg=KEYS.reduce((t,k)=>t+S[k],0)/5;
   return Math.round(clamp(avg*0.6+S.rank*5+clamp(NW()/400,0,10)+(kind==='retire'?5:0),0,100));
 }
-const ENDINGS=36;
+const ENDINGS=72;
 function finish(kind,sp){
   let t,d;const tr=S.track,r=S.rank;
   if(kind==='special'){t=sp.t;d=sp.d}
   else if(kind==='collapse'){t='Collapsed from overwork';d='You collapse in a temporary tent beside the site and never wake up. Someone else submits that report for you.'}
   else if(kind==='sick'){t='Died in office';d='You never reached retirement. As colleagues cleared your desk, they found a stack of old cases covered in your notes.'}
   else if(kind==='banned'){t='Struck off by the industry';d='The day the association’s letter reached the office, your name was crossed off the register. Your profession wasn’t taken from you; you gave it away, bit by bit.'}
+  else if(kind==='retire'&&brEnd()){const be=brEnd();t=be[0];d=be[1]}
   else if(S.co&&S.co.t==='tech'&&(S.f.ipo||S.co.V>=1500)){t=S.f.ipo?'Founder of a listed company':'Startup founder';d=S.f.ipo?'A photo of the bell-ringing day hangs on the office wall. Your claims platform now handles tens of thousands of cases a day.':'Your startup survived, and changed part of how claims are done.'}
   else if(S.co&&S.co.t==='own'&&(r>=5||S.co.V>=800)){t=r>=5?'Adjusting Group Chair':'Founder of an adjusting firm';d=r>=5?'The small studio of years ago now has offices in three cities.':'Your bet paid off. The company’s name carries more weight than your business card, and a successor is in place.'}
   else if(S.co&&S.co.t==='bro'&&S.co.V>=800){t='Founder of a broking firm';d='Your broking firm built its name claim by claim. Its client renewal rate is the highest in the industry.'}
@@ -2925,10 +3172,10 @@ function finish(kind,sp){
   else if(r>=4&&tr==='rei'){t=r>=5?'Global reinsurance claims director':'Asia-Pacific reinsurance claims head';d='Your passport is full of stamps. Colleagues in London, Zurich and Singapore all know your name.'}
   else if(r>=4&&tr==='edu'){t='Professor with students everywhere';d='Half the young adjusters in property and casualty took your classes.'}
   else if(S.f.semi&&S.fam<82){t='Consultant who stepped back';d='For your last fifteen years, you slowed down. When young people hit a hard problem, they knock on your door; you brew a pot of tea and talk it through.'}
-  else if(r>=5&&S.rep>=80){t='Industry legend';d='On your retirement day, insurers, reinsurers and brokers all sent representatives. Some say your reports are textbooks.'}
+  else if(r>=5&&S.rep>=80){t=LEGS[S.sp.id][0];d=LEGS[S.sp.id][1]}
   else if(S.f.abroad&&r>=4){t='Chief adjuster for Asia';d='Those three years in Singapore changed you. Before you retired, your name was on major loss reports across half of Asia.'}
   else if(r>=4){t='Manager who came up from the field';d='You led teams, signed big cases, and watched many newcomers become seniors. After retirement, people still call: “What do you make of this?”'}
-  else if(S.pro>=72&&S.rep>=65){t='The expert’s expert';d='You never reached the top job, but whenever there is a tricky problem, people want to ask you first.'}
+  else if(S.pro>=72&&S.rep>=65){t=EXPS[S.sp.id][0];d=EXPS[S.sp.id][1]}
   else if(S.fam>=82&&S.hp>=45){t='A full life';d='You weren’t the brightest name in the industry, but there was always someone waiting for you at dinner. That is rare.'}
   else if(S.f.sold){t='Entrepreneur with a successful exit';d='You started a company and sold it for a good price. Afterward, you took only the cases you really wanted.'}
   else if(S.f.failed&&r>=3){t='Fell down and got back up';d='The year the company folded, you thought it was all over. Then you went back to work and climbed step by step back to where you had been, and higher.'}
@@ -2937,7 +3184,8 @@ function finish(kind,sp){
   else if(S.fam<=20){t='Successful, and alone';d='The reports are beautiful; the house is quiet. You start to wonder whether there was a time you should have taken a day off.'}
   else if(r>=3){t='The team’s backbone';d='You weren’t the one who shone brightest, but every team needs someone like you. When things go wrong, you are the first call.'}
   else{t='An ordinary, reliable professional';d='You finished the cases you had to, and held the lines you had to hold.'}
-  END={kind,t,d,score:score(kind)};
+  const GL=goalsEval(kind);
+  END={kind,t,d,goals:GL,score:Math.min(100,score(kind)+3*GL.filter(x=>x.ok).length)};
   S.log.push({age:S.age,t:'Ending: '+t,k:(kind==='retire'||kind==='special')?'up':'bad',m:1});
   P='end';auto=false;render();
 }
@@ -3116,7 +3364,7 @@ function arrows(fx){
   KEYS.forEach(k=>{if(fx[k])o.push(chip(KN[k]+' '+ar(fx[k],6),fx[k]>0?'up':'dn'))});
   if(fx.cash)o.push(chip('Savings '+ar(fx.cash,100),fx.cash>0?'up':'dn'));
   if(fx.raise)o.push(chip('Salary '+ar(fx.raise,.1),fx.raise>0?'up':'dn'));
-  ['lin','chen','wang'].forEach(k=>{if(fx[k])o.push(chip(NPCN[k]+' '+(fx[k]>0?'♥':'✕'),fx[k]>0?'up':'dn'))});
+  ['lin','chen','wang','apr'].forEach(k=>{if(fx[k])o.push(chip(NPCN[k]+' '+(fx[k]>0?'♥':'✕'),fx[k]>0?'up':'dn'))});
   if(fx.res)o.push(chip('Company funds '+ar(fx.res,100),fx.res>0?'up':'dn'));
   if(fx.gov)o.push(chip('Company discipline '+ar(fx.gov,10),fx.gov>0?'up':'dn'));
   if(fx.sz)o.push(chip('Company size '+ar(fx.sz,.3),fx.sz>0?'up':'dn'));
@@ -3154,7 +3402,7 @@ function fxChips(fx){
   if(fx.route)o.push(chip('Moves to '+ROUTES[fx.route].n,'hk'));
   if(fx.big&&fx.big>-9)o.push(chip('Big case '+(fx.big>0?'advantage +':'disadvantage ')+fx.big,fx.big>0?'up':'dn'));
   if(fx.sched)o.push(chip(/^big/.test(fx.sched.id)?'Big case: next stage':'Sets up a follow-up','hk'));
-  ['lin','chen','wang'].forEach(k=>{if(fx[k])o.push(chip(NPCN[k]+' goodwill '+(fx[k]>0?'+':'')+fx[k],fx[k]>0?'up':'dn'))});
+  ['lin','chen','wang','apr'].forEach(k=>{if(fx[k])o.push(chip(NPCN[k]+' goodwill '+(fx[k]>0?'+':'')+fx[k],fx[k]>0?'up':'dn'))});
   if(fx.st)o.push(chip('Status: '+STA[fx.st].n+'('+STA[fx.st].y+' yr)','hk'));
   if(fx.sk)o.push(chip('Learns: '+SK[fx.sk].n,'hk'));
   if(fx.strat)o.push(chip('Investing set to '+STRAT[fx.strat].n,'hk'));
@@ -3202,7 +3450,7 @@ function profLine(){
   const rows=[];
   rows.push('<b>Traits</b> '+S.traits.map(x=>TR[x].n).join(', ')+' · <b>Strong</b> '+KN[S.tal]+' · <b>Weak</b> '+KN[S.weak]);
   const sk=Object.keys(S.skills).map(x=>SK[x].n);rows.push('<b>Skills</b> '+(sk.length?sk.join(', '):'None yet'));
-  rows.push('<b>People</b> '+Object.keys(NPCN).map(x=>NPCN[x]+' '+(detail?(S.npc[x]>0?'+':'')+S.npc[x]:rel(S.npc[x]))).join(' · '));
+  rows.push('<b>People</b> '+Object.keys(NPCN).filter(x=>x!=='apr'||S.f.apr).map(x=>NPCN[x]+' '+(detail?(S.npc[x]>0?'+':'')+S.npc[x]:rel(S.npc[x]))).join(' · '));
   if(S.st.length)rows.push('<b>Status</b> '+S.st.map(z=>STA[z.id].n+(detail?' ('+z.y+' yr)':'')).join(', '));
   return '<div class="cap prof">'+rows.map(r=>'<span>'+r+'</span>').join('')+'</div>';
 }
@@ -3272,7 +3520,10 @@ function probHTML(){
    +'<tr><td>Checks</td><td>Every option has several possible outcomes. For options with a check: success rate = base + (relevant stat − 50) × factor + scene variable, limited to 5%–95%; about 12–20% of successes are great successes and 20% of failures are major failures. Other options use the most relevant stat: success rate = 70 + (stat − 50) × 0.5, limited to 20%–92%; 30% of these are “Smooth”, the rest “As expected”, and failures are “Trouble”. Great success, Smooth, Trouble and Major failure add a random twist.</td></tr>'
    +'<tr><td>Scene variables</td><td>Events that aren’t career branches have a 60% chance of drawing a scene variable that shifts checks on a particular stat by ±5–15%.</td></tr>'
    +'<tr><td>Market cycle</td><td>Each year has a 7% chance of a catastrophe year (lasts one year: income ×1.15, Health −3, more typhoon and earthquake events); otherwise a 16% chance of switching between steady, soft market (income ×0.9) and hard market (income ×1.1).</td></tr>'
-   +'<tr><td>Follow-ups</td><td>Some choices trigger follow-up events 1–6 years later.</td></tr>'
+   +'<tr><td>Follow-ups</td><td>Some choices trigger follow-up events 1–10 years later, involving old clients, classmates, rivals and your apprentice.</td></tr>'
+   +'<tr><td>Apprentice</td><td>When mentoring juniors you meet Zhou Ziqing. How you train her decides whether she becomes a rising star, your right hand, or a rival’s recruit.</td></tr>'
+   +'<tr><td>Life goals</td><td>Three hidden goals are drawn at the start and revealed at the end. Each one achieved adds +3 to your score and a medal to your card.</td></tr>'
+   +'<tr><td>Glossary</td><td>Technical terms with a dotted underline in event text can be tapped for an explanation.</td></tr>'
    +'<tr><td>Specialization</td><td>The year after joining an insurer, a broker, a reinsurer, academia, a consultancy, an adjusting firm, a brokerage or a startup, you choose a specialty (3 options each). Your specialty changes your title, pay or health cost, and unlocks its own events (weight ×2, checks +5%).</td></tr>'
    +'<tr><td>Clause readings</td><td>Judged on Expertise: the right reading +25%, a wrong one −15%. The result card always shows the correct answer and why. The Policy & Law skill applies.</td></tr>'
    +'<tr><td>Real events</td><td>Based on real events, not tied to calendar years. Each year has about a 9% chance of one; within a life they happen in real chronological order, shown from your current job’s perspective.</td></tr>'
@@ -3335,7 +3586,7 @@ function dexView(){
   DEXCAT.forEach(([c,n])=>{
     const a=L.filter(x=>x.c===c);if(!a.length)return;const g=a.filter(x=>D[x.k]).length;
     h+='<details class="dexc"><summary><span>'+n+'</span><span class="mono">'+g+' / '+a.length+'</span><i><u style="width:'+Math.round(g/a.length*100)+'%"></u></i></summary><ul>'
-     +a.map(x=>D[x.k]?'<li><details><summary>'+x.t+'</summary><p>'+x.d+'</p></details></li>':'<li class="lock">'+x.t+'<span>Not yet</span></li>').join('')+'</ul></details>';
+     +a.map(x=>D[x.k]?'<li><details><summary>'+x.t+'</summary><p>'+glz(x.d)+'</p></details></li>':'<li class="lock">'+x.t+'<span>Not yet</span></li>').join('')+'</ul></details>';
   });
   return h+'<button class="btn sec" data-a="dexback">Back</button>';
 }
@@ -3395,7 +3646,7 @@ function eventCard(){
     }).join('');
     const bl=bonuses({k:'pro'}).filter(x=>!x[2]&&!['Technical expert','International qualification','Youthful energy'].includes(x[0]));
     const bline=bl.length?'<p class="var">'+(detail?'Your edge: '+bl.map(x=>x[0]+(x[1]>0?' +':' ')+x[1]+'%').join(', '):(bl.some(x=>x[1]>0)?'In your favor: '+bl.filter(x=>x[1]>0).map(x=>x[0]).join(', '):'')+(bl.some(x=>x[1]<0)?(bl.some(x=>x[1]>0)?' · ':'')+'Against you: '+bl.filter(x=>x[1]<0).map(x=>x[0]).join(', '):''))+'</p>':'';
-    return '<div id="evbox"><span class="tab'+(br?' br':EV.hy?' hist':'')+'">'+S.age+' yrs old · '+(br?'Career offer':bigc?'Big case ':EV.cl?'Clause question':EV.hy?'Real event':'Crossroads')+'</span><div class="card '+(br?'br':'ev')+'"><h2>'+nm(EV)+'</h2>'+(EV.src?'<p class="src">Based on a real event: '+EV.src+'</p>':'')+'<p>'+tx(EV)+'</p>'+(EV.cl?'<blockquote class="clause"><span class="kt">Policy wording</span>'+EV.cl.x+'</blockquote>':'')+vr+bline+'<div class="opts">'+opts+'</div></div></div>';
+    return '<div id="evbox"><span class="tab'+(br?' br':EV.hy?' hist':'')+'">'+S.age+' yrs old · '+(br?'Career offer':bigc?'Big case ':EV.cl?'Clause question':EV.hy?'Real event':'Crossroads')+'</span><div class="card '+(br?'br':'ev')+'"><h2>'+nm(EV)+'</h2>'+(EV.src?'<p class="src">Based on a real event: '+EV.src+'</p>':'')+'<p>'+glz(tx(EV))+'</p>'+(EV.cl?'<blockquote class="clause"><span class="kt">Policy wording</span>'+glz(EV.cl.x)+'</blockquote>':'')+vr+bline+'<div class="opts">'+opts+'</div></div></div>';
   }
   if(P==='result'){
     const K=kn(RES.ev);
@@ -3403,10 +3654,10 @@ function eventCard(){
      +'<p class="mute">You chose: '+(RES.ev.cl?'ABC'[RES.ev.ch.indexOf(RES.ch)]+'. ':'')+lbl(RES.ch)+'</p>'
      +'<span class="tier '+RES.o.g+'">'+RES.o.n+'</span>'
      +(RES.line&&detail?'<p class="last">'+RES.line+'</p>':'')
-     +'<p>'+RES.r.t+'</p>'+(RES.flav?'<p class="twist">'+RES.flav+'</p>':'')+(RES.tw?'<p class="twist">'+RES.tw.t+'</p>':'')
+     +'<p>'+glz(RES.r.t)+'</p>'+(RES.flav?'<p class="twist">'+RES.flav+'</p>':'')+(RES.tw?'<p class="twist">'+RES.tw.t+'</p>':'')
      +'<div class="row">'+fxView(RES.r.fx)+'</div>'
-     +(RES.ev.cl?'<div class="clans"><span class="kt">Correct answer</span><b>'+'ABC'[RES.ev.cl.a]+'. '+RES.ev.cl.o[RES.ev.cl.a]+'</b>'+(RES.ch.ans?'<span class="ok">Your reading is correct</span>':'<span class="ng">Your reading is incorrect</span>')+'<p>'+RES.ev.cl.why+'</p></div>':'')
-     +(K?'<div class="know"><span class="kt">'+(LIFE.has(RES.ev.id)?'Insurance Tip':'Claims 101')+(RES.newCard?' · New card':'')+'</span><b>'+K[0]+'</b><p>'+K[1]+'</p></div>':'')
+     +(RES.ev.cl?'<div class="clans"><span class="kt">Correct answer</span><b>'+'ABC'[RES.ev.cl.a]+'. '+RES.ev.cl.o[RES.ev.cl.a]+'</b>'+(RES.ch.ans?'<span class="ok">Your reading is correct</span>':'<span class="ng">Your reading is incorrect</span>')+'<p>'+glz(RES.ev.cl.why)+'</p></div>':'')
+     +(K?'<div class="know"><span class="kt">'+(LIFE.has(RES.ev.id)?'Insurance Tip':'Claims 101')+(RES.newCard?' · New card':'')+'</span><b>'+K[0]+'</b><p>'+glz(K[1])+'</p></div>':'')
      +'<button class="btn" data-a="cont">'+(RES.end?'See ending':'Continue')+'</button></div></div>';
   }
   return '';
@@ -3452,6 +3703,7 @@ const STY={
  div:'The marriage, though, did not last.',
  abroad:'They also worked abroad and saw other markets.',
  hosp:'At {a}, they collapsed from overwork, and learned to slow down.',
+ apr:'They also trained an apprentice who outshone them.',
  hon1:'Once, they turned down an improper benefit.',
  honN:'Over the years they turned down improper benefits {n} times.',
  skills:'Along the way they mastered {x}.',
@@ -3497,6 +3749,7 @@ function lifeStory(){
   tl.sort((x,y)=>x[0]-y[0]);v.push(...tl.map(x=>x[1]));
   const hs=ms.filter(x=>x.k==='hist');if(hs.length)v.push(fill(hs.length>1?STY.hist2:STY.hist1,{x:hs[0].src,y:hs[1]&&hs[1].src}));
   if(!hp&&S.f.abroad)v.push(STY.abroad);
+  if(S.f.aprStar)v.push(STY.apr);
   if(S.honest)v.push(fill(S.honest>1?STY.honN:STY.hon1,{n:S.honest}));
   const sk=Object.keys(S.skills).slice(0,3).map(x=>lc(SK[x].n));if(sk.length)v.push(fill(STY.skills,{x:listJ(sk)}));
   const k=END.kind;v.push(fill(STY[k==='retire'?'retire':k==='special'?'special':k],{a:S.age,x:END.t}));
@@ -3518,12 +3771,13 @@ function wrapLines(c,t,w){
   parts.forEach(p=>{const n=cur?cur+(sp?' ':'')+p:p;if(c.measureText(n).width>w&&cur){out.push(cur);cur=p}else cur=n});
   if(cur)out.push(cur);return out;
 }
+function cardTitle(c,rw,SERIF){let fs=28;c.font='900 '+fs+'px '+SERIF;while(c.measureText(END.t).width>rw&&fs>20){fs-=1;c.font='900 '+fs+'px '+SERIF}let tl=[END.t];if(c.measureText(END.t).width>rw){fs=Math.min(fs,20);c.font='900 '+fs+'px '+SERIF;tl=wrapLines(c,END.t,rw).slice(0,3)}return {fs,tl}}
 function drawCard(){
   if(typeof document==='undefined'||!document.createElement)return null;
   const cv=CARDCV||document.createElement('canvas');if(!cv.getContext)return null;CARDCV=cv;
   const SKT=Object.keys(S.skills).map(x=>SK[x].n),skt=SKT.length?SKT.join(', '):'—';
-  const mc=cv.getContext('2d');if(!mc)return null;mc.font="500 13px 'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif";const nsl=Math.min(2,wrapLines(mc,skt,230).length);
-  const W=360,H=512+18*(nsl-1),k=3;cv.width=W*k;cv.height=H*k;
+  const mc=cv.getContext('2d');if(!mc)return null;mc.font="500 13px 'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif";const nsl=Math.min(3,wrapLines(mc,skt,230).length);const ct0=cardTitle(mc,200,"'Noto Serif TC','Songti TC','PMingLiU',serif"),ex=Math.max(0,90+ct0.fs+2+ct0.tl.length*(ct0.fs+3)+74-244);
+  const W=360,H=532+18*(nsl-1)+ex,k=3;cv.width=W*k;cv.height=H*k;
   const c=cv.getContext('2d');if(!c)return null;
   c.setTransform(k,0,0,k,0,0);
   const SANS="'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif",SERIF="'Noto Serif TC','Songti TC','PMingLiU',serif",MONO="'JetBrains Mono',ui-monospace,Menlo,monospace";
@@ -3549,14 +3803,13 @@ function drawCard(){
   
   const rx=140,rw=W-rx-20;
   T('Career ending',rx,90,'700 11px '+SANS,'#7a8894');
-  let fs=28;c.font='900 '+fs+'px '+SERIF;while(c.measureText(END.t).width>rw&&fs>20){fs-=1;c.font='900 '+fs+'px '+SERIF}
-  let tl=[END.t];if(c.measureText(END.t).width>rw){fs=Math.min(fs,20);c.font='900 '+fs+'px '+SERIF;tl=wrapLines(c,END.t,rw).slice(0,3)}
+  const {fs,tl}=cardTitle(c,rw,SERIF);
   let y=90+fs+2;tl.forEach(l=>{T(l,rx,y,'900 '+fs+'px '+SERIF,'#14212c');y+=fs+3});
   fit(rankName(),rx,y+10,rw,'700',15,11,SANS,'#14212c');
   fit(RT().n+(BR()?' · '+BR().n:''),rx,y+30,rw,'500',12,10,SANS,'#4a5a67');
   fit(S.sp.n,rx,y+48,rw,'500',12,10,SANS,'#7a8894');
   
-  const top=Math.max(py+ph+40,y+66);
+  const top=Math.max(py+ph+40,y+74);
   c.fillStyle='#d9d2c2';c.fillRect(20,top-14,W-40,1);
   const COL={pro:'#2f5d7c',rep:'#b8860b',net:'#6a4fa3',hp:'#1f8a7a',fam:'#c0507a'};
   c.font='500 13px '+SANS;const lw=Math.max(...KEYS.map(x=>c.measureText(KN[x]).width));c.font='500 12px '+SANS;const vw=Math.max(...KEYS.map(x=>c.measureText(lvl(S[x])).width));
@@ -3570,13 +3823,14 @@ function drawCard(){
   c.fillStyle='#d9d2c2';c.fillRect(20,fy-10,W-40,1);
   const fw=W-20-20-90;
   T('Skills',20,fy+14,'700 12px '+SANS,'#7a8894');
-  c.font='500 13px '+SANS;const sl=wrapLines(c,skt,fw).slice(0,2);sl.forEach((l,i)=>T(l,20,fy+33+i*18,'500 13px '+SANS,'#14212c'));
+  c.font='500 13px '+SANS;const sl=wrapLines(c,skt,fw).slice(0,3);sl.forEach((l,i)=>T(l,20,fy+33+i*18,'500 13px '+SANS,'#14212c'));
   const ty=fy+33+sl.length*18+10;
   T('Traits',20,ty,'700 12px '+SANS,'#7a8894');fit(S.traits.map(x=>TR[x].n).join(', '),20,ty+19,fw,'500',13,10,SANS,'#14212c');
   fit('Net worth '+cur(NW()),20,ty+44,fw,'500',13,10,SANS,'#4a5a67');
   const bx=W-60,by=fy+52;
   c.beginPath();c.arc(bx,by,38,0,Math.PI*2);c.fillStyle='#f2b705';c.fill();c.lineWidth=2;c.strokeStyle='#1b1500';c.stroke();
   T('Score',bx,by-10,'700 11px '+SANS,'#1b1500','center');T(String(END.score),bx,by+20,'700 28px '+MONO,'#1b1500','center');
+  (END.goals||[]).forEach((g,i)=>{const mx=bx-24+i*24,my=by+56;c.beginPath();c.arc(mx,my,8,0,Math.PI*2);if(g.ok){c.fillStyle='#f2b705';c.fill();c.lineWidth=1.5;c.strokeStyle='#1b1500';c.stroke();c.beginPath();c.moveTo(mx-4,my);c.lineTo(mx-1,my+3);c.lineTo(mx+4,my-3);c.lineWidth=2;c.strokeStyle='#1b1500';c.stroke()}else{c.lineWidth=1.5;c.strokeStyle='#cfc6b2';c.stroke()}});
   if(END.kind==='banned'){c.save();c.translate(W-96,150);c.rotate(-0.22);c.strokeStyle='rgba(181,58,41,0.85)';c.lineWidth=3;c.strokeRect(-56,-24,112,44);T('REVOKED',0,10,'900 26px '+SERIF,'rgba(181,58,41,0.85)','center');c.restore()}
   c.restore();rr(1,1,W-2,H-2,18);c.lineWidth=2;c.strokeStyle='#cfc6b2';c.stroke();
   return cv;
@@ -3597,19 +3851,29 @@ function saveCard(){
     const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},1500);
   },'image/png');
 }
+function worksHTML(){
+  const cs=(S.cases||[]).slice().sort((a,b)=>b.w-a.w||b.a-a.a).slice(0,3).sort((a,b)=>a.a-b.a);
+  if(!cs.length)return '';
+  return '<div class="story"><span class="kt">Signature cases</span><ul class="works">'+cs.map(c=>'<li><span class="mono">Age '+c.a+'</span><b>'+c.n+'</b><em>'+c.o+'</em></li>').join('')+'</ul></div>';
+}
+function goalsHTML(){
+  const g=END.goals||[];if(!g.length)return '';const k=g.filter(x=>x.ok).length;
+  return '<div class="story"><span class="kt">Life goals · achieved '+k+' / '+g.length+(k?' · Score +'+(3*k):'')+'</span><ul class="goals">'+g.map(x=>'<li class="'+(x.ok?'ok':'no')+'"><i>'+(x.ok?'✔':'✕')+'</i><div><b>'+x.n+'</b><span>'+x.d+'</span></div></li>').join('')+'</ul></div>';
+}
 function endView(){
   return mast()
    +'<div><span class="tab">Closing report</span><div class="card endc">'
    +'<img class="idcard" id="idcard" alt="'+END.t+' · '+rankName()+'" width="360" height="512">'
    +'<p class="hint">You can also long-press or right-click to save the card image</p>'
    +'<p class="sum">'+lifeSummary()+'</p>'
-   +'<div class="story"><span class="kt">Life story</span><p>'+lifeStory()+'</p></div>'
+   +'<div class="story"><span class="kt">Life story</span><p>'+lifeStory()+'</p></div>'+worksHTML()+goalsHTML()
    +'<div class="endbtns"><button class="btn" data-a="savecard">Download card</button><button class="btn sec" data-a="again">Live again</button></div>'
    +'<p class="hint">'+(S.nc?'New cards this life: '+S.nc+' · ':'')+'<button class="linkbtn inl" data-a="dex">Claims 101 collection</button></p>'
    +'</div></div>';
 }
 let lastP='';
 function render(){
+  glHide();
   let h='';
   if(P==='start')h=startView();
   else if(P==='birth')h=birthView();
@@ -3628,6 +3892,7 @@ function render(){
 }
 
 app.addEventListener('click',e=>{
+  const tm=e.target.closest('.term');if(tm){glShow(tm);return}glHide();
   const b=e.target.closest('[data-a]');if(!b||b.disabled)return;
   const a=b.dataset.a,v=b.dataset.v;
   if(a==='begin'){
@@ -3659,6 +3924,8 @@ app.addEventListener('click',e=>{
 });
 app.addEventListener('change',e=>{if(e.target.id==='autoBox'){auto=e.target.checked;render()}});
 app.addEventListener('input',e=>{if(e.target.id==='seed')startSeed=e.target.value});
+app.addEventListener('keydown',e=>{const tm=e.target.closest&&e.target.closest('.term');if(tm&&(e.key==='Enter'||e.key===' ')){e.preventDefault();glShow(tm)}else if(e.key==='Escape')glHide()});
+if(document.addEventListener)document.addEventListener('click',e=>{if(e.target.closest&&!e.target.closest('.term')&&!e.target.closest('#gpop'))glHide()});
 render();
 </script>
 
