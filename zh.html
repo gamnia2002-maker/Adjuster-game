@@ -219,6 +219,15 @@ td.r,th.r{text-align:right;font-family:var(--f-mono);white-space:nowrap}
 .dexc li p{margin-top:6px;color:var(--mute);line-height:1.75}
 .dexc li.lock{color:var(--mute);display:flex;justify-content:space-between;gap:10px}
 .dexc li.lock span{font:500 11px var(--f-mono);border:1px solid var(--line);border-radius:3px;padding:1px 6px;white-space:nowrap;align-self:flex-start}
+.endc{gap:16px}
+.idcard{width:100%;max-width:380px;margin:0 auto;height:auto;display:block;border-radius:12px;box-shadow:0 8px 24px rgba(20,33,44,.22);background:#f7f4ec}
+.sum{font:700 19px/1.65 var(--f-display);border-left:4px solid var(--accent);padding-left:12px;text-wrap:pretty}
+.story{display:flex;flex-direction:column;gap:6px}
+.story .kt{font:700 11px var(--f-mono);letter-spacing:.12em;color:var(--steel)}
+.story p{font-size:16px;line-height:1.95}
+.endbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:12px;color:var(--mute);text-align:center;margin:-6px 0 0}
+.linkbtn.inl{display:inline;font-size:12px;align-self:auto}
 </style>
 </head>
 <body>
@@ -2625,7 +2634,7 @@ function newGame(seed){
   const tp=Object.keys(TR);let t1=tp[rint(tp.length)];
   const t2c=tp.filter(x=>x!==t1&&!TR_X.some(p=>p.includes(t1)&&p.includes(x)));const t2=t2c[rint(t2c.length)];
   const tal=KEYS[rint(5)];const wk=KEYS.filter(x=>x!==tal);const weak=wk[rint(4)];
-  S=Object.assign({seed,age:23,rank:0,cash:0,inv:0,home:0,mort:0,strat:'safe',stk:'flat',lr:0,co:null,coFail:-99,prevTrack:null,raise:0,track:'adj',mkt:'normal',vr:null,kids:0,kb:[],f:{},q:[],lj:-99,big:0,bg,sp,fm,fbg,traits:[t1,t2],tal,weak,skills:{},npc:{lin:0,chen:0,wang:0},st:[],log:[],seen:{},hist:[],evc:0,br:{},hy:0,nc:0},st);
+  S=Object.assign({seed,age:23,rank:0,cash:0,inv:0,home:0,mort:0,strat:'safe',stk:'flat',lr:0,co:null,coFail:-99,prevTrack:null,raise:0,track:'adj',mkt:'normal',vr:null,kids:0,kb:[],f:{},q:[],lj:-99,big:0,bg,sp,fm,fbg,traits:[t1,t2],tal,weak,skills:{},npc:{lin:0,chen:0,wang:0},st:[],log:[],seen:{},hist:[],evc:0,br:{},hy:0,nc:0,ms:[],honest:0},st);
   if(fbg==='rich'){S.cash=300;S.fam=clamp(S.fam+5,0,100)}
   if(fbg==='loan'){S.cash=-80;S.hp=clamp(S.hp-3,0,100)}
   if(fbg==='pillar')S.fam=clamp(S.fam+8,0,100);
@@ -2651,12 +2660,12 @@ function found(t,fcap){
   setRoute(t);
 }
 function bust(){
-  S.co=null;S.f.failed=true;S.coFail=S.age;S.rep=clamp(S.rep-15,0,100);
+  S.co=null;S.f.failed=true;S.coFail=S.age;S.ms.push({k:'fail',a:S.age});S.rep=clamp(S.rep-15,0,100);
   const back=S.prevTrack||'adj';S.track=back;S.rank=clamp(S.rank,1,3);
   S.log.push({age:S.age,t:'公司結束營業。投入的資金全部歸零,你回到「'+ROUTES[back].n+'」重新開始。',k:'bad',m:1});
 }
 function sellCo(m,ending){
-  const got=(S.co.V+Math.max(0,S.co.res))*m;S.cash+=got;S.co=null;S.f.sold=true;
+  const got=(S.co.V+Math.max(0,S.co.res))*m;S.cash+=got;S.co=null;S.f.sold=true;S.ms.push({k:'sold',a:S.age});
   S.log.push({age:S.age,t:'公司出售,入帳 '+cur(got)+'。',k:'up',m:1});
   if(!ending){S.track='mgr';S.rank=Math.max(S.rank,4)}
 }
@@ -2715,7 +2724,7 @@ function setRoute(r){
   if(CO[r])S.rank=1;
   else if(r==='edu')S.rank=S.rank>=3?2:1;
   else if(['brk','ins','rei'].includes(r))S.rank=clamp(S.rank,1,3);
-  S.track=r;
+  S.track=r;S.ms.push({k:'route',a:S.age,r});
   if(BRN[r]&&!S.br[r]&&!S.q.some(x=>x.id==='brp_'+r))S.q.unshift({id:'brp_'+r,at:S.age+1});
   S.log.push({age:S.age,t:'職涯轉向「'+ROUTES[r].n+'」,職稱:'+rankName(),k:'up',m:2});
 }
@@ -2726,6 +2735,8 @@ function apply(fx){
   if(fx.raise)S.raise=Math.max(-.2,S.raise+fx.raise);
   if(fx.unflag)delete S.f[fx.unflag];
   if(fx.flag)S.f[fx.flag]=true;
+  if(fx.flag==='married'&&!S.ms.some(x=>x.k==='marry'))S.ms.push({k:'marry',a:S.age});
+  if(fx.flag==='divorced')S.ms.push({k:'div',a:S.age});
   if(fx.kid){S.kids++;S.kb.push(S.age)}
   if(fx.big)S.big=fx.big<=-9?0:S.big+fx.big;
   ['lin','chen','wang'].forEach(k=>{if(fx[k])S.npc[k]=clamp(S.npc[k]+fx[k],-50,100)});
@@ -2740,7 +2751,7 @@ function apply(fx){
   if(fx.mort)S.mort+=fx.mort;
   if(fx.rent)S.f.rent=true;
   if(fx.flag==='house'&&S.home<=0){S.home=1000;S.mort=700}
-  if(fx.brn){S.br[S.track]=fx.brn;S.log.push({age:S.age,t:'專精方向:'+BRX[fx.brn].n,k:'up'})}
+  if(fx.brn){S.br[S.track]=fx.brn;S.ms.push({k:'brn',a:S.age,r:S.track,b:fx.brn});S.log.push({age:S.age,t:'專精方向:'+BRX[fx.brn].n,k:'up'})}
   if(fx.found)found(fx.found,fx.fcap);
   if(S.co){
     if(fx.res)S.co.res+=fx.res;
@@ -2756,7 +2767,7 @@ function apply(fx){
   if(fx.route)setRoute(fx.route);
   if(fx.sched){const [a,b]=fx.sched.in;S.q.push({id:fx.sched.id,at:S.age+a+rint(b-a+1)})}
 }
-function survive(){if(S.hp<=0&&!S.f.hosp){S.f.hosp=true;S.hp=15;if(!S.q.some(x=>x.id==='hosp'))S.q.unshift({id:'hosp',at:S.age});return true}return false}
+function survive(){if(S.hp<=0&&!S.f.hosp){S.f.hosp=true;S.ms.push({k:'hosp',a:S.age});S.hp=15;if(!S.q.some(x=>x.id==='hosp'))S.q.unshift({id:'hosp',at:S.age});return true}return false}
 function checkEnd(){if(S.hp<=0&&!survive())return 'collapse';if(S.rep<=0)return 'banned';if(S.age>=65)return 'retire';return null}
 function mortal(){
   if(S.age<=45)return false;
@@ -2790,7 +2801,7 @@ function promote(){
   const nx=RANK[S.rank+1];if(!nx||S.f.semi)return;
   const o=RT().off;
   const ok=S.age-23>=nx.y&&S.pro>=nx.pro+(o.pro||0)&&S.rep>=nx.rep+(o.rep||0)&&S.net>=nx.net+(o.net||0);
-  if(ok&&R()<(S.f.sprint?0.5:0.35)+(hasT('amb')?0.1:0)){S.rank++;S.log.push({age:S.age,t:'升任「'+rankName()+'」',k:'up',m:1})}
+  if(ok&&R()<(S.f.sprint?0.5:0.35)+(hasT('amb')?0.1:0)){S.rank++;S.log.push({age:S.age,t:'升任「'+rankName()+'」',k:'up',m:1});S.ms.push({k:'promo',a:S.age,r:S.rank,t:rankName()})}
 }
 
 function marketStep(){
@@ -2881,6 +2892,9 @@ function choose(i){
   const bs=bonuses(c);
   const line=O.length>1?'擲出 '+roll+' · 依'+cLab(c)+'('+Math.round(sv(c))+')'+(bs.length?' · 加成 '+bs.map(x=>x[0]+(x[1]>0?'+':'')+x[1]).join('、'):'')+(S.vr?' · 變數 '+S.vr.n:'')+' · '+O.map(x=>x.n+' '+x.p+'%').join(' / '):'';
   apply(fx);
+  if(ev.hy)S.ms.push({k:'hist',a:S.age,src:ev.src});
+  if(ev.id==='big3')S.ms.push({k:'big',a:S.age,g:o.g});
+  if(JUST.has(ev.id+':'+i))S.honest++;
   if(ev.job)S.lj=S.age;
   S.seen[ev.id]=1;S.evc++;
   S.log.push({age:S.age,t:nm(ev)+'|'+lbl(ch)+'('+o.n+')。'+r.t+(flav?' '+flav:'')+(tw?' '+tw.t:''),k:o.g==='b'?'bad':'ev',fx,m:0});
@@ -3415,20 +3429,188 @@ function chartSVG(){
   const lg=KEYS.map(k=>'<span><i style="background:var(--s-'+k+')"></i>'+KN[k]+'</span>').join('');
   return '<svg class="ch" viewBox="0 0 '+W+' '+Ht+'" role="img" aria-label="五項屬性隨年齡變化">'+g+ls+'</svg><div class="legend">'+lg+'</div>';
 }
+/* ---- 結案:一句摘要、人生故事、執業證小卡 ---- */
+const lc=x=>(LANG==='en'&&x&&x.length>1&&/[a-z]/.test(x[1]))?x[0].toLowerCase()+x.slice(1):x;
+const lcA=x=>LANG==='en'&&x?x.replace(/\b([A-Z])([a-z])/g,(m,p,q)=>p.toLowerCase()+q):x;
+const listJ=a=>LANG==='en'?(a.length>1?a.slice(0,-1).join(', ')+' and '+a[a.length-1]:a[0]||''):a.join('、');
+const fill=(t,v)=>{let r=t.replace(/\{(\w)\}/g,(_,k)=>v[k]===undefined?'':v[k]);if(LANG==='en')r=r.replace(/\bA ([AEIOUaeiou])/g,'An $1');return r};
+const BGS=['理工科出身','法律商管出身','船務海事出身','從保險公司轉職','剛畢業、什麼都要學'];
+const FMS=['一家外商公證公司','一家本土公證行','一家保險公司的理賠部'];
+const SPS={fire:'火災與爆炸案件',cargo:'貨物與海事案件',eng:'工程險案件',re:'再生能源案件',semi:'半導體與高科技案件',motor:'車險與責任險案件'};
+const STY={
+ open:'{a} 歲那年,這位{x}的新人進入{y},專攻{z}。',
+ route:'{a} 歲,轉往「{x}」。',
+ routeB:'{a} 歲,轉往「{x}」,後來專攻{y}。',
+ found:'{a} 歲,自己開了{x}。',
+ foundB:'{a} 歲,自己開了{x},主打{y}。',
+ fail:'{a} 歲那年公司倒閉,一切歸零,又從頭再來。',
+ sold:'{a} 歲把公司賣掉,換來一筆可觀的財富。',
+ bigG:'{a} 歲接下「{x}」大案,一戰成名。',
+ bigB:'{a} 歲接下「{x}」大案,吃足了苦頭。',
+ hist1:'這一路也親身經歷了 {x}。',
+ hist2:'這一路也親身經歷了 {x},以及 {y}。',
+ promo:'{a} 歲升上「{x}」。',
+ marry:'{a} 歲成家。',
+ marry1:'{a} 歲成家,後來有了一個孩子。',
+ marryN:'{a} 歲成家,後來有了 {n} 個孩子。',
+ div:'只是那段婚姻沒能走到最後。',
+ abroad:'也曾外派海外,看過不一樣的市場。',
+ hosp:'{a} 歲那年過勞倒下,從此學會放慢腳步。',
+ hon1:'曾經拒絕過一次不當利益。',
+ honN:'一生拒絕過 {n} 次不當利益。',
+ skills:'練就了{x}的本事。',
+ retire:'{a} 歲退休,業界給的評語是:「{x}」。',
+ special:'{a} 歲那年,選擇了另一種人生:「{x}」。',
+ collapse:'{a} 歲那年倒在工作崗位上,沒能等到退休。',
+ sick:'{a} 歲因病離世,沒能等到退休。',
+ banned:'{a} 歲那年被業界除名,一切停在那裡。'
+};
+const PERS={adj:'公證人',exp:'技術派鑑識專家',mgr:'理賠團隊領導者',ins:'保險公司理賠人',brk:'站在客戶這邊的經紀人',rei:'跑遍國際市場的再保人',edu:'保險學教授',own:'自己掛招牌的公證公司老闆',bro:'經紀公司老闆',con:'風險顧問',tech:'理賠科技創業家'};
+const PERB={ins_cl:'保險公司理賠高手',ins_uw:'保險公司核保專家',ins_ri:'保險公司再保操盤手',brk_mar:'水險經紀人',brk_pro:'財產工程經紀人',brk_enr:'能源高科技經紀人',rei_tr:'合約再保人',rei_fac:'臨分核保人',rei_cat:'巨災模型專家',edu_res:'保險學研究者',edu_tch:'理賠實務教師',edu_pol:'保險政策學者',con_bcp:'營運持續顧問',con_erm:'企業風險管理顧問',con_esg:'氣候風險顧問',own_mar:'海事公證公司老闆',own_cat:'巨災公證公司老闆',own_vol:'量販公證公司老闆',bro_sme:'中小企業經紀公司老闆',bro_mnc:'跨國經紀公司老闆',bro_spe:'特殊險經紀公司老闆',tech_b2b:'保險科技平台創辦人',tech_ai:'AI 估損新創創辦人',tech_emb:'嵌入式保險創辦人'};
+const ORG={fire:'從火災現場起步',cargo:'從碼頭與貨櫃起步',eng:'從工地起步',re:'從電廠與風場起步',semi:'從無塵室起步',motor:'從車禍現場起步'};
+const TRT={pro:'專業頂尖',rep:'信譽卓著',net:'人脈廣闊',fam:'重視家庭'};
+const SUMT='{x}、{y}的{z},{w},{v}。';
+const SKP={2:'擅長{x}、{y}',1:'擅長{x}',0:'靠一身實戰經驗'};
+const CODA={banned:'最後卻在誠信上跌了一跤',dead:'只可惜沒能走到退休',fail:'跌倒過也再站起來',hon:'一生守住底線',fam:'也沒有錯過家人',lone:'代價是家裡的空位',rich:'也替自己掙到了自由',def:'一步一腳印走完職涯'};
+function lifeSummary(){
+  const b=BR(),per=b&&PERB[b.id]?PERB[b.id]:PERS[S.track]||PERS.adj;
+  const top=['pro','rep','net','fam'].reduce((a,k)=>S[k]>S[a]?k:a,'pro');
+  const sk=Object.keys(S.skills).slice(0,2).map(x=>lc(SK[x].n));
+  const k=END.kind;
+  const cd=k==='banned'?'banned':(k==='collapse'||k==='sick')?'dead':(S.f.failed&&S.rank>=3)?'fail':S.honest>=2?'hon':S.fam>=75?'fam':S.fam<=25?'lone':NW()>=3500?'rich':'def';
+  return fill(SUMT,{x:ORG[S.sp.id],y:TRT[top],z:lc(per),w:fill(SKP[sk.length],{x:sk[0],y:sk[1]}),v:CODA[cd]});
+}
+function lifeStory(){
+  const v=[],ms=S.ms||[],tl=[];
+  v.push(fill(STY.open,{a:23,x:BGS[Math.max(0,BG.indexOf(S.bg))],y:lc(FMS[Math.max(0,FM.indexOf(S.fm))]),z:SPS[S.sp.id]}));
+  const car=[];
+  ms.forEach(e=>{
+    if(e.k==='route'){
+      const b=ms.find(x=>x.k==='brn'&&x.r===e.r&&x.a>=e.a),bn=b?lcA(BRX[b.b].n):'';
+      if(CO[e.r])car.push([e.a,fill(b?STY.foundB:STY.found,{a:e.a,x:lc(CO[e.r].n),y:bn})]);
+      else car.push([e.a,fill(b?STY.routeB:STY.route,{a:e.a,x:ROUTES[e.r].n,y:bn})]);
+    }else if(e.k==='fail')car.push([e.a,fill(STY.fail,{a:e.a})]);
+    else if(e.k==='sold')car.push([e.a,fill(STY.sold,{a:e.a})]);
+  });
+  tl.push(...car.slice(0,3));
+  const pr=ms.filter(x=>x.k==='promo'&&x.r>=3).pop();if(pr)tl.push([pr.a,fill(STY.promo,{a:pr.a,x:pr.t})]);
+  const bg=ms.find(x=>x.k==='big');if(bg)tl.push([bg.a,fill(bg.g==='g'?STY.bigG:STY.bigB,{a:bg.a,x:BIG[S.sp.id].n})]);
+  const mr=ms.find(x=>x.k==='marry');if(mr)tl.push([mr.a,fill(S.kids>1?STY.marryN:S.kids===1?STY.marry1:STY.marry,{a:mr.a,n:S.kids})]);
+  const dv=ms.find(x=>x.k==='div');if(dv&&mr)tl.push([dv.a,STY.div]);
+  const hp=ms.find(x=>x.k==='hosp');if(hp)tl.push([hp.a,fill(STY.hosp,{a:hp.a})]);
+  tl.sort((x,y)=>x[0]-y[0]);v.push(...tl.map(x=>x[1]));
+  const hs=ms.filter(x=>x.k==='hist');if(hs.length)v.push(fill(hs.length>1?STY.hist2:STY.hist1,{x:hs[0].src,y:hs[1]&&hs[1].src}));
+  if(!hp&&S.f.abroad)v.push(STY.abroad);
+  if(S.honest)v.push(fill(S.honest>1?STY.honN:STY.hon1,{n:S.honest}));
+  const sk=Object.keys(S.skills).slice(0,3).map(x=>lc(SK[x].n));if(sk.length)v.push(fill(STY.skills,{x:listJ(sk)}));
+  const k=END.kind;v.push(fill(STY[k==='retire'?'retire':k==='special'?'special':k],{a:S.age,x:END.t}));
+  return v.join(LANG==='en'?' ':'');
+}
+const CARDH={adj:'保險公證人 執業證',exp:'保險公證人 執業證',mgr:'保險公證人 執業證',own:'公證公司 負責人證',ins:'產物保險公司 識別證',rei:'再保險公司 識別證',brk:'保險經紀人 執業證',bro:'保險經紀公司 負責人證',edu:'大學 教職員證',con:'風險顧問公司 名片',tech:'保險科技新創 名片'};
+let CARDCV=null,DL=null;
+try{if(typeof window!=='undefined'&&window.claude&&window.claude.use)window.claude.use('downloads').then(x=>{DL=x},()=>{})}catch(e){}
+function heroSprite(){
+  const o=outfit(),age=S.age,mood=(S.hp+S.fam)/2,m=ADULT.slice();
+  if(age>=58){m[0]='..........';m[2]='..HSSSSH..'}
+  if(o.glass||age>=48)m[4]='..GEGGEG..';
+  if(mood<35){m[5]='..SDSSDS..';m[6]='..SMMMMS..'}
+  else if(mood>=62){m[6]='..SMSSMS..';m[7]='...SMMS...'}
+  return {m,o,pal:{H:hairAt(age),S:'#f1c7a1',D:'#cf9a78',E:'#2b2b2b',G:'#3a3a3a',M:'#a2533f',T:o.T,A:o.A,W:o.W,P:o.P,B:'#2a2a2a'}};
+}
+function wrapLines(c,t,w){
+  const sp=/\s/.test(t),parts=sp?t.split(' '):Array.from(t),out=[];let cur='';
+  parts.forEach(p=>{const n=cur?cur+(sp?' ':'')+p:p;if(c.measureText(n).width>w&&cur){out.push(cur);cur=p}else cur=n});
+  if(cur)out.push(cur);return out;
+}
+function drawCard(){
+  if(typeof document==='undefined'||!document.createElement)return null;
+  const cv=CARDCV||document.createElement('canvas');if(!cv.getContext)return null;CARDCV=cv;
+  const SKT=Object.keys(S.skills).map(x=>SK[x].n),skt=SKT.length?SKT.join('、'):'—';
+  const mc=cv.getContext('2d');if(!mc)return null;mc.font="500 13px 'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif";const nsl=Math.min(2,wrapLines(mc,skt,230).length);
+  const W=360,H=512+18*(nsl-1),k=3;cv.width=W*k;cv.height=H*k;
+  const c=cv.getContext('2d');if(!c)return null;
+  c.setTransform(k,0,0,k,0,0);
+  const SANS="'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif",SERIF="'Noto Serif TC','Songti TC','PMingLiU',serif",MONO="'JetBrains Mono',ui-monospace,Menlo,monospace";
+  const rr=(x,y,w,h,r)=>{c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()};
+  const T=(t,x,y,f,col,al)=>{c.font=f;c.fillStyle=col;c.textAlign=al||'left';c.textBaseline='alphabetic';c.fillText(LANG==='en'?String(t).replace(/’/g,"'"):t,x,y)};
+  const fit=(t,x,y,w,wt,sz,mn,fam,col,al)=>{let z=sz;c.font=wt+' '+z+'px '+fam;while(c.measureText(t).width>w&&z>mn){z-=1;c.font=wt+' '+z+'px '+fam}let u=t;while(c.measureText(u).width>w&&u.length>2)u=u.slice(0,-2)+'…';T(u,x,y,wt+' '+z+'px '+fam,col,al)};
+  const dead=END.kind==='collapse'||END.kind==='sick';
+  c.clearRect(0,0,W,H);rr(1,1,W-2,H-2,18);c.save();c.clip();
+  c.fillStyle='#f7f4ec';c.fillRect(0,0,W,H);
+  c.strokeStyle='rgba(47,93,124,0.06)';c.lineWidth=1;for(let i=-H;i<W;i+=10){c.beginPath();c.moveTo(i,H);c.lineTo(i+H,0);c.stroke()}
+  c.fillStyle='#2f5d7c';c.fillRect(0,0,W,52);c.fillStyle='#f2b705';c.fillRect(0,52,W,5);
+  fit(CARDH[S.track]||CARDH.adj,20,33,236,'700',16,12,SANS,'#ffffff');
+  T('No. '+S.seed,W-20,32,'500 12px '+MONO,'#cfe0ec','right');
+  /* 頭像 */
+  const px=20,py=76,pw=104,ph=128,hs=heroSprite(),sc=6,sx=px+Math.round((pw-10*sc)/2),sy=py+ph-17*sc-10;
+  c.fillStyle='#d7e6f0';c.fillRect(px,py,pw,ph);c.fillStyle='#c9d9c3';c.fillRect(px,py+ph-24,pw,24);
+  hs.m.forEach((row,j)=>{for(let i=0;i<row.length;i++){const col=hs.pal[row[i]];if(col){c.fillStyle=col;c.fillRect(sx+i*sc,sy+j*sc,sc,sc)}}});
+  if(S.rep>=80){c.fillStyle='#ffd23f';c.fillRect(sx+2*sc,sy+9*sc,sc,sc)}
+  if(S.f.cert){c.fillStyle='#6fd0ff';c.fillRect(sx+7*sc,sy+9*sc,sc,sc)}
+  if(dead){c.fillStyle='rgba(28,30,36,0.38)';c.fillRect(px,py,pw,ph);c.save();c.beginPath();c.rect(px,py,pw,ph);c.clip();c.translate(px+pw-14,py+14);c.rotate(Math.PI/4);c.fillStyle='#1b1b1b';c.fillRect(-50,-7,100,14);c.restore()}
+  c.strokeStyle='#2f5d7c';c.lineWidth=2;c.strokeRect(px,py,pw,ph);
+  T('23 → '+S.age+' 歲',px+pw/2,py+ph+20,'500 12px '+MONO,'#4a5a67','center');
+  /* 右欄:結局、職稱、路線 */
+  const rx=140,rw=W-rx-20;
+  T('職涯結局',rx,90,'700 11px '+SANS,'#7a8894');
+  let fs=28;c.font='900 '+fs+'px '+SERIF;while(c.measureText(END.t).width>rw&&fs>20){fs-=1;c.font='900 '+fs+'px '+SERIF}
+  let tl=[END.t];if(c.measureText(END.t).width>rw){fs=Math.min(fs,20);c.font='900 '+fs+'px '+SERIF;tl=wrapLines(c,END.t,rw).slice(0,3)}
+  let y=90+fs+2;tl.forEach(l=>{T(l,rx,y,'900 '+fs+'px '+SERIF,'#14212c');y+=fs+3});
+  fit(rankName(),rx,y+10,rw,'700',15,11,SANS,'#14212c');
+  fit(RT().n+(BR()?' · '+BR().n:''),rx,y+30,rw,'500',12,10,SANS,'#4a5a67');
+  fit(S.sp.n,rx,y+48,rw,'500',12,10,SANS,'#7a8894');
+  /* 五項屬性 */
+  const top=Math.max(py+ph+40,y+66);
+  c.fillStyle='#d9d2c2';c.fillRect(20,top-14,W-40,1);
+  const COL={pro:'#2f5d7c',rep:'#b8860b',net:'#6a4fa3',hp:'#1f8a7a',fam:'#c0507a'};
+  c.font='500 13px '+SANS;const lw=Math.max(...KEYS.map(x=>c.measureText(KN[x]).width));c.font='500 12px '+SANS;const vw=Math.max(...KEYS.map(x=>c.measureText(lvl(S[x])).width));
+  const bx0=20+lw+10,bw=W-20-vw-10-bx0;
+  KEYS.forEach((kk,i)=>{const yy=top+6+i*24;
+    T(KN[kk],20,yy+10,'500 13px '+SANS,'#14212c');
+    c.fillStyle='#e3ddd0';c.fillRect(bx0,yy+1,bw,10);c.fillStyle=COL[kk];c.fillRect(bx0,yy+1,bw*clamp(S[kk],0,100)/100,10);
+    T(lvl(S[kk]),W-20,yy+10,'500 12px '+SANS,S[kk]<25?'#b53a29':'#4a5a67','right')});
+  /* 底部:技能、特質、淨資產、總評章 */
+  const fy=top+6+5*24+16;
+  c.fillStyle='#d9d2c2';c.fillRect(20,fy-10,W-40,1);
+  const fw=W-20-20-90;
+  T('技能',20,fy+14,'700 12px '+SANS,'#7a8894');
+  c.font='500 13px '+SANS;const sl=wrapLines(c,skt,fw).slice(0,2);sl.forEach((l,i)=>T(l,20,fy+33+i*18,'500 13px '+SANS,'#14212c'));
+  const ty=fy+33+sl.length*18+10;
+  T('特質',20,ty,'700 12px '+SANS,'#7a8894');fit(S.traits.map(x=>TR[x].n).join('、'),20,ty+19,fw,'500',13,10,SANS,'#14212c');
+  fit('淨資產 '+cur(NW()),20,ty+44,fw,'500',13,10,SANS,'#4a5a67');
+  const bx=W-60,by=fy+52;
+  c.beginPath();c.arc(bx,by,38,0,Math.PI*2);c.fillStyle='#f2b705';c.fill();c.lineWidth=2;c.strokeStyle='#1b1500';c.stroke();
+  T('總評',bx,by-10,'700 11px '+SANS,'#1b1500','center');T(String(END.score),bx,by+20,'700 28px '+MONO,'#1b1500','center');
+  if(END.kind==='banned'){c.save();c.translate(W-96,150);c.rotate(-0.22);c.strokeStyle='rgba(181,58,41,0.85)';c.lineWidth=3;c.strokeRect(-56,-24,112,44);T('註銷',0,10,'900 26px '+SERIF,'rgba(181,58,41,0.85)','center');c.restore()}
+  c.restore();rr(1,1,W-2,H-2,18);c.lineWidth=2;c.strokeStyle='#cfc6b2';c.stroke();
+  return cv;
+}
+function cardRender(){
+  const img=document.getElementById('idcard');if(!img||!img.setAttribute)return;
+  const put=()=>{if(P!=='end')return;const cv=drawCard(),im=document.getElementById('idcard');if(cv&&im)try{im.src=cv.toDataURL('image/png')}catch(e){}};
+  put();
+  try{if(document.fonts&&document.fonts.load){const txt=END.t+rankName()+RT().n+(BR()?BR().n:'')+S.sp.n+(CARDH[S.track]||'')+KEYS.map(k=>KN[k]+lvl(S[k])).join('')+Object.keys(S.skills).map(x=>SK[x].n).join('')+'技能淨資產總評職涯結局歲註銷'+S.traits.map(x=>TR[x].n).join('');
+    Promise.all([document.fonts.load("900 34px 'Noto Serif TC'",txt),document.fonts.load("700 17px 'Noto Sans TC'",txt),document.fonts.load("500 13px 'Noto Sans TC'",txt),document.fonts.load("500 14px 'JetBrains Mono'",'No.0123456789→')]).then(put,put)}}catch(e){}
+}
+function saveCard(){
+  const cv=CARDCV||drawCard();if(!cv||!cv.toBlob)return;
+  const fn='adjuster-card-'+S.seed+'.png';
+  cv.toBlob(b=>{
+    if(!b)return;
+    if(DL){DL.save({filename:fn,data:b}).catch(()=>{});return}
+    const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=fn;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},1500);
+  },'image/png');
+}
 function endView(){
-  const share='我的《冒險公證人》人生:'+END.t+'|'+RT().n+'・'+rankName()+'|淨資產 '+cur(NW())+'|'+S.age+' 歲|經歷 '+S.evc+' 個十字路口|總評 '+END.score+'|人生代碼 '+S.seed;
-  const fin=KEYS.map(k=>chip(KN[k]+' '+(detail?Math.round(S[k]):lvl(S[k])),'pr')).join('');
-  return mast()+stage()
-   +'<div><span class="tab">結案報告</span><div class="card">'
-   +'<h2>'+END.t+'</h2><p>'+END.d+'</p>'
-   +'<div class="score"><b class="mono">'+END.score+'</b><span>職涯總評 / 100</span></div>'
-   +'<div class="row">'+chip(S.age+' 歲','pr')+chip(RT().n,'pr')+chip(rankName(),'pr')+chip('淨資產 '+cur(NW())+'','pr')+chip(S.evc+' 個十字路口','pr')+(S.nc?chip('新收錄知識卡 '+S.nc+' 張','up'):'')+fin+'</div>'
-   +chartSVG()
-   +'<div class="field"><label for="share">分享文字</label><textarea id="share" readonly>'+share+'</textarea></div>'
-   +'<button class="btn sec" data-a="copy">複製分享文字</button>'
-   +'<button class="btn" data-a="again">重新抽籤,再活一次</button>'
-   +'<button class="btn sec" data-a="same">用同一個人生代碼重玩</button>'+dexBtn()+'</div></div>'
-   +'<details><summary>完整職涯紀錄('+S.log.length+' 筆)</summary><div class="dbody">'+feedHTML(999)+'</div></details>';
+  return mast()
+   +'<div><span class="tab">結案報告</span><div class="card endc">'
+   +'<img class="idcard" id="idcard" alt="'+END.t+' · '+rankName()+'" width="360" height="512">'
+   +'<p class="hint">長按或右鍵也可以儲存小卡圖片</p>'
+   +'<p class="sum">'+lifeSummary()+'</p>'
+   +'<div class="story"><span class="kt">人生故事</span><p>'+lifeStory()+'</p></div>'
+   +'<div class="endbtns"><button class="btn" data-a="savecard">下載小卡</button><button class="btn sec" data-a="again">再活一次</button></div>'
+   +'<p class="hint">'+(S.nc?'這一局新收錄 '+S.nc+' 張知識卡 · ':'')+'<button class="linkbtn inl" data-a="dex">理賠小教室圖鑑</button></p>'
+   +'</div></div>';
 }
 let lastP='';
 function render(){
@@ -3439,7 +3621,8 @@ function render(){
   else if(P==='end')h=endView();
   else if(P==='dex')h=dexView();
   app.innerHTML=h;
-  if(S&&P!=='start'&&P!=='dex')drawScene(document.getElementById('scene'));
+  if(S&&P!=='start'&&P!=='dex'&&P!=='end')drawScene(document.getElementById('scene'));
+  if(P==='end')cardRender();
   if(P!==lastP){
     if(P==='start'||P==='birth'||P==='end'||P==='dex')window.scrollTo(0,0);
     if(P==='event'){const b=document.getElementById('evbox');if(b&&b.getBoundingClientRect().top>window.innerHeight*0.7)b.scrollIntoView({block:'start',behavior:'smooth'})}
@@ -3465,6 +3648,7 @@ app.addEventListener('click',e=>{
   else if(a==='pause'){if(!paused){yrAcc+=now()-yrRes;paused=true}else{paused=false;yrRes=now()}render()}
   else if(a==='opt')choose(+v);
   else if(a==='cont')cont();
+  else if(a==='savecard')saveCard();
   else if(a==='dex'){dexFrom=P;P='dex';render()}
   else if(a==='dexback'){P=dexFrom||'start';render()}
   else if(a==='again'){startSeed='';P='start';S=null;END=null;render()}
