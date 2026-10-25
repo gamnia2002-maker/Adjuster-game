@@ -107,6 +107,8 @@ canvas.scene{display:block;width:100%;height:auto;aspect-ratio:120/56;image-rend
 .st b{text-align:right;font:700 13px var(--f-mono)}
 .st b.low{color:var(--bad)}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
+.prof{display:flex;flex-direction:column;gap:2px}
+.prof b{color:var(--ink);font-weight:700}
 
 .ctrl{display:flex;flex-direction:column;gap:10px}
 .ctrl-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
@@ -199,7 +201,7 @@ td.r,th.r{text-align:right;font-family:var(--f-mono);white-space:nowrap}
 <script>
 /* ===================== 基本設定 ===================== */
 const KEYS=['pro','rep','net','hp','fam'];
-const KN={pro:'專業',rep:'信譽',net:'人脈',hp:'健康',fam:'家庭'};
+const KN={pro:'專業',rep:'信譽',net:'人脈',hp:'健康',fam:'家庭',gov:'公司治理'};
 const RANK=[
  {m:4.2},
  {m:6,y:3,pro:45,rep:0,net:0},
@@ -467,7 +469,7 @@ const E=[
  {l:'交給你帶出來的後輩,從旁指導',ok:{t:'後輩做得很好,對方說:「你教得真好。」',fx:{net:5,rep:3}}},
  {l:'婉拒,好好退休',ok:{t:'你把時間留給自己。',fx:{fam:4,hp:3}}}
 ]},
-{id:'earlyout',n:'提早退休?',w:8,once:1,when:s=>s.age>=50&&s.age<=60&&s.cash>=1500,t:'理財顧問看了你的資產表:「你其實可以現在就退休。」',ch:[
+{id:'earlyout',n:'提早退休?',w:8,once:1,when:s=>s.age>=50&&s.age<=60&&NW()>=1500,t:'理財顧問看了你的資產表:「你其實可以現在就退休。」',ch:[
  {l:'退休',ok:{t:'你交出了門禁卡。',fx:{fam:6,hp:6,end:{t:'提早退休的公證人',d:'你沒有等到 65 歲。某個平凡的星期五,你交出門禁卡,開車回家的路上沒有接任何一通電話。'}}}},
  {l:'再做幾年',ok:{t:'你還捨不得現場。',fx:{rep:2,hp:-2}}}
 ]},
@@ -906,6 +908,311 @@ const LO={pro:['經驗不足讓你在關鍵處判斷失準。','你漏看了一�
 
 E.forEach(e=>e.ch.forEach(c=>{if(c.hid){const {k,v}=c.hid;c.show=s=>s[k]>=v}}));
 
+/* ===================== 第六版:開局條件、技能、人物、狀態、理財、創業 ===================== */
+const TR={
+ careful:{n:'細心',d:'專業判定 +5%'},
+ smooth:{n:'圓融',d:'人脈判定 +5%;衝突類事件 +5%'},
+ stub:{n:'固執',d:'信譽判定 +5%,人脈判定 −5%'},
+ work:{n:'工作狂',d:'衝現場收益 ×1.3;家庭每年多 −1'},
+ home:{n:'顧家',d:'休養陪家人效果 ×1.5;外派與巨災類判定 −5%'},
+ opt:{n:'樂天',d:'健康耗損每年少 0.5;壞結果損失 ×0.8'},
+ amb:{n:'野心',d:'升遷機率 +10%,轉職邀請增加;家庭每年多 −0.5'},
+ sweet:{n:'嘴甜',d:'人脈每年 +1;王經理起始好感 +10'},
+ just:{n:'正義感',d:'拒絕不當利益時,信譽獎勵 ×1.5'},
+ risk:{n:'冒險家',d:'大成功與大失敗機率 ×1.5'}
+};
+const TR_X=[['smooth','stub'],['work','home']];
+const CONFLICT=new Set(['angry','credit','scapegoat','newcontact','n_chen1','n_chen_poach','o3','c_key']);
+const HOMEMINUS=new Set(['expat','trip','r2','typhoon','quake','petro']);
+const JUST=new Set(['bribe:0','bribe:2','inflate:0','inflate:1','pressure:0','i1:0','olderr:0','k1:0','c_short:1']);
+const FB={
+ rich:{n:'富裕家庭',w:15,d:'起始資產 300 萬、家庭 +5'},
+ normal:{n:'小康家庭',w:55,d:'沒有特別調整'},
+ loan:{n:'背負學貸',w:20,d:'起始資產 −80 萬、健康 −3;28 歲前儲蓄率 −10%'},
+ pillar:{n:'家中經濟支柱',w:10,d:'家庭 +8;40 歲前儲蓄率 −10%;父母相關事件較多'}
+};
+const SK={
+ eng:{n:'商業英文',ids:['reins','r1','r2','r3','trip','expat','j_rei','petro','b2','cargo1'],v:8},
+ fire:{n:'火災鑑識',spec:'fire',ids:['x1','unsafe','first'],v:8},
+ bi:{n:'BI 損失計算',ids:['bi','semi1','semi3','semi5','re3','re5','big2','eng2'],v:8},
+ ga:{n:'海損理算',spec:'cargo',ids:[],v:8},
+ struct:{n:'結構工程',spec:'eng',ids:['quake','re1','fire6'],v:8},
+ law:{n:'條款與法律',tag:'law',ids:[],v:8},
+ digi:{n:'數位勘查',ids:['unsafe','pandemic','first','big1','fire4','motor4','eng3'],v:5},
+ nego:{n:'談判',ids:['big3','b1','b3','o2','m2','angry','underins','lawsuit','k1','k3','c_acq','fb_inherit','n_chen_poach'],v:8}
+};
+const SPSK={fire:'fire',cargo:'ga',eng:'struct',re:'struct',semi:'bi',motor:'law'};
+const STA={
+ media:{n:'媒體點名',y:3,ck:{rep:-5}},
+ award:{n:'業界得獎',y:3,ck:{net:5}},
+ back:{n:'腰傷',y:2,ck:{hp:-8}},
+ honey:{n:'新婚期',y:2},
+ watch:{n:'被稽核盯上',y:3},
+ halo:{n:'大案光環',y:3},
+ burn:{n:'燃燒殆盡',y:2,ck:{all:-5}}
+};
+const NPCN={lin:'林前輩',chen:'陳志明',wang:'王經理'};
+const CO={
+ own:{n:'公證公司',cap:300,P:450,vol:.2,req:s=>s.pro>=60,lk:'專業 ≥ 60'},
+ bro:{n:'保險經紀公司',cap:500,P:550,vol:.15,req:s=>s.net>=65,lk:'人脈 ≥ 65'},
+ con:{n:'風險顧問公司',cap:200,P:320,vol:.35,req:s=>s.pro>=65,lk:'專業 ≥ 65'},
+ tech:{n:'理賠科技新創',cap:800,P:900,vol:.55,req:s=>s.pro+s.net>=120,lk:'專業 + 人脈 ≥ 120'}
+};
+const STK={flat:{n:'股市盤整',m:0},bull:{n:'股市多頭',m:8},bear:{n:'股市空頭',m:-10},crash:{n:'股災',m:-28}};
+const STRAT={safe:{n:'保守',d:'定存與儲蓄險,年報酬約 1.5%'},mid:{n:'穩健',d:'ETF 與基金,平均 5%,一年波動約 ±10%'},agg:{n:'積極',d:'個股,平均 7%,一年波動約 ±25%,股市漲跌放大 1.4 倍'}};
+const POL={grow:{n:'擴張'},steady:{n:'穩健'},lean:{n:'節流'}};
+const COR=['own','bro','con','tech'];
+const liq=s=>s.cash+s.inv;
+
+Object.assign(ROUTES,{
+ bro:{n:'經紀公司老闆',r:['經紀工作室負責人','經紀工作室負責人','經紀公司負責人','經紀公司總經理','區域經紀集團董事長','經紀集團董事長'],m:.7,d:1.4,off:{},x:'續約佣金越做越穩,客戶集中風險高'},
+ con:{n:'顧問公司老闆',r:['獨立顧問','獨立顧問','顧問公司負責人','顧問公司總經理','顧問集團董事長','顧問集團董事長'],m:.6,d:1.2,off:{},x:'成本低,收入波動大'},
+ tech:{n:'新創老闆',r:['新創創辦人','新創創辦人','新創執行長','成長期執行長','獨角獸執行長','上市公司董事長'],m:.5,d:2,off:{},x:'高風險高報酬,可能被收購,也可能燒光'}
+});
+Object.assign(ROUTES.own,{n:'公證公司老闆',r:['工作室負責人','工作室負責人','公證公司負責人','公證公司總經理','區域公證公司老闆','公證集團董事長'],m:.7,d:1.6,off:{},x:'穩定,靠接案量'});
+
+/* 舊事件調整:創業改走公司機制,部分事件接上人物 */
+(function(){
+ const g=id=>E.find(e=>e.id===id);
+ const br2=g('br2');br2.ch.forEach(c=>{if(c.ok.fx.route==='own'){c.req=s=>s.net>=55&&s.rank>=2&&liq(s)>=300;c.lk='人脈 ≥ 55、職級第 3 階、現金加投資 ≥ 300 萬';delete c.c;c.l='自立門戶,開自己的公證公司';c.ok={t:'招牌掛上去的那天,幾個老客戶送來花籃。',fx:{found:'own',net:3,rep:2}};delete c.ng}});
+ const st=g('startup');st.ch[0]={l:'一起創業,各出一半資金',req:s=>liq(s)>=150,lk:'現金加投資 ≥ 150 萬',ok:{t:'你們租下一間小辦公室,公證公司開張了。',fx:{found:'own',fcap:150,net:4,hp:-3}}};
+ const cr=g('credit');cr.t='同期的陳志明把你做的分析放進他的簡報,在主管面前說是他做的。';
+ const pr=g('pressure');pr.t='保險公司的王經理暗示:「這件可以再保守一點吧?」希望你把可賠金額壓低兩成。';
+ const o1=g('o1');o1.ch[0].ok.fx={cash:-80,res:80,net:3,rep:2};
+ ['o1','o2','o3','o4'].forEach(id=>g(id).ch.forEach((c,i)=>{if(id==='o1'&&i===0)return;[c.ok,c.ng,c.gr].forEach(r=>{if(r&&r.fx.cash!==undefined){r.fx.res=r.fx.cash;delete r.fx.cash}})}));
+ g('english').ch[0].ok.fx.sk='eng';
+ g('x1').ch[0].ok.fx.sk='fire';
+ g('emba').ch[0].ok.fx.sk='nego';
+ g('midlife').ch[2].ok.fx.sk='law';
+ g('bi').ch[0].gr.fx.sk='bi';
+ g('j_back').when=s=>!['adj','exp','mgr'].includes(s.track)&&!s.co&&s.age<=58;
+})();
+
+E.push(
+/* ---- 創業 ---- */
+{id:'co_found',n:'自己當老闆?',job:1,w:6,when:s=>!s.co&&s.age>=30&&s.age<=58&&s.age-s.coFail>=4&&liq(s)>=200&&s.rank>=2,t:'你算了算自己的存款與投資,也想了想手上的人脈。也許,是時候自己當老闆了。',ch:[
+ {l:'開公證公司(啟動資金 300 萬)',req:s=>CO.own.req(s)&&liq(s)>=300,lk:'專業 ≥ 60、現金加投資 ≥ 300 萬',ok:{t:'你租下一間辦公室,掛上自己的招牌。',fx:{found:'own'}}},
+ {l:'開保險經紀公司(啟動資金 500 萬)',req:s=>CO.bro.req(s)&&liq(s)>=500,lk:'人脈 ≥ 65、現金加投資 ≥ 500 萬',ok:{t:'你帶著幾個信任你的客戶,成立了經紀公司。',fx:{found:'bro'}}},
+ {l:'開風險顧問公司(啟動資金 200 萬)',req:s=>CO.con.req(s)&&liq(s)>=200,lk:'專業 ≥ 65、現金加投資 ≥ 200 萬',ok:{t:'一張桌子、一台筆電,你的顧問公司開張了。',fx:{found:'con'}}},
+ {l:'做理賠科技新創(啟動資金 800 萬)',req:s=>CO.tech.req(s)&&liq(s)>=800,lk:'專業加人脈 ≥ 120、現金加投資 ≥ 800 萬',ok:{t:'你找了兩個工程師,開始寫第一版理賠平台。',fx:{found:'tech'}}},
+ {l:'再等等',ok:{t:'你決定再存一點錢、再累積一點實力。',fx:{hp:1}}}
+]},
+{id:'c_crunch',n:'公司現金告急',w:0,t:'公司帳上的錢,只夠再發一個月的薪水。',ch:[
+ {l:'掏自己的錢補進公司',req:s=>liq(s)>=150,lk:'現金加投資 ≥ 150 萬',ok:{t:'你把存款轉進公司帳戶。',fx:{cash:-150,res:150,fam:-2}}},
+ {l:'裁員、縮減規模',ok:{t:'你親自跟每一位被裁的同事談。',fx:{sz:-.4,res:100,net:-4,rep:-2,hp:-3}}},
+ {l:'向銀行貸款',c:{k:'rep',b:50,s:.8},ok:{t:'銀行看在你的信用上放款了。',fx:{res:120,gov:-3}},ng:{t:'銀行拒絕了,你只能結束營業。',fx:{bust:1}}},
+ {l:'結束營業',ok:{t:'你關掉了公司,把鑰匙交還給房東。',fx:{bust:1}}}
+]},
+{id:'c_inspect',n:'主管機關檢查',route:COR,w:s=>s.co?Math.max(1,(100-s.co.gov)/6):0,t:'主管機關到公司例行檢查,調閱了近三年的案件與帳冊。',ch:[
+ {l:'全力配合,缺失立即補正',c:{k:'gov',b:40,s:.8},ok:{t:'只有幾個小缺失,補正後結案。',fx:{gov:8,res:-20}},ng:{t:'缺失比想像中多,被要求限期改善。',fx:{gov:5,res:-60,rep:-3}}},
+ {l:'找關係疏通',a:.2,c:{k:'net',b:40,s:.6},ok:{t:'檢查草草結束。',fx:{gov:-8}},ng:{t:'疏通的過程被記錄下來,公司遭到重罰。',fx:{gov:-10,res:-150,rep:-10,st:'watch'}}},
+ {l:'主動暫停部分業務,自我整頓',ok:{t:'營收掉了一季,但公司體質變好了。',fx:{gov:15,res:-40,rep:2}}}
+]},
+{id:'c_acq',n:'收購提議',route:COR,w:s=>s.co&&s.co.y>=4&&s.co.V>=2*CO[s.co.t].cap?7:0,t:s=>'一家國際集團想收購你的公司,初步出價約 '+money((s.co.V+Math.max(0,s.co.res))*1.2)+' 萬。',ch:[
+ {l:'賣掉,然後退休',ok:{t:'簽約那天,你在停車場坐了很久。',fx:{sell:1.2,end:{t:'公司被收購的創辦人',d:'你一手打造的公司,現在是國際集團的一部分。你把錢分成三份:一份給家人,一份給自己,一份成立了公證人培訓基金。'}}}},
+ {l:'賣掉,留下來當高階主管',ok:{t:'你拿到一大筆錢,也多了一個老闆。',fx:{sell:1.15}}},
+ {l:'談更高的價格',c:{k:'net',w:{net:.6,rep:.4},b:45,s:.9},ok:{t:'對方加價,你決定成交,留下來當顧問。',fx:{sell:1.5}},ng:{t:'對方撤回了提議。',fx:{rep:-1}}},
+ {l:'拒絕,繼續做大',ok:{t:'你相信公司還有更大的未來。',fx:{rep:2,gov:2}}}
+]},
+{id:'c_key',n:'核心員工出走',route:COR,w:s=>s.co?(s.co.gov<60?10:5):0,t:'公司最資深的同事遞出辭呈,據說要帶走兩個大客戶。',ch:[
+ {l:'加薪、給股份留人',c:{k:'net',b:50,s:.8},ok:{t:'他留下來了,團隊更穩了。',fx:{res:-40,net:2}},ng:{t:'他收下加薪,半年後還是走了。',fx:{res:-40,sz:-.2}}},
+ {l:'祝福他,把客戶穩住',c:{k:'rep',b:50,s:.8},ok:{t:'大部分客戶選擇留下。',fx:{sz:-.1,rep:2}},ng:{t:'兩個大客戶都跟著走了。',fx:{sz:-.3,res:-30}}},
+ {l:'以競業條款提告',ok:{t:'官司打了一年,雙方都很難看。',fx:{gov:-3,rep:-3,res:-30}}}
+]},
+{id:'c_short',n:'業績壓力下的捷徑',route:COR,w:6,t:'業務主管建議:為了搶下一個大客戶,先在提案裡「保證」理賠結果。',ch:[
+ {l:'同意,先拿下再說',a:.3,ok:{t:'客戶簽約了。公司裡開始有人學這一招。',fx:{gov:-15,res:60}}},
+ {l:'禁止,寧可不接',ok:{t:'少了一個大客戶,團隊知道了你的底線。',fx:{gov:8,res:-10,rep:2}}},
+ {l:'訂出提案的合規審核流程',ok:{t:'速度慢了一點,但每份提案都經得起檢驗。',fx:{gov:12,hp:-2}}}
+]},
+{id:'o5',n:'半價搶案',route:['own'],w:8,t:'一家新成立的公證公司以半價搶走你兩個保險公司客戶。',ch:[
+ {l:'跟進降價',ok:{t:'客戶回來了,利潤也沒了。',fx:{res:-30,gov:-2}}},
+ {l:'強調報告品質與時效',c:{k:'rep',b:50,s:.9},ok:{t:'三個月後,其中一個客戶回頭找你。',fx:{rep:3,sz:.1}},ng:{t:'客戶只看價格。',fx:{sz:-.15}}},
+ {l:'開發再生能源等新領域',c:{k:'pro',b:45,s:.9},ok:{t:'新領域的案子補上了缺口,還更賺。',fx:{sz:.2,pro:2}},ng:{t:'新領域的門檻比想像中高。',fx:{res:-30,hp:-2}}}
+]},
+{id:'k1',n:'客戶要求回扣',route:['bro'],w:9,t:'大型客戶的採購主管暗示:「明年續約,佣金要退一部分給我個人。」',ch:[
+ {l:'拒絕,並向客戶高層說明',c:{k:'rep',b:50,s:.8},ok:{t:'客戶高層感謝你,採購主管被調職。',fx:{gov:5,rep:4}},ng:{t:'客戶換了經紀人。',fx:{sz:-.2,res:-30}}},
+ {l:'答應',a:.1,ok:{t:'合約續了。這件事你不會跟任何人提。',fx:{gov:-20,res:50,st:'watch'}}},
+ {l:'降低費率,但不給個人',ok:{t:'客戶接受了新費率。',fx:{res:-20,gov:3}}}
+]},
+{id:'k2',n:'收回承保授權',route:['bro'],w:8,t:'一家合作多年的保險公司通知:你的客戶群去年賠付率太高,要收回承保授權。',ch:[
+ {l:'提出防損改善計畫',c:{k:'pro',b:50,s:.9},ok:{t:'保險公司同意再給一年觀察期。',fx:{wang:5,sz:.1}},ng:{t:'保險公司不買帳。',fx:{sz:-.2}}},
+ {l:'轉找其他保險公司承保',c:{k:'net',b:50,s:.9},ok:{t:'另一家保險公司接手,條件還更好。',fx:{net:2}},ng:{t:'市場沒人願意接,只好提高保費。',fx:{res:-30,sz:-.1}}},
+ {l:'接受,縮小這塊業務',ok:{t:'業務少了一塊,也少了一個風險。',fx:{sz:-.3,gov:2}}}
+]},
+{id:'k3',n:'續約大戰',route:['bro'],w:9,t:'年底續約季,國際經紀公司開出更低的費率搶你的客戶。',ch:[
+ {l:'用理賠成果說話',c:{k:'rep',w:{rep:.6,net:.4},b:50,s:.9},ok:{t:'客戶說:「出事的時候是你在處理。」',fx:{sz:.1,rep:2}},ng:{t:'還是丟了兩個客戶。',fx:{sz:-.2}}},
+ {l:'降低佣金保住客戶',ok:{t:'客戶都留下了,利潤薄了一層。',fx:{res:-40}}},
+ {l:'加碼免費防損服務',c:{k:'pro',b:50,s:.8},ok:{t:'防損服務成了你的招牌。',fx:{sz:.15,hp:-3}},ng:{t:'服務做了,客戶還是走了。',fx:{hp:-3,res:-20}}}
+]},
+{id:'k4',n:'上市公司招標',route:['bro'],w:7,t:'一家上市公司公開招標保險經紀人,評選重點是理賠服務能力。',ch:[
+ {l:'全力準備提案',c:{k:'pro',w:{pro:.5,rep:.5},b:45,s:1},ok:{t:'你得標了,公司規模一下子擴大。',fx:{sz:.3,res:40}},ng:{t:'差了一點,沒有得標。',fx:{res:-20,hp:-3}}},
+ {l:'找關係打聽底價',a:.2,c:{k:'net',b:45,s:.8},ok:{t:'你得標了,但有人在背後議論。',fx:{sz:.3,gov:-8}},ng:{t:'打聽的事被傳開,你被取消資格。',fx:{gov:-8,rep:-5,st:'watch'}}},
+ {l:'不投標',ok:{t:'你專心服務現有客戶。',fx:{hp:1}}}
+]},
+{id:'q1',n:'ERM 大型專案',route:['con'],w:9,t:'一家科技公司委託你建立整套企業風險管理制度,預算很漂亮,時程很緊。',ch:[
+ {l:'接下並擴編團隊',c:{k:'pro',b:50,s:.9},ok:{t:'專案成功,客戶又追加了兩個子公司。',fx:{sz:.3,res:80,hp:-4}},ng:{t:'新人經驗不足,專案延誤被扣款。',fx:{res:-30,rep:-3}}},
+ {l:'接下,不擴編,自己扛',ok:{t:'你連續半年每天工作十四小時。',fx:{res:50,hp:-6}}},
+ {l:'婉拒',ok:{t:'你覺得現在的規模接不下。',fx:{hp:1}}}
+]},
+{id:'q2',n:'顧問報告上了法庭',route:['con'],w:7,t:'客戶拿你的風險評估報告去跟保險公司打官司,對方律師說你的報告「立場偏頗」。',ch:[
+ {l:'出庭說明評估方法',c:{k:'pro',b:50,s:1},ok:{t:'法官採信了你的方法論。',fx:{rep:5,sz:.1}},ng:{t:'你被問倒了幾題,名聲受損。',fx:{rep:-5}}},
+ {l:'撤回部分結論',ok:{t:'客戶很不高興。',fx:{rep:-4,sz:-.1}}},
+ {l:'交給律師處理',ok:{t:'律師費不便宜。',fx:{res:-30}}}
+]},
+{id:'q3',n:'專案斷層',route:['con'],w:8,t:'三個大專案同時結案,下一季的訂單是零。',ch:[
+ {l:'降價接短期小案',ok:{t:'現金流撐住了,但利潤很薄。',fx:{res:20,rep:-1}}},
+ {l:'開發企業訓練課程',c:{k:'pro',b:50,s:.8},ok:{t:'課程大受歡迎,成了穩定收入。',fx:{res:40,net:3}},ng:{t:'報名的人不多。',fx:{res:-10}}},
+ {l:'縮編,等景氣回來',ok:{t:'你送走了兩位同事。',fx:{sz:-.2,res:30}}}
+]},
+{id:'q4',n:'政府研究標案',route:['con'],w:6,t:'政府要委外研究巨災保險制度,標案金額不大,但很有名聲。',ch:[
+ {l:'投標',c:{k:'pro',w:{pro:.6,rep:.4},b:45,s:1},ok:{t:'研究報告被政策引用。',fx:{rep:6,net:3,res:20}},ng:{t:'沒有得標。',fx:{hp:-2}}},
+ {l:'不投',ok:{t:'你專注在企業客戶。',fx:{res:10}}}
+]},
+{id:'t1',n:'募資',route:['tech'],w:9,t:'創投願意投資 1,500 萬,但要拿走三成股份,還要求一年內營收翻倍。',ch:[
+ {l:'接受',ok:{t:'錢進來了,壓力也進來了。',fx:{res:1500,Vm:1.4,gov:-3,hp:-2}}},
+ {l:'談條件',c:{k:'net',w:{net:.6,rep:.4},b:45,s:1},ok:{t:'你爭取到更好的估值。',fx:{res:1200,Vm:1.6}},ng:{t:'創投轉身投了你的競爭對手。',fx:{Vm:.9}}},
+ {l:'拒絕,自己撐',ok:{t:'你保住了股份,也保住了焦慮。',fx:{hp:-3}}}
+]},
+{id:'t2',n:'燒錢速度',route:['tech'],w:9,t:'工程師團隊擴到二十人,每個月燒掉一百多萬,營收還沒跟上。',ch:[
+ {l:'繼續擴張搶市場',ok:{t:'你決定賭一把。',fx:{pol:'grow',hp:-3}}},
+ {l:'砍掉一半人力',ok:{t:'公司活下來了,團隊士氣很低。',fx:{sz:-.3,pol:'lean',net:-3}}},
+ {l:'轉型接顧問案補現金',ok:{t:'錢補回來一些,但產品進度慢了。',fx:{res:80,Vm:.9}}}
+]},
+{id:'t3',n:'大公司抄產品',route:['tech'],w:8,t:'一家大型保險公司推出跟你幾乎一樣的理賠平台,還免費提供給客戶。',ch:[
+ {l:'轉攻利基市場',c:{k:'pro',b:50,s:.9},ok:{t:'你專攻貨物險理賠,大公司做不來。',fx:{sz:.1,Vm:1.2}},ng:{t:'利基市場太小,養不活公司。',fx:{Vm:.7}}},
+ {l:'提告侵權',ok:{t:'官司打了兩年,律師費驚人。',fx:{res:-80,gov:2}}},
+ {l:'找他們談合作',c:{k:'net',b:45,s:.9},ok:{t:'對方決定入股你的公司。',fx:{Vm:1.3,res:200}},ng:{t:'對方只是想打聽你的技術。',fx:{Vm:.8}}}
+]},
+{id:'t4',n:'AI 模型判錯',route:['tech'],w:8,t:'你們的 AI 理賠模型把一批火災照片判成「不理賠」,客戶在社群上公開抱怨。',ch:[
+ {l:'立即下架,全部改人工複核',ok:{t:'損失了一個月營收,但贏回信任。',fx:{res:-40,gov:8,rep:2}}},
+ {l:'修正模型後繼續上線',c:{k:'pro',b:50,s:.9},ok:{t:'修正版表現很好。',fx:{pro:2}},ng:{t:'又出錯了,事件上了新聞。',fx:{rep:-6,st:'media'}}},
+ {l:'說是客戶照片品質有問題',ok:{t:'網友不買帳。',fx:{rep:-8,gov:-5}}}
+]},
+{id:'t5',n:'上市的機會',route:['tech'],once:1,w:s=>s.co&&s.co.t==='tech'&&s.co.V>=3000?10:0,t:'承銷商說,以你們的成長速度,可以申請上市了。',ch:[
+ {l:'申請上市',c:{k:'pro',w:{pro:.4,net:.3,rep:.3},b:45,s:1},ok:{t:'敲鐘那天,你想起第一版只有三個功能的系統。',fx:{ipo:1,Vm:2,rep:6}},ng:{t:'審查沒過,要再等兩年。',fx:{res:-80,hp:-4}}},
+ {l:'再等兩年',ok:{t:'你想讓公司體質更好再上市。',fx:{hp:1,gov:3}}},
+ {l:'賣給大型保險集團',ok:{t:'你選擇落袋為安。',fx:{sell:1.3}}}
+]},
+/* ---- 人物 ---- */
+{id:'n_lin1',n:'前輩的考驗',w:9,once:1,yrs:[0,4],t:'林前輩丟給你一份他寫了一半的報告:「後面你補完。」',ch:[
+ {l:'熬夜補完,附上計算依據',ok:{t:'林前輩看完只說了一句:「還行。」但隔天把你帶去見客戶。',fx:{pro:3,lin:10,hp:-3}}},
+ {l:'照他的架構快速完成',ok:{t:'林前輩把報告退回來,上面滿滿紅字。',fx:{lin:-5,pro:1}}},
+ {l:'先問他整份報告的邏輯',ok:{t:'他講了一個小時,你學到的比上一年還多。',fx:{lin:8,pro:2}}}
+]},
+{id:'n_lin2',n:'前輩算錯了',w:6,once:1,yrs:[5,18],when:s=>!s.f.linRet&&s.npc.lin>=-10,t:'你發現林前輩一份已經送出的報告算錯了,他還不知道。',ch:[
+ {l:'私下提醒他',ok:{t:'他沉默了一下,然後拍拍你的肩膀。',fx:{lin:15,rep:1}}},
+ {l:'告訴主管',ok:{t:'事情處理得很快,但林前輩再也沒找你吃過飯。',fx:{lin:-20,rep:3}}},
+ {l:'裝作沒看到',ok:{t:'後來被保險公司發現,林前輩被記了一筆。',fx:{rep:-2,lin:-3}}}
+]},
+{id:'n_lin_ret',n:'林前輩退休',w:10,once:1,when:s=>s.age>=42&&s.age<=52,t:'帶你入行的林前輩要退休了。',ch:[
+ {l:'接手他的客戶',c:{k:'net',b:55,s:.7},ok:{t:'客戶看在前輩的面子上,都留了下來。',fx:{net:6,wang:5,lin:5,flag:'linRet'}},ng:{t:'有幾個客戶趁機換了人。',fx:{net:2,flag:'linRet'}}},
+ {l:'籌辦一場送別會',ok:{t:'林前輩在台上講到你,眼眶紅了。',fx:{lin:12,net:2,fam:-1,flag:'linRet'}}},
+ {l:'送一張卡片',ok:{t:'他回了一個讚。',fx:{lin:2,flag:'linRet'}}}
+]},
+{id:'n_lin_ref',n:'前輩的推薦',w:0,t:'退休的林前輩打電話來:「國際公證公司在找亞洲區主管,我推薦了你。」',ch:[
+ {l:'去面試',c:{k:'pro',w:{pro:.6,rep:.4},b:55,s:.8},ok:{t:'你拿到了這個職位。',fx:{route:'adj',raise:.15,rep:4}},ng:{t:'對方最後選了內部人選。',fx:{lin:2}}},
+ {l:'謝謝他,但婉拒',ok:{t:'林前輩說:「我就知道你會這樣說。」',fx:{lin:3,fam:1}}}
+]},
+{id:'n_chen1',n:'同期的較勁',w:9,once:1,yrs:[1,6],t:'你和同期的陳志明都在爭取負責一個新客戶,主管要從你們兩個選一個。',ch:[
+ {l:'全力爭取',c:{k:'pro',w:{pro:.6,net:.4},b:50,s:.9},ok:{t:'主管選了你。陳志明在走廊上沒跟你打招呼。',fx:{rep:3,chen:-10}},ng:{t:'主管選了陳志明。',fx:{chen:-5,hp:-2}}},
+ {l:'讓給他',ok:{t:'陳志明請你喝了一杯咖啡。',fx:{chen:15,net:1}}},
+ {l:'提議兩人合作',c:{k:'net',b:50,s:.8},ok:{t:'你們一起拿下客戶,也成了朋友。',fx:{chen:10,net:3}},ng:{t:'陳志明覺得你在搶功。',fx:{chen:-3}}}
+]},
+{id:'n_chen2',n:'陳志明的求助',w:7,yrs:[6,25],when:s=>s.npc.chen>=0,t:'陳志明的案子出包,私下請你幫忙看報告。',ch:[
+ {l:'幫他',ok:{t:'他說:「這次欠你。」',fx:{chen:15,hp:-2,pro:1}}},
+ {l:'拒絕',ok:{t:'他點點頭,沒再說什麼。',fx:{chen:-10}}},
+ {l:'幫,但要求共同掛名',ok:{t:'他勉強答應了。',fx:{chen:-3,rep:2}}}
+]},
+{id:'n_chen_poach',n:'陳志明挖你的客戶',w:s=>s.npc.chen<=-15?12:0,yrs:[5,40],t:'陳志明跳槽到對手公司,開始一個一個挖你的客戶。',ch:[
+ {l:'正面迎戰',c:{k:'net',b:50,s:.9},ok:{t:'客戶都留下了。',fx:{net:3,chen:-5}},ng:{t:'你丟了兩個客戶。',fx:{cash:-20,net:-3}}},
+ {l:'約他出來談',c:{k:'rep',b:45,s:.8},ok:{t:'你們把話說開了。',fx:{chen:20}},ng:{t:'談不攏。',fx:{chen:-5}}},
+ {l:'不理他',ok:{t:'有些客戶走了,有些沒有。',fx:{net:-3}}}
+]},
+{id:'n_chen_partner',n:'陳志明的提議',w:s=>s.npc.chen>=25?10:0,once:1,when:s=>!s.co&&s.age>=33&&s.age<=55&&s.age-s.coFail>=4,t:'陳志明找你:「我們一起開公證公司吧,資金一人一半。」',ch:[
+ {l:'一起創業',req:s=>liq(s)>=150,lk:'現金加投資 ≥ 150 萬',ok:{t:'兩個當年的對手,成了合夥人。',fx:{found:'own',fcap:150,chen:10}}},
+ {l:'婉拒',ok:{t:'他有點失望,但說會支持你。',fx:{chen:-5}}}
+]},
+{id:'n_wang1',n:'王經理的飯局',w:8,once:1,yrs:[2,30],t:'保險公司的王經理約你吃飯,暗示希望你多幫他們「看緊一點」。',ch:[
+ {l:'答應,但強調會依證據認定',ok:{t:'王經理笑了笑:「我就是喜歡你這點。」',fx:{wang:5,rep:1}}},
+ {l:'婉拒飯局',ok:{t:'王經理有點不高興。',fx:{wang:-8}}},
+ {l:'赴約,不表態',ok:{t:'飯吃得很愉快。',fx:{wang:3,net:1}}}
+]},
+{id:'n_wang2',n:'王經理升官',w:s=>s.npc.wang>=25?10:0,once:1,yrs:[8,35],t:'王經理升任理賠部協理,上任第一件事就打給你。',ch:[
+ {l:'接下他交辦的大案',c:{k:'pro',b:55,s:.8},ok:{t:'你漂亮地結案,他在公司裡更挺你了。',fx:{wang:10,cash:20,rep:3}},ng:{t:'案子出了點問題,他幫你擋下來。',fx:{wang:-3,hp:-3}}},
+ {l:'恭喜他,大案先不接',ok:{t:'他說:「下次一定要接。」',fx:{wang:2}}}
+]},
+/* ---- 家庭背景 ---- */
+{id:'fb_biz',n:'家族事業',w:6,once:1,when:s=>s.fbg==='rich'&&s.age>=33&&s.age<=55,t:'父親年紀大了,希望你回去接手家族的貿易公司。',ch:[
+ {l:'回去接班',ok:{t:'你脫下安全帽,換上董事長的西裝。',fx:{fam:6,end:{t:'家族企業接班人',d:'你把公證人的風險意識帶進家族公司。每年續保時,經紀人都說你是最難搞、也最懂行的客戶。'}}}},
+ {l:'掛名董事,繼續做本業',ok:{t:'每季開一次董事會,其他時間照常工作。',fx:{cash:80,hp:-3,fam:2}}},
+ {l:'婉拒',ok:{t:'父親沉默了很久,最後說:「你開心就好。」',fx:{fam:-4,rep:1}}}
+]},
+{id:'fb_inherit',n:'遺產分配',w:6,once:1,when:s=>s.fbg==='rich'&&s.age>=45&&s.age<=62,t:'長輩過世,留下一筆遺產,兄弟姊妹對分配方式意見不同。',ch:[
+ {l:'依法平分,不爭',ok:{t:'你拿到應得的一份,家人關係也保住了。',fx:{cash:400,fam:4}}},
+ {l:'爭取多一點',c:{k:'net',b:45,s:.8},ok:{t:'你多分到一些,但兄弟之間有了心結。',fx:{cash:650,fam:-8}},ng:{t:'官司打了兩年,律師費吃掉一大塊。',fx:{cash:250,fam:-10,hp:-4}}},
+ {l:'捐出一部分成立獎學金',ok:{t:'第一屆受獎的學生寄來一張卡片。',fx:{cash:250,rep:4,fam:2}}}
+]},
+{id:'fb_borrow',n:'家人借錢',w:7,when:s=>s.fbg!=='rich'&&s.age>=28&&s.age<=58&&s.cash>=120,t:'家人做生意周轉不靈,開口跟你借 100 萬。',ch:[
+ {l:'借全額',ok:{t:'家人很感激,但什麼時候能還,沒人說得準。',fx:{cash:-100,fam:6,sched:{id:'fb_repay',in:[2,5]}}}},
+ {l:'借一半',ok:{t:'你說這是你能力所及的極限。',fx:{cash:-50,fam:2}}},
+ {l:'拒絕',ok:{t:'電話那頭安靜了很久。',fx:{fam:-7}}}
+]},
+{id:'fb_repay',n:'還錢',w:0,t:'當年跟你借錢的家人,生意終於有了起色。',ch:[
+ {l:'收下還款',ok:{t:'對方連本帶利還給你。',fx:{cash:110,fam:3}}},
+ {l:'跟他說不用還了',ok:{t:'家人眼眶紅了。',fx:{fam:8}}}
+]},
+{id:'fb_parents',n:'家裡的經濟重擔',w:8,once:1,when:s=>s.fbg==='pillar'&&s.age>=25&&s.age<=38,t:'弟妹的學費、父母的醫藥費,這個月又全落在你身上。',ch:[
+ {l:'多接案子撐過去',ok:{t:'你撐過去了,也累壞了。',fx:{cash:20,hp:-6,fam:3}}},
+ {l:'跟家人討論怎麼分擔',c:{k:'fam',b:50,s:.8},ok:{t:'弟妹也開始打工,壓力小了一些。',fx:{fam:5,hp:2}},ng:{t:'討論變成了爭吵。',fx:{fam:-5}}},
+ {l:'賣掉一部分投資',ok:{t:'帳戶少了一截,心裡踏實一點。',fx:{invSell:.5,fam:4}}}
+]},
+/* ---- 理財 ---- */
+{id:'s_crash',n:'股災',w:s=>s.stk==='crash'&&s.inv>50?40:0,t:'股市崩跌,你的投資帳戶一週內少了三成,新聞每天都在講「跌破關卡」。',ch:[
+ {l:'停損出場,改放定存',ok:{t:'帳面損失變成真實損失,但你終於睡得著。',fx:{invSell:1,strat:'safe',hp:2}}},
+ {l:'抱著不動',ok:{t:'你關掉看盤軟體,繼續工作。',fx:{hp:-1}}},
+ {l:'拿現金加碼',ok:{t:'別人恐懼的時候,你把存款投了進去。',fx:{invBuy:.6,hp:-2}}}
+]},
+{id:'s_bull',n:'大多頭',w:s=>s.stk==='bull'&&s.inv>100?12:0,t:'股市連漲一年,同事午餐都在聊股票,有人說要辭職當全職投資人。',ch:[
+ {l:'獲利了結一半',ok:{t:'你把一半的部位轉成現金。',fx:{invSell:.5}}},
+ {l:'改成積極策略,全力加碼',ok:{t:'你的部位一下子放大了。',fx:{strat:'agg',invBuy:.8,hp:-2}}},
+ {l:'照原本的計畫,不動',ok:{t:'你維持紀律。',fx:{hp:1}}}
+]},
+{id:'s_scam',n:'投資老師',w:6,when:s=>s.cash>=100,t:'你被拉進一個投資群組,「老師」每天報明牌,群組裡的人都在貼獲利截圖。',ch:[
+ {l:'跟著老師投入 50 萬',a:.1,ok:{t:'第一週真的賺了。第二週,群組消失了。',fx:{cash:-50,hp:-3}}},
+ {l:'截圖檢舉',ok:{t:'你向 165 反詐騙專線檢舉,後來這個集團被查獲。',fx:{rep:1}}},
+ {l:'直接退出群組',ok:{t:'你繼續過你的日子。',fx:{hp:1}}}
+]},
+{id:'s_annuity',n:'理專的推薦',w:5,once:1,when:s=>s.age>=35&&s.cash>=200,t:'銀行理專推薦你一張六年期儲蓄險,說是「保本又穩定」。',ch:[
+ {l:'買,當作強迫儲蓄',ok:{t:'你的資產波動變小了。',fx:{strat:'safe',fam:1}}},
+ {l:'先看清楚費用與解約條件',c:{k:'pro',b:55,s:.6},ok:{t:'你發現前幾年解約會虧損,決定只買小額。',fx:{pro:1,hp:1}},ng:{t:'條款太複雜,你乾脆不買。',fx:{hp:-1}}},
+ {l:'不買,自己定期定額買 ETF',ok:{t:'你設定了每月自動扣款。',fx:{strat:'mid'}}}
+]},
+{id:'s_property',n:'第二間房',w:5,once:1,when:s=>s.f.house&&liq(s)>=600&&s.age>=35&&s.age<=58,t:'仲介打電話來:捷運站旁有一間小套房適合收租,頭期款 300 萬。',ch:[
+ {l:'買下來收租',ok:{t:'每個月多了一筆租金,也多了一個管理的麻煩。',fx:{cash:-300,home:900,mort:600,rent:1}}},
+ {l:'不買,繼續投資股市',ok:{t:'你覺得房地產的報酬不如股市。',fx:{strat:'mid'}}},
+ {l:'不買,保留現金',ok:{t:'你覺得現在不是時候。',fx:{hp:1}}}
+]}
+);
+/* 技能專屬選項 */
+const SKOPT={
+ fire1:{l:'調閱電氣熔痕分析',hs:'fire',ok:{t:'熔痕型態顯示是一次短路,而不是火燒後的二次熔痕。',fx:{pro:3,rep:5}}},
+ cargo4:{l:'依共同海損與單獨海損分開計算',hs:'ga',ok:{t:'損失拆得清清楚楚,貨主和船東都無話可說。',fx:{pro:3,rep:4}}},
+ bi:{l:'用敏感度分析呈現三種復原情境',hs:'bi',ok:{t:'三種情境攤在桌上,談判很快收斂。',fx:{pro:3,rep:5,cash:10}}},
+ underins:{l:'說明哪些費用不受比例分擔影響',hs:'law',ok:{t:'部分費用不受比例分擔影響,被保險人多拿回一些。',fx:{rep:4,net:3}}},
+ eng1:{l:'用結構監測數據證明傾斜趨勢',hs:'struct',ok:{t:'監測曲線清楚顯示傾斜從開挖第三週開始。',fx:{pro:3,rep:5}}},
+ r1:{l:'用英國判例逐條回應',hs:'eng',ok:{t:'對方律師點頭的次數越來越多。',fx:{rep:8,net:4}}},
+ pandemic:{l:'用空拍與 3D 建模完成遠端勘查',hs:'digi',ok:{t:'3D 模型讓保險公司在辦公室就能看清現場。',fx:{pro:4,rep:4}}},
+ big3:{l:'設計分階段賠付方案',hs:'nego',ok:{t:'先付無爭議部分,爭議部分交由專家決定,各方都接受。',fx:{rep:7,net:5,cash:50,big:-9}}},
+ semi3:{l:'用 BI 模型預估三種復機時程',hs:'bi',ok:{t:'模型把爭議縮小到兩週的差距。',fx:{pro:4,rep:4}}},
+ k3:{l:'用談判技巧爭取三年長約',hs:'nego',ok:{t:'客戶簽下三年長約。',fx:{sz:.1,res:40,net:2}}},
+ trip:{l:'用英文直接與當地保險公司協調',hs:'eng',ok:{t:'你一個人就搞定了三方協調。',fx:{net:4,rep:3,cash:10}}}
+};
+Object.entries(SKOPT).forEach(([id,o])=>{const e=E.find(x=>x.id===id);if(e){o.show=s=>!!s.skills[o.hs];e.ch.push(o)}});
+/* 舊事件結果加上狀態與人物好感 */
+const STFX={'media:0:ng':'media','media:2:ok':'media','speaker:0:ok':'award','x2:0:ok':'award','r1:0:gr':'award','petro:0:ok':'halo','petro:0:gr':'halo','big3:0:ok':'halo','big3:0:gr':'halo','unsafe:0:ng':'back','crash:1:ng':'back','marathon:0:ng':'back','love:0:ok':'honey','audit:1:ok':'watch','i_audit:1:ng':'watch','burnout:1:ng':'burn','checkup:1:ng':'burn'};
+const NPCFX={'credit:0:ok':{chen:5},'credit:0:ng':{chen:-8},'credit:1:ok':{chen:-12},'credit:2:ok':{chen:2},'pressure:0:ok':{wang:-6},'pressure:1:ok':{wang:3},'pressure:2:ok':{wang:8},'trust:0:ok':{wang:5},'trust:0:gr':{wang:8},'newbie:0:ok':{lin:3},'scapegoat:1:ok':{lin:5},'first:1:ok':{lin:6},'deadline:2:ok':{wang:-3},'b1:1:ok':{wang:3},'b1:1:ng':{wang:-6},'newcontact:0:ok':{wang:3}};
+E.forEach(e=>e.ch.forEach((c,i)=>['ok','ng','gr'].forEach(t=>{const key=e.id+':'+i+':'+t;if(!c[t])return;if(STFX[key])c[t].fx=Object.assign({},c[t].fx,{st:STFX[key]});if(NPCFX[key])c[t].fx=Object.assign({},c[t].fx,NPCFX[key])})));
+
 /* 小插曲:不需要選擇,自動發生 */
 const MINOR=[
  {t:'你收到一張被保險人手寫的感謝卡。',fx:{rep:1},w:6},
@@ -937,6 +1244,8 @@ const MINOR=[
  {t:'學生在期末評鑑寫:「老師的案例最好聽。」',fx:{rep:1,fam:1},w:6,when:s=>s.track==='edu'},
  {t:'你親手把公證行的招牌擦得發亮。',fx:{rep:1},w:4,when:s=>s.track==='own'},
  {t:'你在客戶的年終尾牙被拉上台唱歌。',fx:{net:2},w:5,when:s=>s.track==='brk'},
+ {t:'你還清了最後一期學貸。',fx:{fam:2,hp:2},w:60,when:s=>s.fbg==='loan'&&s.age===28},
+ {t:'這個月的房租收入入帳了。',fx:{cash:2},w:4,when:s=>s.f.rent},
  {t:'公會頒給你一枚年資獎章。',fx:{rep:1},w:8,when:s=>s.age>23&&(s.age-23)%10===0}
 ];
 
@@ -1096,6 +1405,49 @@ motor4:['電動車火災的責任','充電樁設置者、車主、管委會都�
 motor5:['強制投保的公共意外責任險','部分營業場所,例如遊樂場、旅館、百貨公司,依法須投保公共意外責任險,並有最低保額的規定。']
 });
 
+Object.assign(KNOW,{
+co_found:['設立保險相關公司','公證人公司、保險經紀人公司都須依主管機關規定申請許可,符合資本額、專業人員與保證金或責任保險的要求。顧問公司門檻較低,但不能從事需要執照的業務。'],
+c_crunch:['現金流與營運資金','很多公司不是虧損倒閉,而是現金周轉不過來。專業服務業的應收帳款常要數個月才收得到,營運資金至少要能撐過一個收款週期。'],
+c_inspect:['公司治理與內部控制','主管機關檢查重點包括業務招攬、帳務、個資保護與內控制度。平時把制度落實,檢查只是例行公事。'],
+c_acq:['企業收購與估值','專業服務公司常以獲利倍數或營收倍數估值,客戶穩定度與核心人才是否留任,是買方最在意的事。'],
+c_key:['關鍵人才與競業條款','競業禁止條款在台灣須符合合理範圍,例如期間、地區與補償,過度限制可能無效。真正留住人的,通常是職涯發展與分紅。'],
+c_short:['不當招攬與承諾','保險業者對理賠結果做出保證或誇大承諾,可能違反招攬規範。提案內容應以保單條款為準。'],
+o5:['價格競爭與服務品質','公證費率被壓低時,常見的後果是勘查時間不足、報告品質下降,最終反映在理賠爭議上。'],
+k1:['佣金與回扣','保險經紀人不得以退佣、回扣等不當利益招攬業務。這類行為一旦被查獲,公司與個人都可能被處分。'],
+k2:['賠付率與承保授權','保險公司會依客戶群的賠付率調整承保意願。經紀人可以用防損計畫與風險改善紀錄,爭取保險公司繼續承保。'],
+k3:['經紀人的續約價值','經紀業的收入主要來自續約佣金。客戶留存率高,公司價值就高;理賠服務是客戶續約的最大理由。'],
+k4:['保險經紀人招標','企業公開招標經紀人時,常評比保險規劃能力、理賠服務、市場議價能力與費用。過往理賠案例是最有說服力的證明。'],
+q1:['企業風險管理(ERM)','ERM 從風險辨識、評估、因應到監控,要建立跨部門的風險治理架構。保險只是風險移轉的一種工具。'],
+q2:['顧問報告的責任','風險評估報告若被用於訴訟,方法、假設與資料來源都會被檢驗。報告中寫清楚限制條件,是顧問最好的保護。'],
+q3:['顧問業的收入波動','顧問公司收入多來自專案,容易出現斷層。訓練課程、年度顧問合約等經常性收入,可以平衡專案的波動。'],
+q4:['巨災保險制度','巨災保險常由政府與民間共同分擔,例如住宅地震保險就由地震保險基金與保險業共同承擔風險。'],
+t1:['新創募資與稀釋','募資會稀釋創辦人股權,換來的是加速成長的資金與時間。估值越高,稀釋越少,但也代表投資人期待越高。'],
+t2:['燒錢率','新創每月的淨現金流出稱為燒錢率。帳上現金除以燒錢率,就是公司還能撐幾個月(跑道)。'],
+t3:['大公司進場的應對','大型保險公司資源多,但通常不擅長細分市場。新創常以專業領域或服務速度建立差異。'],
+t4:['AI 理賠的風險','AI 模型可能出現誤判或偏差。理賠決定涉及消費者權益,通常需要保留人工複核與申訴機制。'],
+t5:['公司上市','上市需符合獲利、股權分散、公司治理等條件。上市讓股權有市場價格,也讓公司接受更嚴格的監督。'],
+n_lin1:['報告的基本功','好的公證報告要有清楚的事故經過、原因分析、損失計算與保單適用。前輩的報告,是新人最好的教材。'],
+n_lin2:['同業之間的更正','發現同事報告有誤時,先私下提醒、讓本人主動更正,是業界常見的做法。若涉及重大金額,仍應依公司程序處理。'],
+n_lin_ret:['客戶交接','資深人員退休時,客戶交接要提早規劃。保險公司與被保險人在意的是服務品質不中斷。'],
+n_lin_ref:['業界推薦','保險業圈子不大,資深前輩的推薦往往比履歷更有分量。'],
+n_chen1:['團隊合作與分案','大型理賠常由多人合作完成。主管分案時,考量的除了能力,也包括能不能和團隊合作。'],
+n_chen2:['同儕審閱','重要報告送出前請同事交叉審閱,能大幅降低錯誤。很多公證公司把同儕審閱列為標準流程。'],
+n_chen_poach:['客戶關係的歸屬','客戶跟著人走是專業服務業的常態。公司可以用合約、團隊服務與制度,降低對單一人員的依賴。'],
+n_chen_partner:['合夥創業','合夥前要先談好股權、分工、決策方式與退場機制,並寫成書面協議。'],
+n_wang1:['公證人的獨立性','公證人雖受保險公司委託,但報告的價值來自中立。與委託方維持良好關係,不代表立場要跟著對方走。'],
+n_wang2:['委託方的信任','保險公司理賠主管指派公證人時,最看重過去合作的品質與可靠度。長期的信任,是公證人最穩定的案源。'],
+fb_biz:['企業主的保險規劃','家族企業常同時面對財產、責任、營業中斷與接班風險。懂保險的接班人,能讓公司的風險管理更完整。'],
+fb_inherit:['遺產與保險','壽險理賠金在指定受益人時,原則上不列入遺產,常被用來規劃稅源與預留給特定家人。'],
+fb_borrow:['家人之間的借貸','家人借款最好也留下書面紀錄,並約定還款方式。金額較大時,也要留意贈與稅的問題。'],
+fb_repay:['借貸與贈與','家人之間免還的借款,在稅法上可能被視為贈與。每年有贈與稅免稅額度,超過才需要申報。'],
+fb_parents:['家庭支柱的保障','家中主要收入者應優先規劃壽險與失能險,確保自己發生意外時,家人的生活與教育費用仍有著落。'],
+s_crash:['股災與資產配置','股市大跌時,先確認資金用途:短期要用的錢不該放在股票。長期資金若配置得當,通常不需要在恐慌時出場。'],
+s_bull:['融資與槓桿','融資買股會放大獲利,也會放大虧損。股價下跌到一定程度會被追繳保證金,甚至被強制賣出。'],
+s_scam:['投資詐騙','「老師帶單」「保證獲利」是常見的詐騙手法。遇到可疑群組,可撥 165 反詐騙諮詢專線。'],
+s_annuity:['儲蓄險的特性','儲蓄險強調保本與強迫儲蓄,但前幾年解約通常會虧損,實質報酬也可能追不上通膨。購買前要看清楚預定利率與解約金表。'],
+s_property:['收租房的保險','出租房屋除了住宅火險,也可考慮投保租屋相關的責任保險,保障因房屋設施問題造成房客受傷的賠償責任。']
+});
+
 /* ===================== 引擎 ===================== */
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const app=document.getElementById('app');
@@ -1118,7 +1470,8 @@ function wpick(arr,wf){
 const sumW=a=>a.reduce((t,x)=>t+x.w,0);
 const pct=(a,x)=>Math.round(x.w/sumW(a)*100);
 const money=v=>Math.round(v).toLocaleString('en-US');
-const sv=c=>c.w?Object.keys(c.w).reduce((t,k)=>t+S[k]*c.w[k],0):S[c.k];
+const val=k=>k==='gov'?(S.co?S.co.gov:50):S[k];
+const sv=c=>c.w?Object.keys(c.w).reduce((t,k)=>t+val(k)*c.w[k],0):val(c.k);
 const mainK=c=>c.w?Object.keys(c.w).sort((a,b)=>c.w[b]-c.w[a])[0]:c.k;
 const cLab=c=>c.w?Object.keys(c.w).map(k=>KN[k]+' '+Math.round(c.w[k]*100)+'%').join(' + '):KN[c.k];
 const varMod=c=>S.vr&&(S.vr.k==='all'||(c.w?(S.vr.k in c.w):S.vr.k===c.k))?S.vr.v:0;
@@ -1136,6 +1489,22 @@ function bonuses(c){
   if(S.track==='mgr'&&k==='net')b.push(['管理經驗',5]);
   if(S.f.cert&&k==='pro')b.push(['國際證照',3]);
   if(EV.big&&S.big)b.push([S.big>0?'前一階段的優勢':'前一階段的劣勢',S.big*8]);
+  const T=x=>S.traits.includes(x),work=!LIFE.has(id);
+  if(T('careful')&&k==='pro')b.push(['細心',5,1]);
+  if(T('smooth')&&k==='net')b.push(['圓融',5,1]);
+  if(T('smooth')&&CONFLICT.has(id))b.push(['圓融化解衝突',5]);
+  if(T('stub')&&k==='rep')b.push(['固執',5,1]);
+  if(T('stub')&&k==='net')b.push(['固執',-5,1]);
+  if(T('home')&&HOMEMINUS.has(id))b.push(['顧家',-5]);
+  Object.keys(SK).forEach(x=>{if(!S.skills[x])return;const d=SK[x];if(d.ids.includes(id)||(d.spec&&EV.spec&&EV.spec.includes(d.spec))||(d.tag&&TAG[d.tag].has(id)))b.push([d.n,d.v])});
+  S.st.forEach(z=>{const d=STA[z.id];if(d.ck)Object.keys(d.ck).forEach(q=>{if(q==='all'||q===k)b.push([d.n,d.ck[q],q!=='all'?1:0])})});
+  if(work&&S.hp<30)b.push(['健康不佳',-10]);
+  const yrs=S.age-23;if(k==='pro'&&yrs>=10)b.push(['年資經驗',Math.floor(yrs/10)*3,1]);
+  if(k==='hp'&&S.age>=50)b.push(['年紀',-5,1]);
+  if(S.npc.lin>=40&&!S.f.linRet&&['scapegoat','merger','audit','lawsuit','court'].includes(id))b.push(['林前輩相挺',10]);
+  if(S.npc.chen<=-20&&work&&k==='net')b.push(['陳志明扯後腿',-5,1]);
+  if(TAG.ins.has(id)&&S.npc.wang>=40)b.push(['王經理的信任',5]);
+  if(TAG.ins.has(id)&&S.npc.wang<=-20)b.push(['王經理的不信任',-5]);
   return b;
 }
 const bsum=c=>bonuses(c).reduce((t,x)=>t+x[1],0);
@@ -1157,18 +1526,95 @@ function newGame(seed){
   KEYS.forEach(k=>{st[k]=45+rint(7)-3});
   Object.entries(bg.fx).forEach(([k,v])=>{st[k]+=v});
   KEYS.forEach(k=>{st[k]=clamp(st[k],0,100)});
-  S=Object.assign({seed,age:23,rank:0,cash:0,raise:0,track:'adj',mkt:'normal',vr:null,kids:0,kb:[],f:{},q:[],lj:-99,big:0,bg,sp,fm,log:[],seen:{},hist:[],evc:0},st);
+  const fbg=wpick(Object.keys(FB),x=>FB[x].w);
+  const tp=Object.keys(TR);let t1=tp[rint(tp.length)];
+  const t2c=tp.filter(x=>x!==t1&&!TR_X.some(p=>p.includes(t1)&&p.includes(x)));const t2=t2c[rint(t2c.length)];
+  const tal=KEYS[rint(5)];const wk=KEYS.filter(x=>x!==tal);const weak=wk[rint(4)];
+  S=Object.assign({seed,age:23,rank:0,cash:0,inv:0,home:0,mort:0,strat:'safe',stk:'flat',lr:0,co:null,coFail:-99,prevTrack:null,raise:0,track:'adj',mkt:'normal',vr:null,kids:0,kb:[],f:{},q:[],lj:-99,big:0,bg,sp,fm,fbg,traits:[t1,t2],tal,weak,skills:{},npc:{lin:0,chen:0,wang:0},st:[],log:[],seen:{},hist:[],evc:0},st);
+  if(fbg==='rich'){S.cash=300;S.fam=clamp(S.fam+5,0,100)}
+  if(fbg==='loan'){S.cash=-80;S.hp=clamp(S.hp-3,0,100)}
+  if(fbg==='pillar')S.fam=clamp(S.fam+8,0,100);
+  if(S.traits.includes('sweet'))S.npc.wang=10;
   focus='field';snap();
   END=null;EV=null;RES=null;paused=false;
   S.log.push({age:23,t:'以「助理公證人」身分進入'+fm.n+',專攻'+sp.n+'。',k:'up',m:1});
 }
 function snap(){const o={age:S.age};KEYS.forEach(k=>{o[k]=S[k]});S.hist.push(o)}
 const inFirm=()=>['adj','exp','mgr'].includes(S.track);
-function monthly(){return RANK[S.rank].m*RT().m*(inFirm()?S.fm.m:1)*(1+S.raise)*(1+(S.pro-50)/250)*(S.f.semi?0.5:1)*MKT[S.mkt].inc}
-function drain(){return (RT().d===null?S.fm.d:RT().d)*(S.f.semi?0.3:1)}
-function saveRate(){return Math.max(0.1,0.3-(S.f.house?0.08:0)-0.04*S.kids)}
+const hasT=x=>S.traits.includes(x);
+const NW=()=>S.cash+S.inv+S.home-S.mort+(S.co?S.co.V+Math.max(0,S.co.res):0);
+function growFx(fx){const o=Object.assign({},fx);KEYS.forEach(k=>{if(o[k]>0)o[k]=Math.max(1,Math.round(o[k]*(k===S.tal?1.4:k===S.weak?0.7:1)))});return o}
+function addSt(id){const e=S.st.find(z=>z.id===id);if(e)e.y=STA[id].y;else S.st.push({id,y:STA[id].y})}
+function hasSt(id){return S.st.some(z=>z.id===id)}
+function learn(id){if(!id||S.skills[id])return;S.skills[id]=1;if(id==='eng')S.f.eng=true;S.log.push({age:S.age,t:'學會新技能:'+SK[id].n,k:'up'})}
+function fixCash(){if(S.cash<0&&S.inv>0){const x=Math.min(S.inv,-S.cash);S.inv-=x;S.cash+=x}}
+function found(t,fcap){
+  const cap=fcap||CO[t].cap,rf=t==='tech'?.5:.3;
+  S.cash-=cap;fixCash();
+  S.prevTrack=CO[S.track]?'adj':S.track;
+  S.co={t,V:cap*(1-rf),res:cap*rf,sz:1,gov:70,pol:'steady',y:0,lp:0};
+  setRoute(t);
+}
+function bust(){
+  S.co=null;S.f.failed=true;S.coFail=S.age;S.rep=clamp(S.rep-15,0,100);
+  const back=S.prevTrack||'adj';S.track=back;S.rank=clamp(S.rank,1,3);
+  S.log.push({age:S.age,t:'公司結束營業。投入的資金全部歸零,你回到「'+ROUTES[back].n+'」重新開始。',k:'bad',m:1});
+}
+function sellCo(m,ending){
+  const got=(S.co.V+Math.max(0,S.co.res))*m;S.cash+=got;S.co=null;S.f.sold=true;
+  S.log.push({age:S.age,t:'公司出售,入帳 '+money(got)+' 萬。',k:'up',m:1});
+  if(!ending){S.track='mgr';S.rank=Math.max(S.rank,4)}
+}
+function stockStep(){
+  const was=S.stk;
+  if(was==='crash')S.stk='bear';
+  else if(R()<0.06)S.stk='crash';
+  else if(R()<0.2){const o=['flat','bull','bear'].filter(x=>x!==was);S.stk=o[rint(o.length)]}
+  if(S.stk!==was)S.log.push({age:S.age+1,t:{flat:'股市進入盤整。',bull:'股市轉為多頭,指數屢創新高。',bear:'股市轉為空頭,投資人信心低迷。',crash:'股災!指數一個月內重挫。'}[S.stk],k:'mk'});
+}
+function investStep(){
+  const m=STK[S.stk].m;let r=0;
+  if(S.inv>0){
+    if(S.strat==='agg')r=7+m*1.4+(R()*2-1)*25;
+    else if(S.strat==='mid')r=5+m+(R()*2-1)*10;
+    else r=1.5;
+    S.inv*=1+r/100;S.lr=r;
+    if(Math.abs(r)>=20&&S.inv>50)S.log.push({age:S.age+1,t:'投資組合今年'+(r>0?'大漲 +':'重挫 ')+Math.round(r)+'%。',k:r>0?'up':'bad'});
+  }else S.lr=0;
+  if(S.cash>0)S.cash*=1.015;
+  const L=S.cash+S.inv;
+  if(L>0){const fr={safe:0,mid:.5,agg:.8}[S.strat];S.inv=Math.max(0,(L-30)*fr);S.cash=L-S.inv}
+  if(S.home>0)S.home*=1.02+R()*0.03;
+  if(S.mort>0)S.mort=Math.max(0,S.mort-30);
+  if(S.f.rent)S.cash+=24;
+}
+function companyStep(){
+  const c=S.co;if(!c)return;const d=CO[c.t];
+  c.y++;
+  const q=(0.35*S.net+0.35*S.rep+0.3*S.pro)/60;
+  let perf=q-0.95+(R()*2-1)*d.vol;
+  perf+={hard:.1,soft:-.1,cat:c.t==='own'?.2:c.t==='con'?.1:0,normal:0}[S.mkt];
+  if(c.pol==='grow')perf+=(R()*2-1)*d.vol*.3;
+  if(c.pol==='lean')perf+=.08;
+  if(c.gov<40)perf-=.15;
+  if(c.t==='tech'&&c.y<=3)perf-=.3;
+  if(c.t==='bro')perf+=Math.min(.3,c.y*.04);
+  const profit=d.P*c.sz*perf;c.lp=profit;
+  if(profit>=0){c.res+=profit*.5;S.cash+=profit*.5}else c.res+=profit;
+  c.V=Math.max(0,c.V*(1+perf*(c.t==='tech'?1:.5))+(c.pol==='grow'&&perf>0?c.V*.1:0));
+  if(perf>0)c.sz+=c.pol==='grow'?.3:c.pol==='steady'?.1:0;
+  if(c.pol==='lean')c.sz-=.05;
+  if(perf<-.3)c.sz-=.1;
+  c.sz=clamp(c.sz,.5,5);
+  c.gov=clamp(c.gov+(c.pol==='grow'?-2:c.pol==='lean'?1:0),0,100);
+  if(c.pol==='grow')S.hp=clamp(S.hp-2,0,100);
+  if(c.res<0&&!S.q.some(x=>x.id==='c_crunch'))S.q.unshift({id:'c_crunch',at:S.age+1});
+}
+function monthly(){return RANK[S.rank].m*RT().m*(inFirm()?S.fm.m:1)*(1+S.raise)*(1+(S.pro-50)/250)*(S.f.semi?0.5:1)*MKT[S.mkt].inc*(['ins','rei','edu','tech'].includes(S.track)?1:1+clamp(S.npc.wang,-50,100)/1000)*(1+Math.max(0,S.rep-60)*0.005)*(hasSt('halo')?1.1:1)}
+function drain(){return Math.max(0,(RT().d===null?S.fm.d:RT().d)*(S.f.semi?0.3:1)-(hasT('opt')?0.5:0))}
+function saveRate(){return Math.max(0.05,0.3-(S.mort>0?0.08:0)-0.04*S.kids-(S.fbg==='loan'&&S.age<28?0.1:0)-(S.fbg==='pillar'&&S.age<40?0.1:0))}
 function setRoute(r){
-  if(r==='own')S.rank=Math.min(Math.max(S.rank,1),2);
+  if(CO[r])S.rank=1;
   else if(r==='edu')S.rank=S.rank>=3?2:1;
   else if(['brk','ins','rei'].includes(r))S.rank=clamp(S.rank,1,3);
   S.track=r;
@@ -1183,6 +1629,29 @@ function apply(fx){
   if(fx.flag)S.f[fx.flag]=true;
   if(fx.kid){S.kids++;S.kb.push(S.age)}
   if(fx.big)S.big=fx.big<=-9?0:S.big+fx.big;
+  ['lin','chen','wang'].forEach(k=>{if(fx[k])S.npc[k]=clamp(S.npc[k]+fx[k],-50,100)});
+  if(fx.flag==='linRet'&&!S.f.linRet&&S.npc.lin>=30)S.q.push({id:'n_lin_ref',at:S.age+2+rint(3)});
+  if(fx.st)addSt(fx.st);
+  if(fx.sk)learn(fx.sk);
+  if(fx.strat)S.strat=fx.strat;
+  if(fx.invSell){const x=S.inv*fx.invSell;S.inv-=x;S.cash+=x}
+  if(fx.invBuy){const x=Math.max(0,S.cash)*fx.invBuy;S.cash-=x;S.inv+=x}
+  if(fx.home)S.home+=fx.home;
+  if(fx.mort)S.mort+=fx.mort;
+  if(fx.rent)S.f.rent=true;
+  if(fx.flag==='house'&&S.home<=0){S.home=1000;S.mort=700}
+  if(fx.found)found(fx.found,fx.fcap);
+  if(S.co){
+    if(fx.res)S.co.res+=fx.res;
+    if(fx.gov)S.co.gov=clamp(S.co.gov+fx.gov,0,100);
+    if(fx.sz)S.co.sz=clamp(S.co.sz+fx.sz,.5,5);
+    if(fx.Vm)S.co.V*=fx.Vm;
+    if(fx.pol)S.co.pol=fx.pol;
+    if(fx.ipo)S.f.ipo=true;
+    if(fx.sell)sellCo(fx.sell,!!fx.end);
+    else if(fx.bust)bust();
+  }
+  fixCash();
   if(fx.route)setRoute(fx.route);
   if(fx.sched){const [a,b]=fx.sched.in;S.q.push({id:fx.sched.id,at:S.age+a+rint(b-a+1)})}
 }
@@ -1197,20 +1666,21 @@ function eligible(e){
     &&(!e.spec||e.spec.includes(S.sp.id))
     &&(!e.route||e.route.includes(S.track))
     &&(!e.yrs||(yrs>=e.yrs[0]&&yrs<=e.yrs[1]))
-    &&(!e.job||S.age-S.lj>=3)
+    &&(!e.job||(S.age-S.lj>=3&&(!S.co||e.id==='co_found')))
     &&(!e.when||e.when(S));
 }
 function pickEvent(){
   const c=E.filter(eligible);
   if(!c.length)return null;
-  return wpick(c,e=>evW(e)*(e.spec?3:1)*(e.route?2.5:1)*(e.job?2.5:1)*(S.seen[e.id]?0.4:1)*((MKTW[S.mkt]||{})[e.id]||1));
+  return wpick(c,e=>evW(e)*(e.spec?3:1)*(e.route?2.5:1)*(e.job?2.5*(hasT('amb')?1.5:1):1)*(S.seen[e.id]?0.4:1)*(S.fbg==='pillar'&&['parent','fb_parents'].includes(e.id)?2:1)*(e.id==='credit'&&S.npc.chen<0?2:1)*(e.id==='pressure'&&S.npc.wang<0?2:1)*((MKTW[S.mkt]||{})[e.id]||1));
 }
 function pickMinor(){return wpick(MINOR.filter(m=>!m.when||m.when(S)),m=>m.w)}
 function promote(){
+  if(S.co){const nr=clamp(Math.round(S.co.sz*1.2),1,5);if(nr!==S.rank){const up=nr>S.rank;S.rank=nr;S.log.push({age:S.age,t:(up?'公司成長,':'公司縮編,')+'職稱:'+rankName(),k:up?'up':'bad',m:up?1:0})}return}
   const nx=RANK[S.rank+1];if(!nx||S.f.semi)return;
   const o=RT().off;
-  const ok=S.age-23>=nx.y&&S.pro>=nx.pro+(o.pro||0)&&S.rep>=nx.rep+(o.rep||0)&&S.net>=nx.net+(o.net||0)&&(S.track!=='own'||S.cash>=S.rank*250);
-  if(ok&&R()<(S.f.sprint?0.5:0.35)){S.rank++;S.log.push({age:S.age,t:'升任「'+rankName()+'」',k:'up',m:1})}
+  const ok=S.age-23>=nx.y&&S.pro>=nx.pro+(o.pro||0)&&S.rep>=nx.rep+(o.rep||0)&&S.net>=nx.net+(o.net||0);
+  if(ok&&R()<(S.f.sprint?0.5:0.35)+(hasT('amb')?0.1:0)){S.rank++;S.log.push({age:S.age,t:'升任「'+rankName()+'」',k:'up',m:1})}
 }
 
 function marketStep(){
@@ -1223,21 +1693,29 @@ function marketStep(){
 }
 /* 每一年 */
 function tick(){
-  marketStep();
+  marketStep();stockStep();
   const f=FOCUS.find(x=>x.id===focus);
-  KEYS.forEach(k=>{if(f.fx[k])S[k]=clamp(S[k]+f.fx[k],0,100)});
-  S.hp=clamp(S.hp-drain()-Math.max(0,S.age-38)*0.1,0,100);
-  S.fam=clamp(S.fam-1.5,0,100);
-  S.pro=clamp(S.pro-0.5,0,100);S.net=clamp(S.net-0.5,0,100);
-  S.cash+=monthly()*12*saveRate()*(f.inc||1);
+  let ffx=Object.assign({},f.fx);
+  if(f.id==='field'&&hasT('work'))ffx=scaleFx(ffx,1,1.3);
+  if(f.id==='field'&&hasSt('back'))ffx=scaleFx(ffx,1,0.7);
+  if(f.id==='rest'&&hasT('home'))ffx=scaleFx(ffx,1,1.5);
+  ffx=growFx(ffx);
+  KEYS.forEach(k=>{if(ffx[k])S[k]=clamp(S[k]+ffx[k],0,100)});
+  S.hp=clamp(S.hp-drain()-Math.max(0,S.age-38)*0.1-(S.fam<30?2:0),0,100);
+  S.fam=clamp(S.fam-(hasSt('honey')?0:1.5)-(hasT('work')?1:0)-(hasT('amb')?0.5:0),0,100);
+  S.pro=clamp(S.pro-0.5,0,100);S.net=clamp(S.net-0.5+(hasT('sweet')?1:0),0,100);
+  S.cash+=monthly()*12*saveRate()*(f.inc||1)*(f.id==='field'&&hasT('work')?1.1:1);
+  investStep();companyStep();
+  S.st.forEach(z=>z.y--);S.st.filter(z=>z.y<=0).forEach(z=>S.log.push({age:S.age+1,t:'狀態結束:'+STA[z.id].n,k:'yr'}));S.st=S.st.filter(z=>z.y>0);
   S.age++;
   promote();
+  if(f.id==='study'&&R()<0.25){const left=Object.keys(SK).filter(x=>!S.skills[x]);if(left.length)learn(wpick(left,x=>x===SPSK[S.sp.id]?3:1))}
   let ev=null;
   const di=S.q.findIndex(q=>q.at<=S.age);
-  if(di>=0){ev=E.find(e=>e.id===S.q[di].id);S.q.splice(di,1)}
+  if(di>=0){ev=E.find(e=>e.id===S.q[di].id);S.q.splice(di,1);if(ev.id==='c_crunch'&&(!S.co||S.co.res>=0))ev=null}
   else if(R()<0.6)ev=pickEvent();
   let line=null,lfx=null;
-  if(!ev&&R()<0.6){const m=pickMinor();if(m){apply(m.fx);line=m.t;lfx=m.fx}}
+  if(!ev&&R()<0.6){const m=pickMinor();if(m){const mf=growFx(m.fx);apply(mf);line=m.t;lfx=mf}}
   if(!line)line=f.ph[rint(f.ph.length)];
   S.log.push({age:S.age,t:line,k:'yr',fx:lfx});
   snap();fresh=S.log.length;
@@ -1250,7 +1728,8 @@ function tick(){
 function statOf(ch){
   if(ch.c)return mainK(ch.c);
   if(ch.hid)return ch.hid.k;
-  let best=LIFE.has(EV.id)?'fam':'rep',bv=0;
+  if(ch.hs)return 'pro';
+  let best=LIFE.has(EV.id)||/^fb_|^s_/.test(EV.id)?'fam':'rep',bv=0;
   KEYS.forEach(k=>{const v=ch.ok.fx[k]||0;if(v>bv){bv=v;best=k}});
   return best;
 }
@@ -1259,10 +1738,11 @@ function outs(ch){
   if(ch.ok.fx.end)return [{n:'確定',p:100,g:'m',r:ch.ok}];
   if(ch.c){
     const p=Math.round(pOf(ch.c));
-    const g=Math.max(1,Math.round(p*(ch.gr?0.2:0.12))),bf=Math.max(1,Math.round((100-p)*0.2));
+    const rm=hasT('risk')?1.5:1,wm=hasSt('watch')?2:1;
+    const g=Math.max(1,Math.round(p*(ch.gr?0.2:0.12)*rm)),bf=Math.min(100-p,Math.max(1,Math.round((100-p)*0.2*rm*wm)));
     return [{n:'大成功',p:g,g:'g',r:ch.gr||null,tw:ch.gr?0:2},{n:'成功',p:p-g,g:'g',r:ch.ok},{n:'失敗',p:100-p-bf,g:'b',r:ch.ng},{n:'大失敗',p:bf,g:'b',r:ch.ng,tw:-2}];
   }
-  const c=cOf(ch),p=Math.round(clamp(70+(S[c.k]-50)*0.5+varMod(c)+bsum(c),20,92)),g=Math.round(p*0.3);
+  const c=cOf(ch),p=Math.round(clamp(70+(val(c.k)-50)*0.5+varMod(c)+bsum(c),20,92)),g=Math.round(p*0.3);
   return [{n:'順利',p:g,g:'g',r:ch.ok,tw:1},{n:'如預期',p:p-g,g:'m',r:ch.ok},{n:'出狀況',p:100-p,g:'b',r:ch.ok,tw:-1}];
 }
 function addFx(a,b,m){const o=Object.assign({},a);Object.keys(b).forEach(k=>{o[k]=(o[k]||0)+Math.round(b[k]*m)});return o}
@@ -1280,9 +1760,12 @@ function choose(i){
     tw=pool[rint(pool.length)];
     fx=addFx(base.fx,tw.fx,Math.abs(o.tw)>1?2:1);
   }
-  const k=mainK(c),v=S[k];
-  if(O.length>1&&o.g==='g'&&v>=75){flav=HI[k][rint(2)];fx=scaleFx(fx,1,1.3)}
-  else if(O.length>1&&o.g==='b'&&v<35){flav=LO[k][rint(2)];fx=scaleFx(fx,-1,1.3)}
+  const k=mainK(c),v=val(k);
+  if(O.length>1&&o.g==='g'&&v>=75&&HI[k]){flav=HI[k][rint(2)];fx=scaleFx(fx,1,1.3)}
+  else if(O.length>1&&o.g==='b'&&v<35&&LO[k]){flav=LO[k][rint(2)];fx=scaleFx(fx,-1,1.3)}
+  if(o.g==='b'&&hasT('opt'))fx=scaleFx(fx,-1,0.8);
+  if(hasT('just')&&JUST.has(ev.id+':'+i)&&fx.rep>0)fx=Object.assign({},fx,{rep:Math.round(fx.rep*1.5)});
+  fx=growFx(fx);
   const r={t:base.t,fx};
   const bs=bonuses(c);
   const line=O.length>1?'擲出 '+roll+' · 依'+cLab(c)+'('+Math.round(sv(c))+')'+(bs.length?' · 加成 '+bs.map(x=>x[0]+(x[1]>0?'+':'')+x[1]).join('、'):'')+(S.vr?' · 變數 '+S.vr.n:'')+' · '+O.map(x=>x.n+' '+x.p+'%').join(' / '):'';
@@ -1300,21 +1783,24 @@ function cont(){
 }
 function score(kind){
   const avg=KEYS.reduce((t,k)=>t+S[k],0)/5;
-  return Math.round(clamp(avg*0.6+S.rank*5+clamp(S.cash/300,0,10)+(kind==='retire'?5:0),0,100));
+  return Math.round(clamp(avg*0.6+S.rank*5+clamp(NW()/400,0,10)+(kind==='retire'?5:0),0,100));
 }
-const ENDINGS=27;
+const ENDINGS=36;
 function finish(kind,sp){
   let t,d;const tr=S.track,r=S.rank;
   if(kind==='special'){t=sp.t;d=sp.d}
   else if(kind==='collapse'){t='過勞倒下';d='你在案場旁的臨時帳篷裡昏倒,再也沒有醒來。那份報告最後是別人替你交的。'}
   else if(kind==='sick'){t='病逝任上';d='你沒有等到退休的那一天。同事整理你的辦公桌時,發現抽屜裡有一疊你寫滿註記的舊案。'}
   else if(kind==='banned'){t='被業界除名';d='公會的函文寄到公司那天,你的名字從名冊上被劃掉了。專業不是被奪走的,是你自己一點一點讓出去的。'}
+  else if(S.co&&S.co.t==='tech'&&(S.f.ipo||S.co.V>=1500)){t=S.f.ipo?'上市公司創辦人':'新創創辦人';d=S.f.ipo?'敲鐘那天的照片掛在辦公室牆上。你的理賠平台,現在每天處理上萬件案子。':'你的新創活了下來,也改變了一部分理賠的做法。'}
+  else if(S.co&&S.co.t==='own'&&(r>=5||S.co.V>=800)){t=r>=5?'公證集團董事長':'公證公司創辦人';d=r>=5?'當年的小工作室,如今在三個城市都有辦公室。':'你當年那個賭注贏了。公司的名字比你的名片更有分量,接班人也已就位。'}
+  else if(S.co&&S.co.t==='bro'&&S.co.V>=800){t='經紀公司創辦人';d='你的經紀公司靠一件件理賠累積口碑,客戶續約率是同業最高。'}
+  else if(S.co&&S.co.t==='con'&&S.co.V>=500){t='顧問公司創辦人';d='企業遇到風險問題,第一個想到的是你的顧問公司。'}
   else if(r>=4&&tr==='exp'){t=r>=5?'鑑識權威':'首席技術專家';d='法院、保險公司、再保人遇到最難的技術爭議,第一個想到的名字都是你。'}
   else if(r>=4&&tr==='mgr'){t=r>=5?'公證公司總經理':'一線退下的主管';d=r>=5?'你從案場走到董事會。退休那天,整層樓的人都站起來鼓掌。':'你帶過團隊、簽過大案,也送走了不少新人變前輩。'}
   else if(r>=4&&tr==='brk'){t='經紀業理賠總監';d='你從勘查現場的人,變成替客戶設計整套理賠策略的人。你處理過的大案,成了經紀公司對外簡報的案例。'}
   else if(r>=4&&tr==='ins'){t=r>=5?'保險公司副總經理':'保險公司理賠主管';d='你站在保險公司這一側三十年,知道每一筆賠款背後都是一個家庭或一間工廠。'}
   else if(r>=4&&tr==='rei'){t=r>=5?'全球再保理賠總監':'亞太再保理賠主管';d='你的護照蓋滿了章。倫敦、蘇黎世、新加坡的同業,都叫得出你的名字。'}
-  else if(tr==='own'&&(r>=5||S.cash>=1500)){t=r>=5?'公證集團董事長':'公證行創辦人';d=r>=5?'當年的小工作室,如今在三個城市都有辦公室。':'你當年那個賭注贏了。公證行的名字比你的名片更有分量,接班人也已就位。'}
   else if(r>=4&&tr==='edu'){t='桃李滿天下的教授';d='產險圈裡有一半的年輕公證人,上過你的課。'}
   else if(S.f.semi&&S.fam<82){t='退居二線的顧問';d='最後十五年,你把速度放慢。年輕人遇到難題會來敲你的門,你泡一壺茶,慢慢講。'}
   else if(r>=5&&S.rep>=80){t='業界傳奇';d='你退休那天,保險公司、再保人與經紀人都派了代表。有人說,你寫的報告是教科書。'}
@@ -1322,7 +1808,10 @@ function finish(kind,sp){
   else if(r>=4){t='一線退下的主管';d='你帶過團隊、簽過大案,也送走了不少新人變前輩。退休後仍有人打電話問:「這件事你怎麼看?」'}
   else if(S.pro>=72&&S.rep>=65){t='專家中的專家';d='你始終沒有爬到最高的位子,但每個疑難雜症都有人想先問你。'}
   else if(S.fam>=82&&S.hp>=45){t='圓滿的一生';d='你不是業界最亮的名字,但回家時總有人等你吃飯。這很稀有。'}
-  else if(S.cash>=1500){t='財務自由的公證人';d='你把案子做完,把錢存下來,也終於可以挑自己想接的案。'}
+  else if(S.f.sold){t='成功出場的創業家';d='你創過業,也把公司賣在好價錢。之後的日子,你只接自己真正想接的案子。'}
+  else if(S.f.failed&&r>=3){t='跌倒後再站起來的人';d='公司倒閉那年,你以為一切都完了。後來你回到職場,一步一步爬回原來的位置,甚至更高。'}
+  else if(NW()>=8000){t='投資致富的公證人';d='你的薪水只是起點,真正讓你財務自由的,是三十年來的紀律與複利。'}
+  else if(NW()>=3500){t='財務自由的公證人';d='你把案子做完,把錢存下來,也終於可以挑自己想接的案。'}
   else if(S.fam<=20){t='功成身退,孤身一人';d='報告很漂亮,家裡很安靜。你開始想,當年是不是有哪一次該請假。'}
   else if(r>=3){t='團隊的中流砥柱';d='你不是最耀眼的那個,但每個團隊都需要你這樣的人。出事的時候,大家第一個打給你。'}
   else{t='平凡而可靠的專業人';d='你做完了該做的案子,也守住了該守的底線。'}
@@ -1386,15 +1875,18 @@ function outfit(){
   if(tr==='ins')return {T:'#6b7380',A:'#2d6cb5',W:'#ffffff',P:'#5b636f',bag:1};
   if(tr==='rei')return {T:'#23262c',A:'#8a2343',W:'#ffffff',P:'#23262c',bag:1};
   if(tr==='own')return {T:'#5b4636',A:'#2e7d5b',W:'#ffffff',P:'#4d3b2e',bag:1};
+  if(tr==='bro')return {T:'#2b2f3a',A:'#d9a521',W:'#ffffff',P:'#2b2f3a',bag:1};
+  if(tr==='con')return {T:'#4a5c6e',A:'#e0a030',W:'#ffffff',P:'#3b4a5a',glass:1,bag:1};
+  if(tr==='tech')return {T:'#333a44',A:'#333a44',W:'#333a44',P:'#4a6fa5'};
   if(tr==='exp'&&r>=3)return {T:'#eef0f2',A:'#5a8fbf',W:'#5a8fbf',P:'#4a5562',glass:1,bag:1};
   if((tr==='mgr'||tr==='adj')&&r>=3)return {T:'#3a3f48',A:'#b8322a',W:'#ffffff',P:'#3a3f48',bag:1};
   if(r>=2)return {T:'#9cc3e6',A:'#22395a',W:'#ffffff',P:'#3b4a5a',helm:'#f4f4f4',bag:1};
   return {T:'#f07f1f',A:'#e9e9e2',W:'#f07f1f',P:'#3b4a5a',helm:'#f5c400',board:1};
 }
-function homeKind(){return S.f.house?(S.cash>=1200?'villa':'apt'):'room'}
-function carKind(){return S.cash>=1000?2:S.cash>=150?1:0}
+function homeKind(){return S.home>0?(NW()>=1500?'villa':'apt'):'room'}
+function carKind(){const n=NW();return n>=1000?2:n>=150?1:0}
 function sceneCaption(){
-  const h={room:'租屋雅房',apt:'公寓(房貸中)',villa:'透天厝'}[homeKind()];
+  const h={room:'租屋雅房',apt:'公寓',villa:'透天厝'}[homeKind()];
   const c=['沒有車','小型車','房車'][carKind()];
   const fam=[];
   if(S.f.married)fam.push('配偶');if(S.kids)fam.push(S.kids+' 個孩子');if(S.fam>=75)fam.push('一隻狗');
@@ -1445,8 +1937,8 @@ function drawScene(cv){
     for(let i=0;i<7;i++)px(88+i*2,23-i,30-i*4,1,'#b8432f');
     px(94,28,6,5,night?'#ffe6a0':'#86b6d6');px(106,28,6,5,night?'#ffe6a0':'#86b6d6');px(92,35,22,1,'#9a8a70');px(101,37,6,9,'#7a4b2e');
   }
-  if(S.track==='own'||(END&&END.kind==='special')){
-    const sc=END&&END.kind==='special'?'#3f9c7a':'#f5c400';
+  if(S.co||(END&&END.kind==='special')){
+    const sc=S.co?{own:'#f5c400',bro:'#d9a521',con:'#7fb2d6',tech:'#a98be0'}[S.co.t]:'#3f9c7a';
     px(92,top-7,22,5,sc);for(let k=0;k<5;k++)px(94+k*4,top-5,2,1,'#1b1500');px(95,top-2,1,2,'#555555');px(110,top-2,1,2,'#555555');
   }
   /* 車 */
@@ -1495,7 +1987,7 @@ function fxChips(fx){
   if(!fx)return '';
   const o=[];
   KEYS.forEach(k=>{if(fx[k])o.push(chip(KN[k]+(fx[k]>0?'+':'')+fx[k],fx[k]>0?'up':'dn'))});
-  if(fx.cash)o.push(chip('資產'+(fx.cash>0?'+':'')+fx.cash+'萬',fx.cash>0?'up':'dn'));
+  if(fx.cash)o.push(chip('現金'+(fx.cash>0?'+':'')+fx.cash+'萬',fx.cash>0?'up':'dn'));
   if(fx.raise)o.push(chip('薪資'+(fx.raise>0?'+':'')+Math.round(fx.raise*100)+'%',fx.raise>0?'up':'dn'));
   const FL={married:'結婚',house:'購屋',abroad:'外派',divorced:'分開',eng:'英文能力',cert:'國際證照',sprint:'衝刺模式',semi:'退居二線'};
   if(fx.flag&&FL[fx.flag])o.push(chip(FL[fx.flag],'hk'));
@@ -1503,6 +1995,22 @@ function fxChips(fx){
   if(fx.route)o.push(chip('轉向'+ROUTES[fx.route].n,'hk'));
   if(fx.big&&fx.big>-9)o.push(chip('大案'+(fx.big>0?'優勢 +':'劣勢 ')+fx.big,fx.big>0?'up':'dn'));
   if(fx.sched)o.push(chip(/^big/.test(fx.sched.id)?'大案下一階段':'埋下伏筆','hk'));
+  ['lin','chen','wang'].forEach(k=>{if(fx[k])o.push(chip(NPCN[k]+'好感'+(fx[k]>0?'+':'')+fx[k],fx[k]>0?'up':'dn'))});
+  if(fx.st)o.push(chip('狀態:'+STA[fx.st].n+'('+STA[fx.st].y+' 年)','hk'));
+  if(fx.sk)o.push(chip('學會:'+SK[fx.sk].n,'hk'));
+  if(fx.strat)o.push(chip('理財改為'+STRAT[fx.strat].n,'hk'));
+  if(fx.invSell)o.push(chip('賣出'+(fx.invSell<1?'一半':'全部')+'投資','hk'));
+  if(fx.invBuy)o.push(chip('加碼投資','hk'));
+  if(fx.home)o.push(chip('房產 +'+fx.home+' 萬','up'));
+  if(fx.found)o.push(chip('創立'+CO[fx.found].n,'hk'));
+  if(fx.res)o.push(chip('公司準備金'+(fx.res>0?'+':'')+fx.res+'萬',fx.res>0?'up':'dn'));
+  if(fx.gov)o.push(chip('治理'+(fx.gov>0?'+':'')+fx.gov,fx.gov>0?'up':'dn'));
+  if(fx.sz)o.push(chip('公司規模'+(fx.sz>0?'+':'')+fx.sz,fx.sz>0?'up':'dn'));
+  if(fx.Vm)o.push(chip('公司估值 ×'+fx.Vm,fx.Vm>=1?'up':'dn'));
+  if(fx.pol)o.push(chip('方針改為'+POL[fx.pol].n,'hk'));
+  if(fx.sell)o.push(chip('出售公司','hk'));
+  if(fx.bust)o.push(chip('公司結束','dn'));
+  if(fx.ipo)o.push(chip('公司上市','hk'));
   if(fx.end)o.push(chip('人生轉折','hk'));
   return o.join('');
 }
@@ -1523,11 +2031,26 @@ function stage(){
   return '<section class="stage"><canvas class="scene" id="scene" width="120" height="56" role="img" aria-label="人物與生活場景"></canvas>'
     +'<p class="cap">'+sceneCaption()+'</p>'+bar+life+'</section>';
 }
+function finLine(){
+  const p=['現金 '+money(S.cash)+' 萬','投資 '+money(S.inv)+' 萬('+STRAT[S.strat].n+(S.inv>0?',今年 '+(S.lr>=0?'+':'')+Math.round(S.lr)+'%':'')+')'];
+  if(S.home>0)p.push('房產 '+money(S.home)+' 萬'+(S.mort>0?'(房貸 '+money(S.mort)+' 萬)':''));
+  let h='<p class="cap mono">'+p.join(' · ')+'</p>';
+  if(S.co){const c=S.co;h+='<div class="var">'+CO[c.t].n+' · 規模 '+c.sz.toFixed(1)+' · 去年'+(c.lp>=0?'獲利 +':'虧損 ')+money(c.lp)+' 萬 · 公司價值 '+money(c.V)+' 萬 · 準備金 '+money(c.res)+' 萬 · 治理 '+Math.round(c.gov)+' · 方針:'+POL[c.pol].n+'</div>'}
+  return h;
+}
+function profLine(){
+  const rows=[];
+  rows.push('<b>特質</b> '+S.traits.map(x=>TR[x].n).join('、')+' · <b>天賦</b> '+KN[S.tal]+' · <b>短板</b> '+KN[S.weak]);
+  const sk=Object.keys(S.skills).map(x=>SK[x].n);rows.push('<b>技能</b> '+(sk.length?sk.join('、'):'尚未學會'));
+  rows.push('<b>人物</b> '+Object.keys(NPCN).map(x=>NPCN[x]+' '+(S.npc[x]>0?'+':'')+S.npc[x]).join(' · '));
+  if(S.st.length)rows.push('<b>狀態</b> '+S.st.map(z=>STA[z.id].n+'(剩 '+z.y+' 年)').join('、'));
+  return '<div class="cap prof">'+rows.map(r=>'<span>'+r+'</span>').join('')+'</div>';
+}
 function head(){
   const bars=KEYS.map(k=>'<div class="st"><span>'+KN[k]+'</span><i><u style="width:'+S[k]+'%;background:var(--s-'+k+')"></u></i><b class="'+(S[k]<25?'low':'')+'">'+Math.round(S[k])+'</b></div>').join('');
-  const tg=[MKT[S.mkt].n];
+  const tg=[MKT[S.mkt].n,STK[S.stk].n];
   if(S.f.married)tg.push('已婚');if(S.f.divorced)tg.push('離婚');
-  if(S.kids)tg.push('子女 '+S.kids);if(S.f.house)tg.push('有房貸');
+  if(S.kids)tg.push('子女 '+S.kids);if(S.mort>0)tg.push('有房貸');if(S.f.rent)tg.push('收租中');
   if(S.f.abroad)tg.push('外派經歷');if(S.f.eng)tg.push('英文能力');if(S.f.cert)tg.push('國際證照');
   if(S.f.sprint)tg.push('衝刺模式');if(S.f.semi)tg.push('退居二線');
   const pend=S.q.filter(q=>!/^big/.test(q.id)).length;if(S.q.some(q=>/^big/.test(q.id)))tg.push('大案進行中');if(pend)tg.push('伏筆 '+pend+' 件');
@@ -1536,8 +2059,8 @@ function head(){
    +'<div class="kv"><span>路線</span><b class="zh">'+RT().n+'</b></div>'
    +'<div class="kv"><span>職稱</span><b class="zh">'+rankName()+'</b></div>'
    +'<div class="kv"><span>月薪(估)</span><b>'+monthly().toFixed(1)+' 萬</b></div>'
-   +'<div class="kv"><span>累積資產</span><b>'+money(S.cash)+' 萬</b></div>'
-   +'</div><div class="sts">'+bars+'</div>'
+   +'<div class="kv"><span>淨資產</span><b>'+money(NW())+' 萬</b></div>'
+   +'</div>'+finLine()+'<div class="sts">'+bars+'</div>'+profLine()
    +(tg.length?'<div class="tags">'+tg.map(x=>chip(x,'pr')).join('')+'</div>':'')
    +'</section>';
 }
@@ -1547,6 +2070,8 @@ function controls(){
   const sb=Object.keys(SPD).map(k=>'<button data-a="speed" data-v="'+k+'" class="'+(speed===k?'on':'')+'">'+SPD[k][1]+'</button>').join('');
   return '<section class="ctrl">'
    +'<span class="lbl">人生重心(隨時可換)</span><div class="seg s4">'+fb+'</div>'
+   +'<span class="lbl">理財策略</span><div class="seg s3">'+Object.keys(STRAT).map(k=>'<button data-a="strat" data-v="'+k+'" class="'+(S.strat===k?'on':'')+'">'+STRAT[k].n+'</button>').join('')+'</div>'
+   +(S.co?'<span class="lbl">公司方針</span><div class="seg s3">'+Object.keys(POL).map(k=>'<button data-a="pol" data-v="'+k+'" class="'+(S.co.pol===k?'on':'')+'">'+POL[k].n+'</button>').join('')+'</div>':'')
    +'<span class="lbl">時間速度</span><div class="ctrl-row">'
    +(run?'<button class="pbtn '+(paused?'go':'')+'" data-a="pause">'+(paused?'繼續':'暫停')+'</button>':'')
    +'<div class="seg s3" style="flex:1;min-width:150px">'+sb+'</div></div>'
@@ -1587,19 +2112,27 @@ function probHTML(){
    +'<tr><td>現場變數</td><td>非職涯分岔的事件,有 60% 機率抽到一個現場變數,讓特定數值的判定 ±5–15%。</td></tr>'
    +'<tr><td>市場景氣</td><td>每年 7% 機率進入巨災年(只持續一年,收入 ×1.15、健康 −3、颱風與地震類事件增加);否則有 16% 機率在平穩、軟市場(收入 ×0.9)、硬市場(收入 ×1.1)之間切換。</td></tr>'
    +'<tr><td>伏筆</td><td>部分選擇會在 1–6 年後觸發後續事件。</td></tr>'
-   +'<tr><td>升遷</td><td>達到門檻(基準 + 路線調整)後,每年 35% 機率升遷;衝刺模式 50%;退居二線不升遷。自營公證行另需資產 ≥ 職階 × 250 萬。轉換到經紀業、保險公司、再保險時職階落在第 2–4 階。</td></tr>'
+   +'<tr><td>升遷</td><td>達到門檻(基準 + 路線調整)後,每年 35% 機率升遷;衝刺模式 50%;野心特質 +10%;退居二線不升遷。自己開公司時,職稱依公司規模決定。</td></tr>'
+   +'<tr><td>開局條件</td><td>家庭背景(富裕 15%、小康 55%、學貸 20%、家中經濟支柱 10%);隨機 2 個個性特質(圓融與固執、工作狂與顧家不會同時出現);1 項天賦(成長 ×1.4)與 1 項短板(成長 ×0.7)。</td></tr>'
+   +'<tr><td>個性特質</td><td>'+Object.values(TR).map(x=>x.n+':'+x.d).join(';')+'。</td></tr>'
+   +'<tr><td>技能</td><td>選「苦讀專業」時每年 25% 機率學會一項技能(專長相關的技能機率 ×3),部分事件也會教你技能。技能對相關案件判定 +5–8%,並解鎖技能專屬選項。</td></tr>'
+   +'<tr><td>人物</td><td>林前輩、陳志明、王經理的好感度從 −50 到 100。林前輩好感 ≥ 40 會在危機時相挺,≥ 30 會在退休後推薦你;陳志明好感低會搶功、挖角,好感高可能找你合夥;王經理的好感影響案量(收入 −5% 到 +10%)與保險公司相關判定。</td></tr>'
+   +'<tr><td>持續狀態</td><td>'+Object.values(STA).map(x=>x.n+' '+x.y+' 年').join('、')+'。媒體點名:信譽判定 −5%;業界得獎:人脈判定 +5%;腰傷:健康判定 −8%、衝現場收益 ×0.7;新婚期:家庭不下降;被稽核盯上:大失敗機率加倍;大案光環:收入 +10%;燃燒殆盡:所有判定 −5%。</td></tr>'
+   +'<tr><td>數值連動</td><td>健康 < 30:工作判定 −10%;家庭 < 30:健康每年多 −2;信譽每高於 60 一點,收入 +0.5%;年資每 10 年專業判定 +3%;50 歲後健康判定 −5%。</td></tr>'
+   +'<tr><td>理財</td><td>每年儲蓄存入現金(利率 1.5%),再依理財策略分配:保守全放現金;穩健 50% 投資,平均 5%,波動 ±10%;積極 80% 投資,平均 7%,波動 ±25%,股市影響 ×1.4。股市狀態:多頭 +8%、空頭 −10%、股災 −28%(每年 6% 機率發生,隔年轉空頭)。買房後房產每年增值 2–5%,房貸每年減少 30 萬。</td></tr>'
+   +'<tr><td>創業</td><td>公證公司 300 萬、經紀公司 500 萬、顧問公司 200 萬、科技新創 800 萬。每年損益 = 公司基準 × 規模 ×(能力係數 − 0.95 ± 波動 + 景氣 + 方針);能力係數 =(人脈 35% + 信譽 35% + 專業 30%)÷ 60。獲利一半成為你的分紅,一半留在公司;虧損由公司準備金吸收,準備金用完會觸發「現金告急」。方針:擴張(規模成長快、治理每年 −2、健康 −2)、穩健、節流(獲利 +8%、規模慢慢縮小)。治理分數 < 40 時獲利 −15%,主管機關檢查更頻繁。倒閉後投入歸零、信譽 −15,回到原本職涯,4 年後可再創業。</td></tr>'
    +'<tr><td>每年消耗</td><td>家庭 −1.5;專業與人脈各 −0.5;健康 −(路線或公司耗損);38 歲後再 −0.1 ×(年齡 − 38)。退居二線時健康耗損 ×0.3、薪水 ×0.5。</td></tr>'
-   +'<tr><td>儲蓄</td><td>年收入 × 30%;有房貸 −8%,每個孩子 −4%,最低 10%。</td></tr>'
-   +'<tr><td>場景</td><td>天色隨年齡從早晨走到黃昏。住處:租屋雅房 → 買房後公寓 → 資產 1,200 萬以上換透天。車:資產 150 萬小車、1,000 萬房車。服裝隨路線與職級改變(安全帽、襯衫、西裝、白袍、毛衣)。家庭 ≥ 75 有狗,專業 ≥ 80 有一疊書,信譽 ≥ 80 胸前別金徽章,有證照別藍徽章。表情隨健康與家庭平均值改變。</td></tr>'
+   +'<tr><td>儲蓄</td><td>年收入 × 30%;還房貸期間 −8%,每個孩子 −4%,學貸(28 歲前)與家中經濟支柱(40 歲前)各 −10%,最低 5%。</td></tr>'
+   +'<tr><td>場景</td><td>天色隨年齡從早晨走到黃昏。住處:租屋雅房 → 買房後公寓 → 淨資產 1,500 萬以上換透天。車:淨資產 150 萬小車、1,000 萬房車。開公司後屋頂掛招牌。服裝隨路線與職級改變(安全帽、襯衫、西裝、白袍、毛衣)。家庭 ≥ 75 有狗,專業 ≥ 80 有一疊書,信譽 ≥ 80 胸前別金徽章,有證照別藍徽章。表情隨健康與家庭平均值改變。</td></tr>'
    +'<tr><td>病逝</td><td>45 歲後每年 0.03% ×(年齡 − 45)×(1 + max(0, 60 − 健康)÷ 40)。</td></tr>'
-   +'<tr><td>總評</td><td>五項平均 × 0.6 + 職階 × 5 + min(資產 ÷ 300, 10) + 退休加 5,上限 100。</td></tr>'
+   +'<tr><td>總評</td><td>五項平均 × 0.6 + 職階 × 5 + min(淨資產 ÷ 400, 10) + 退休加 5,上限 100。</td></tr>'
    +'<tr><td>可重現</td><td>相同人生代碼、相同的重心與選擇,會得到相同的人生。</td></tr>'
    +'</table></div>';
 }
 function startView(){
   return '<section class="hero"><span class="stamp">案件卷宗 · 保險公證人</span>'
    +'<h1>冒險公證人</h1>'
-   +'<p class="lede">你是一名保險公證人。從 23 歲入行到 65 歲退休,時間會自己往前走。你決定人生重心、在十字路口做選擇。轉職機會隨機出現,可能來得很早,也可能一輩子都沒來。入行背景、專長與任職公司由系統抽籤,不能挑。</p>'
+   +'<p class="lede">你是一名保險公證人。從 23 歲入行到 65 歲退休,時間會自己往前走。你決定人生重心、在十字路口做選擇。轉職機會隨機出現,可能來得很早,也可能一輩子都沒來。入行背景、專長、任職公司、家庭背景與個性特質都由系統抽籤,不能挑。存下來的錢可以投資,錢夠了也能自己開公司。</p>'
    +'<div class="facts"><div><b>'+E.length+'</b><span>互動事件</span></div><div><b>'+MINOR.length+'</b><span>人生小插曲</span></div><div><b>'+Object.keys(ROUTES).length+'</b><span>職涯路線</span></div><div><b>'+ENDINGS+'</b><span>種結局</span></div></div></section>'
    +'<div><span class="tab">開案設定</span><div class="card">'
    +'<div class="field"><label for="seed">人生代碼(留空則隨機)</label><input id="seed" inputmode="numeric" maxlength="9" placeholder="例如 482913" value="'+startSeed+'"></div>'
@@ -1615,6 +2148,10 @@ function birthView(){
    +row('入行背景',S.bg.n+'。'+S.bg.d,pct(BG,S.bg))
    +row('專長領域',S.sp.n,pct(SP,S.sp))
    +row('任職公司',S.fm.n+'。'+S.fm.x,pct(FM,S.fm))
+   +'<div class="rowkv"><span class="k">家庭背景</span><span class="v">'+FB[S.fbg].n+'。'+FB[S.fbg].d+'</span><span class="p">抽中機率 '+FB[S.fbg].w+'%</span></div>'
+   +'<div class="rowkv"><span class="k">個性特質</span>'+S.traits.map(x=>'<span class="v">'+TR[x].n+':'+TR[x].d+'</span>').join('')+'</div>'
+   +'<div class="rowkv"><span class="k">成長天賦</span><span class="v">天賦:'+KN[S.tal]+'(成長 ×1.4) · 短板:'+KN[S.weak]+'(成長 ×0.7)</span></div>'
+   +'<div class="rowkv"><span class="k">起始資產</span><span class="v">'+money(S.cash)+' 萬</span></div>'
    +'<div class="rowkv"><span class="k">起始屬性</span><div class="row">'+st+'</div></div>'
    +'<p class="mute" style="font-size:14px">按下開始後,年齡會自動前進。黃色橫條是這一年的進度。你可以隨時切換人生重心、調整速度或暫停。</p>'
    +'<button class="btn" data-a="enter">開始職涯</button></div></div>';
@@ -1628,15 +2165,16 @@ function eventCard(){
       const ok=open(c);
       let tags='';
       if(c.hid)tags+=chip('隱藏選項 · '+KN[c.hid.k]+' ≥ '+c.hid.v+' 解鎖','hk');
+      if(c.hs)tags+=chip('技能選項 · '+SK[c.hs].n,'hk');
       if(!ok)tags+=chip('條件:'+c.lk,'lk');
       else{
         const O=outs(c),cc=cOf(c),bs=bsum(cc);
         tags+=(O.length>1?chip('依'+cLab(cc)+'判定','pr'):'')+(O.length>1&&bs?chip('加成 '+(bs>0?'+':'')+bs+'%',bs>0?'up':'dn'):'')+O.map(x=>chip(x.n+' '+x.p+'%',x.g==='g'?'up':x.g==='b'?'dn':'pr')).join('');
       }
-      const rr=c.ok.fx.route,rt=rr?chip(ROUTES[rr].n+':'+ROUTES[rr].x,'pr'):'';
+      const rr=c.ok.fx.route||c.ok.fx.found,rt=rr?chip(ROUTES[rr].n+':'+ROUTES[rr].x,'pr'):'';
       return '<button class="opt" data-a="opt" data-v="'+i+'"'+(ok?'':' disabled')+'><b>'+lbl(c)+'</b><span class="row">'+tags+rt+'</span></button>';
     }).join('');
-    const bl=bonuses({k:'pro'}).filter(x=>!['技術專家','國際證照','年輕體力'].includes(x[0]));
+    const bl=bonuses({k:'pro'}).filter(x=>!x[2]&&!['技術專家','國際證照','年輕體力'].includes(x[0]));
     const bline=bl.length?'<p class="var">你的優勢:'+bl.map(x=>x[0]+(x[1]>0?' +':' ')+x[1]+'%').join('、')+'</p>':'';
     return '<div id="evbox"><span class="tab'+(br?' br':'')+'">'+S.age+' 歲 · '+(br?'職涯機會':bigc?'大案':'十字路口')+'</span><div class="card '+(br?'br':'ev')+'"><h2>'+nm(EV)+'</h2><p>'+tx(EV)+'</p>'+vr+bline+'<div class="opts">'+opts+'</div></div></div>';
   }
@@ -1668,13 +2206,13 @@ function chartSVG(){
   return '<svg class="ch" viewBox="0 0 '+W+' '+Ht+'" role="img" aria-label="五項屬性隨年齡變化">'+g+ls+'</svg><div class="legend">'+lg+'</div>';
 }
 function endView(){
-  const share='我的《冒險公證人》人生:'+END.t+'|'+RT().n+'・'+rankName()+'|'+S.age+' 歲|經歷 '+S.evc+' 個十字路口|總評 '+END.score+'|人生代碼 '+S.seed;
+  const share='我的《冒險公證人》人生:'+END.t+'|'+RT().n+'・'+rankName()+'|淨資產 '+money(NW())+' 萬|'+S.age+' 歲|經歷 '+S.evc+' 個十字路口|總評 '+END.score+'|人生代碼 '+S.seed;
   const fin=KEYS.map(k=>chip(KN[k]+' '+Math.round(S[k]),'pr')).join('');
   return mast()+stage()
    +'<div><span class="tab">結案報告</span><div class="card">'
    +'<h2>'+END.t+'</h2><p>'+END.d+'</p>'
    +'<div class="score"><b class="mono">'+END.score+'</b><span>職涯總評 / 100</span></div>'
-   +'<div class="row">'+chip(S.age+' 歲','pr')+chip(RT().n,'pr')+chip(rankName(),'pr')+chip('資產 '+money(S.cash)+' 萬','pr')+chip(S.evc+' 個十字路口','pr')+fin+'</div>'
+   +'<div class="row">'+chip(S.age+' 歲','pr')+chip(RT().n,'pr')+chip(rankName(),'pr')+chip('淨資產 '+money(NW())+' 萬','pr')+chip(S.evc+' 個十字路口','pr')+fin+'</div>'
    +chartSVG()
    +'<div class="field"><label for="share">分享文字</label><textarea id="share" readonly>'+share+'</textarea></div>'
    +'<button class="btn sec" data-a="copy">複製分享文字</button>'
@@ -1709,6 +2247,8 @@ app.addEventListener('click',e=>{
   }
   else if(a==='enter'){P='run';newYear();render()}
   else if(a==='focus'){focus=v;render()}
+  else if(a==='strat'){S.strat=v;render()}
+  else if(a==='pol'){if(S.co)S.co.pol=v;render()}
   else if(a==='speed'){const f=prog()/dur();speed=v;yrAcc=f*dur();yrRes=now();render()}
   else if(a==='pause'){if(!paused){yrAcc+=now()-yrRes;paused=true}else{paused=false;yrRes=now()}render()}
   else if(a==='opt')choose(+v);
