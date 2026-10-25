@@ -17,7 +17,11 @@ A loss adjuster life-sim set in Taiwan. From 23 to retirement at 65, make choice
 - 結案小卡、人生摘要與人生故事,小卡可下載 · An end-of-life ID card, one-line summary and short life story; the card can be downloaded
 - 隱藏人生目標:開局抽 3 個,結案揭曉,達成加分 · Three hidden life goals, revealed at the end, each worth bonus points
 - 伏筆連鎖與人物線:當年的選擇會在多年後回來,還有一位可以帶出來的徒弟 · Follow-up chains: old choices come back years later, plus an apprentice you can train
-- 72 種結局,包括各專精分支的專屬結局 · 72 endings, including one for each specialty
+- 70 種結局,包括各專精分支的專屬結局 · 70 endings, including one for each specialty
 - 術語小字典:點一下虛線底線的術語就能看解釋 · Tap any dotted-underlined term for a quick explanation
+- 理算題:用真實的理賠算法算出賠款(不足額、折舊、營業中斷、共同海損等) · Adjusting math: work out the payable amount (underinsurance, depreciation, BI, general average and more)
+- 證照與進修:公證人與經紀人執照、ACII、CPCU、碩士與博士 · Credentials: adjuster and broker licenses, ACII, CPCU, master's and doctorate
+- 每個職業都有自己的三階段大案,專精分支事件加倍 · A three-stage big case for every career, and twice the specialty events
+- 成就總覽:跨局記錄結局與人生目標 · Achievements: endings and life goals tracked across lives
 
 內容純屬虛構,機率為遊戲設計,非真實統計。 · Entirely fictional; probabilities are game design, not real statistics.
