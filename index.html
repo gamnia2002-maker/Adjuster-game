@@ -182,7 +182,7 @@ function kvInit(c){
     t++;
   }
   frame();
-  if(!reduce){var last=0;(function loop(ts){if(ts-last>80){last=ts;frame()}requestAnimationFrame(loop)})(0)}
+  if(!reduce){var last=0;(function loop(ts){if(c.isConnected===false)return;if(ts-last>80){last=ts;frame()}requestAnimationFrame(loop)})(0)}
 }
 
 (function(){

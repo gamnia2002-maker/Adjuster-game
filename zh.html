@@ -291,6 +291,7 @@ details.more{border:none;border-top:1px dashed var(--line);border-radius:0;backg
 .hero h1 small{display:block;font-size:.48em;letter-spacing:.08em;color:var(--steel);margin-top:6px}
 .mast .code{white-space:nowrap}
 @media (max-width:460px){.mast{flex-wrap:wrap;row-gap:2px}.mast b{flex:1;min-width:0}.mast .code{order:3;flex-basis:100%;margin-left:0}}
+.kvc{display:block;width:100%;height:auto;aspect-ratio:16/9;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:6px;background:#3f6b84;box-shadow:0 6px 18px rgba(20,33,44,.18)}
 </style>
 </head>
 <body>
@@ -4555,9 +4556,125 @@ function dexView(){
   return h+'<button class="btn sec" data-a="dexback">返回</button>';
 }
 function dexBtn(){const L=dexList(),D=dexLoad();return '<button class="btn sec" data-a="dex">理賠小教室圖鑑 · 已收集 '+L.filter(x=>D[x.k]).length+' / '+L.length+'</button>'}
+/* key visual: 160x90 pixel scene, "another day, another claim" */
+function kvInit(c){
+  var x=c.getContext('2d');if(!x)return;
+  var W=160,H=90,t=0;
+  var reduce=false;try{reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+  function r(a,b,w,h,col){x.fillStyle=col;x.fillRect(a,b,w,h)}
+  function spr(rows,pal,ox,oy){for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){var k=rows[j][i];if(k!=='.'&&pal[k]){x.fillStyle=pal[k];x.fillRect(ox+i,oy+j,1,1)}}}
+  var P={Y:'#f2b705',y:'#c99400',S:'#e3b48d',s:'#c4906b',E:'#14212c',H:'#3a2a1e',O:'#f07c1e',o:'#c75f12',W:'#eef3f6',B:'#2f5d7c',b:'#24485f',L:'#2b3440',K:'#1b2229',M:'#14212c',G:'#7fd6ff',C:'#8a5a2b',c:'#f8fafb',l:'#9aa5ae',Z:'#b9c2c9'};
+  var ADJ=[
+".......YYYYYY.......",
+".....YYYYYYYYYY.....",
+"....YYYYWYYYYYYY....",
+"....YYYYYYYYYYYY....",
+"..yyyyyyyyyyyyyyyy..",
+".....HSSSSSSSSH.....",
+".....SSSSSSSSSS.MMM.",
+".....SEESSSSEES.MGM.",
+".....SSSSSSSSSS.MGM.",
+".....SSSSssSSSSSMGM.",
+"......SSSSSSSSSSMMM.",
+".......SSSSSS..BB...",
+"...BBOOOBBBBOOOBB...",
+"..BBOOOOOBBOOOOOB...",
+"..BBOOOOOOOOOOOO....",
+"..BBWWWWWWWWWWWW....",
+"..BBOOOOOOOOOOOO....",
+"..BBOOOOOOOOOOOO....",
+"..SSOOOOOOOOOOOO....",
+"....WWWWWWWWWWWW....",
+"....oooooooooooo....",
+"....LLLLLLLLLLLL....",
+"....LLLLL..LLLLL....",
+"....LLLLL..LLLLL....",
+"....LLLLL..LLLLL....",
+"....LLLLL..LLLLL....",
+"....LLLLL..LLLLL....",
+"....KKKKK..KKKKK....",
+"...KKKKKK..KKKKKK...",
+"...KKKKKK..KKKKKK..."];
+  var CLIP=["..ZZ..","CCCCCC","CccccC","ClllcC","CccccC","ClllcC","CccccC","ClllcC","CCCCCC"];
+  var BUB=[".AAAAAAA.","AAAAKAAAA","AAAAKAAAA","AAAAKAAAA","AAAAAAAAA","AAAAKAAAA",".AAAAAAA.","..AA.....",".A......."];
+  var drops=[];for(var i=0;i<90;i++)drops.push([Math.random()*W,Math.random()*H,0.8+Math.random()*0.6]);
+  var boxes=[[100,0],[112,1.7],[125,3.1],[138,.8]];
+  var flash=0,nextFlash=40+Math.random()*80;
+  function sky(){
+    var cols=['#2c3e4f','#34495a','#3d5466','#476073','#516b7e','#5b7689'];
+    for(var i=0;i<cols.length;i++)r(0,i*9,W,9,cols[i]);
+    r(0,54,W,16,'#647f92');
+    if(flash>0){x.fillStyle='rgba(235,242,255,'+(flash/6*0.45)+')';x.fillRect(0,0,W,64)}
+    // clouds
+    var cl='#243545';
+    r(0,0,W,4,cl);r(6,4,30,3,cl);r(48,4,40,4,cl);r(58,8,22,2,cl);r(104,4,56,3,cl);r(118,7,30,3,cl);r(26,7,14,2,cl);
+    r(70,11,12,1,'#2c3e4f');
+    if(flash>2){var bx=134,by=10;x.fillStyle='#fff6c2';[[0,0],[1,1],[1,2],[0,3],[-1,4],[0,5],[1,6],[2,7],[1,8],[0,9]].forEach(function(p){x.fillRect(bx+p[0],by+p[1],1,2)})}
+  }
+  function city(){
+    var s='#3f5567';
+    [[0,40,10,24],[11,34,8,30],[20,44,12,20],[33,38,7,26],[41,46,10,18],[52,36,9,28],[62,42,8,22],[71,47,14,17],[146,40,14,24]].forEach(function(b){r(b[0],b[1],b[2],b[3],s)});
+    var lit='#e9c56a';[[3,44],[14,38],[15,42],[24,48],[35,42],[44,50],[55,40],[56,46],[65,46],[149,44],[152,50]].forEach(function(p){r(p[0],p[1],1,1,lit)});
+  }
+  function warehouse(){
+    r(84,38,64,33,'#8a95a0');r(84,38,64,1,'#a9b2ba');
+    // roof
+    r(82,34,68,4,'#5f6b76');r(82,33,68,1,'#77838d');
+    // torn section
+    r(128,33,12,6,'#2a333b');r(127,33,1,2,'#77838d');r(140,34,1,2,'#77838d');
+    // flying metal sheet
+    var fy=18+Math.round(Math.sin(t/7)*2);r(141,fy,7,1,'#b9c2c9');r(140,fy+1,7,1,'#8a95a0');
+    // panel lines
+    for(var i=88;i<148;i+=6)r(i,39,1,32,'#7d8893');
+    // roller door
+    r(96,46,22,25,'#3b4650');for(var j=48;j<71;j+=3)r(96,j,22,1,'#2e3841');
+    r(95,45,24,1,'#5f6b76');
+    // windows
+    r(124,44,8,5,'#c9d3da');r(136,44,8,5,'#c9d3da');r(124,46,8,1,'#a9b2ba');r(136,46,8,1,'#a9b2ba');
+    // sign
+    r(100,40,14,4,'#f2b705');r(102,41,10,2,'#14212c');
+    // caution tape across door
+    for(var k=0;k<24;k+=4){r(95+k,56,2,2,'#f2b705');r(97+k,56,2,2,'#14212c')}
+  }
+  function water(){
+    var wl=70;
+    r(0,wl,W,H-wl,'#3f6b84');
+    r(0,wl,W,1,'#8fb8cc');
+    for(var y=wl+3;y<H;y+=4){var off=(Math.floor(t/2)+y*3)%20;for(var xx=-20+off;xx<W;xx+=20)r(xx,y,6,1,'#5d8aa2')}
+    // reflection of warehouse
+    r(84,wl+1,64,3,'#56788c');r(96,wl+1,22,2,'#36505f');
+    // boxes bobbing
+    boxes.forEach(function(b){var by=wl-3+Math.round(Math.sin(t/6+b[1])*1);r(b[0],by,7,5,'#b5834a');r(b[0],by,7,1,'#d9b27a');r(b[0]+3,by,1,5,'#d9b27a');r(b[0],by+4,7,1,'#8c6234')});
+  }
+  function cone(){var a=62,b=63;r(a+2,b,3,1,'#f07c1e');r(a+1,b+1,5,2,'#f07c1e');r(a+1,b+2,5,1,'#eef3f6');r(a,b+3,7,2,'#f07c1e');r(a,b+4,7,1,'#eef3f6');r(a-1,b+5,9,2,'#f07c1e');r(a-2,b+7,11,1,'#c75f12')}
+  function rain(){
+    x.fillStyle='rgba(205,225,240,.55)';
+    drops.forEach(function(d){x.fillRect(Math.round(d[0]),Math.round(d[1]),1,2);if(!reduce){d[1]+=3*d[2];d[0]-=1*d[2];if(d[1]>H){d[1]=-2;d[0]=Math.random()*(W+20)}if(d[0]<-2)d[0]=W+Math.random()*10}});
+    x.fillStyle='rgba(205,225,240,.7)';
+    for(var i=0;i<6;i++){var sx=(i*37+t*5)%W,sy=68+((i*13)%20);x.fillRect(Math.round(sx),sy,1,1);x.fillRect(Math.round(sx)-1,sy+1,3,1)}
+  }
+  function person(){
+    var ox=26,oy=46;
+    spr(ADJ,P,ox,oy);
+    spr(CLIP,{Z:'#b9c2c9',C:'#8a5a2b',c:'#f8fafb',l:'#9aa5ae'},ox-3,oy+13);
+    r(ox+2,oy+17,2,2,'#e3b48d');
+    if(reduce||Math.floor(t/7)%3!==2)spr(BUB,{A:'#f2b705',K:'#14212c'},ox+19,oy-9);
+    r(ox+1,oy+26,20,4,'rgba(63,107,132,.88)');r(ox+1,oy+26,20,1,'rgba(143,184,204,.95)');
+  }
+  function frame(){
+    sky();city();warehouse();water();cone();person();rain();
+    if(flash>0)flash--;
+    if(!reduce){if(--nextFlash<=0){flash=6;nextFlash=60+Math.random()*120}}
+    t++;
+  }
+  frame();
+  if(!reduce){var last=0;(function loop(ts){if(c.isConnected===false)return;if(ts-last>80){last=ts;frame()}requestAnimationFrame(loop)})(0)}
+}
+
 function startView(){
   return '<section class="hero"><span class="stamp">案件卷宗 · 保險公證人</span>'
    +'<h1>公證人求生指南<small>今天又出險了</small></h1>'
+   +'<canvas class="kvc" id="kv" width="160" height="90" role="img" aria-label="像素插畫:暴雨中的公證人站在淹水的倉庫前,手機又響了。"></canvas>'
    +'<p class="lede">你是一名保險公證人。從 23 歲入行到 65 歲退休,時間會自己往前走。你決定人生重心、在十字路口做選擇。轉職機會隨機出現,可能來得很早,也可能一輩子都沒來。入行背景、專長、任職公司、家庭背景與個性特質都由系統抽籤,不能挑。存下來的錢可以投資,錢夠了也能自己開公司。轉職後可以選擇專精方向,也會遇到條款解讀題,以及改編自真實事件的案例。</p>'
    +'<div class="facts"><div><b>'+E.length+'</b><span>互動事件</span></div><div><b>'+MINOR.length+'</b><span>人生小插曲</span></div><div><b>'+Object.keys(ROUTES).length+'</b><span>職涯路線</span></div><div><b>'+ENDINGS+'</b><span>種結局</span></div></div></section>'
    +'<div><span class="tab">開案設定</span><div class="card">'
@@ -4849,6 +4966,7 @@ function render(){
   app.innerHTML=h;
   if(S&&P!=='start'&&P!=='dex'&&P!=='end')drawScene(document.getElementById('scene'));
   if(P==='end')cardRender();
+  if(P==='start'){const kc=document.getElementById('kv');if(kc&&kc.getContext)kvInit(kc)}
   miniUpd();
   if(P!==lastP){
     if(P==='start'||P==='birth'||P==='end'||P==='dex')window.scrollTo(0,0);
