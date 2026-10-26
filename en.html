@@ -3886,16 +3886,17 @@ Object.assign(KNOW,{
 });
 
 const RVT={
- A:'Your three-yearly review is in: you got an A. Over this period, {a} things you handled went well and {b} didn’t. Your boss says: “If there’s something you want, ask.”',
- B:'Your three-yearly review is in: you got a B. Over this period, {a} things you handled went well and {b} didn’t. Your boss asks: “What are your plans from here?”',
- C:'Your three-yearly review is in: you got a C. Over this period, {a} things you handled went well and {b} didn’t. Your boss says: “These years have been hard. Let’s talk about what to adjust.”'
+ A:'The company’s review results are in: you got an A. Over the last five years, {a} things you handled went well and {b} didn’t. Your boss says: “If there’s something you want, ask.”',
+ B:'The company’s review results are in: you got a B. Over the last five years, {a} things you handled went well and {b} didn’t. Your boss asks: “What are your plans from here?”',
+ C:'The company’s review results are in: you got a C. Over the last five years, {a} things you handled went well and {b} didn’t. Your boss says: “These years have been hard. Let’s talk about what to adjust.”'
 };
-function rvGrade(){const p=S.pf||{g:0,b:0},v=p.g-1.5*p.b+(S.pro+S.rep-120)/20;return v>=2.5?'A':v>=-0.5?'B':'C'}
-function rvDue(){return !S.co&&!S.f.semi&&S.age>=26&&S.age<=62&&(S.age-23)%3===0}
+function pfc(){const r=(Array.isArray(S.pf)?S.pf:[]).filter(x=>x[0]>=S.age-4),g=r.filter(x=>x[1]).length;return {a:g,b:r.length-g}}
+function rvGrade(){const p=pfc(),v=.6*(p.a-1.5*p.b)+(S.pro+S.rep-120)/20;return v>=2?'A':v>=-0.5?'B':'C'}
+const RVW=45,RVOK=s=>!s.co&&!s.f.semi&&s.age>=28&&s.age<=60&&!s.seen.rv_A&&!s.seen.rv_B&&!s.seen.rv_C;
 function promoNear(s){const nx=RANK[s.rank+1];if(!nx||s.f.semi||s.co)return false;const o=RT().off,cd=2*certN();return s.age-23>=nx.y-1&&s.pro>=nx.pro+(o.pro||0)-cd&&s.rep>=nx.rep+(o.rep||0)-cd&&s.net>=nx.net+(o.net||0)-cd}
 ['A','B','C'].forEach(g=>{
   const B={A:[70,42,.04],B:[50,25,.025],C:[25,10,.015]}[g];
-  E.push({id:'rv_'+g,n:'Performance review',rv:1,w:0,kk:'review',t:s=>fill(RVT[g],{a:(s.pf||{}).g||0,b:(s.pf||{}).b||0}),ch:[
+  E.push({id:'rv_'+g,n:'Performance review',rv:1,w:RVW,once:1,kk:'review',when:s=>RVOK(s)&&rvGrade()===g,t:s=>fill(RVT[g],pfc()),ch:[
    {l:'Ask for a raise',c:{w:{rep:.5,pro:.5},b:B[0],s:.5},ok:{t:g==='A'?'Your boss agreed without hesitation.':g==='B'?'Your boss promised to push for you, and in the end you got a little more.':'Your boss reluctantly agreed, but says he wants to see change next year.',fx:{raise:B[2]}},ng:{t:'Your boss says the budget is tight this year; maybe next year.',fx:{rep:-1}}},
    {l:'Ask for a promotion',show:s=>promoNear(s),c:{w:{pro:.5,rep:.5},b:B[1],s:.6},ok:{t:'Your boss put your name on the promotion list, and it went through quickly.',fx:{promo:1,rep:1}},ng:{t:'Your boss says: “Give it a bit more time.”',fx:{hp:-1,rep:-1}}},
    {l:'Apply to move to the technical track',a:.05,show:s=>g!=='C'&&s.rank>=2&&s.pro>=60&&(s.track==='adj'||s.track==='mgr'),ok:{t:'The company agreed. You now focus on forensics and technical judgment.',fx:{route:'exp',pro:1}}},
@@ -3905,6 +3906,140 @@ function promoNear(s){const nx=RANK[s.rank+1];if(!nx||s.f.semi||s.co)return fals
   ]});
 });
 KNOW.review=['Performance reviews and pay','Companies often use regular reviews to decide raises and promotions. Grades usually combine results, professional skill and attitude. When you ask for something, concrete results persuade more than seniority alone.'];
+
+
+const NEWB=s=>ADJR.includes(s.track)&&!s.co;
+E.push(
+
+{id:'e_redpen',n:'A report covered in red ink',w:14,once:1,when:s=>s.age<=27&&NEWB(s),t:'You handed in your first complete adjuster’s report. The next day it came back with every page covered in your boss’s red ink.',ch:[
+ {l:'Ask about every change, one by one',c:{w:{net:.5,pro:.5},b:55,s:.8},ok:{t:'Your boss spent an afternoon walking you through it. You learned more than in the whole last quarter.',fx:{pro:4,net:2}},ng:{t:'Your boss says: “Figure it out.” You stay up all night rewriting.',fx:{pro:2,hp:-2}}},
+ {l:'Make the changes and don’t ask',ok:{t:'The report went out fine, but you made the same mistakes in the next one.',fx:{pro:1}}},
+ {l:'Keep your wording and attach your reasons',c:{k:'pro',b:40,s:.9},ok:{t:'Your boss read your reasons, changed only two things, and said: “Having your own ideas is good.”',fx:{pro:3,rep:2}},ng:{t:'Your boss thinks you don’t take feedback.',fx:{rep:-2,net:-1}}}
+]},
+{id:'e_court',n:'Your first time on the witness stand',w:10,once:1,when:s=>s.age>=25&&s.age<=32&&NEWB(s),t:'A fire case you handled two years ago has gone to court, and you’ve been summoned to testify. Outside the courtroom, the insured’s lawyer gives you a little smile.',ch:[
+ {l:'Reread your report and photos, and testify only to what you saw',c:{k:'pro',b:50,s:.8},ok:{t:'Opposing counsel questioned you for an hour, and your answers never wavered. The judge nodded.',fx:{rep:4,pro:2,hp:-1}},ng:{t:'Opposing counsel caught a wrong date in your report, and you froze on the spot.',fx:{rep:-2,hp:-2,pro:2}}},
+ {l:'Answer the way the company’s lawyer prepared you',ok:{t:'You stuck to the script, but struggled to keep up under cross-examination.',fx:{rep:-1,net:1}}},
+ {l:'Ask your boss to testify instead',ok:{t:'The court still required the adjuster who handled the case to appear in person. Your boss was not pleased.',fx:{rep:-2,net:-1}}}
+]},
+{id:'e_ot',n:'Where’s the overtime pay?',w:10,once:1,when:s=>s.age<=30&&!s.co&&!s.f.semi,t:'For two months straight you’ve worked until nine every night, but your payslip shows no overtime at all. A colleague says: “That’s just how it is in this trade.”',ch:[
+ {l:'Look up the Labor Standards Act, then talk to your boss',c:{w:{net:.6,rep:.4},b:45,s:.8},ok:{t:'The company paid the back overtime and started tracking hours properly.',fx:{cash:4,net:1}},ng:{t:'Your boss says: “You’re here to learn, not to count money.”',fx:{net:-2,hp:-1}}},
+ {l:'Swallow it and call it tuition',ok:{t:'You learned a lot, and built up a lot of exhaustion.',fx:{hp:-3,pro:1}}},
+ {l:'Raise it with HR together with your colleagues',c:{k:'rep',b:50,s:.7},ok:{t:'HR changed the overtime request process, and everyone breathed a sigh of relief.',fx:{net:2,cash:3,rep:1}},ng:{t:'Nothing came of it, and you got labeled a nitpicker.',fx:{rep:-2}}}
+]},
+{id:'e_photo',n:'The memory card that won’t read',w:10,once:1,when:s=>s.age<=31&&NEWB(s),t:'Back at the office you discover the camera’s memory card is broken: all two hundred photos from yesterday’s warehouse visit are unreadable. The warehouse started clearing up today.',ch:[
+ {l:'Go straight back and reshoot whatever hasn’t been cleared',c:{w:{hp:.5,pro:.5},b:50,s:.8},ok:{t:'You beat the removal trucks and got the key racks and water lines on camera.',fx:{pro:2,rep:1,hp:-2}},ng:{t:'By the time you arrived, all the damaged goods had been hauled away.',fx:{rep:-2,hp:-2}}},
+ {l:'Come clean and ask the insured for their own photos and CCTV footage',c:{k:'net',b:50,s:.8},ok:{t:'The insured was very cooperative; the CCTV even caught the water coming in.',fx:{net:2,rep:1}},ng:{t:'The insured grew suspicious: “Are you trying to pay us less?”',fx:{net:-2,rep:-1}}},
+ {l:'Say nothing and describe it in words in the report',ok:{t:'The insurer asked for the photos, so you had to tell the truth, and your reputation took a hit.',fx:{rep:-4}}}
+]},
+{id:'e_young',n:'“Get your boss”',w:12,once:1,when:s=>s.age<=27&&NEWB(s),t:'The factory owner looks at your business card, then at your face: “This young? Get your boss over here.”',ch:[
+ {l:'Pull out your prepared checklist and go item by item',c:{k:'pro',b:50,s:.9},ok:{t:'By the fifth item, the owner’s tone changed: “You’ve done your homework.”',fx:{rep:3,pro:1,net:1}},ng:{t:'He stumped you twice, then called your boss directly.',fx:{rep:-2,hp:-1}}},
+ {l:'Walk the plant with him first and let him talk',c:{k:'net',b:50,s:.8},ok:{t:'After the walk, he started telling you how he built this factory with his own hands.',fx:{net:3,rep:1}},ng:{t:'He talked for two hours, and you hadn’t gathered any evidence yet.',fx:{hp:-2}}},
+ {l:'Call a senior colleague over',ok:{t:'The senior came and things went smoothly, but from then on the owner only called the senior.',fx:{lin:3,rep:-1}}}
+]},
+{id:'e_quit',n:'The rookie exodus',w:10,once:1,when:s=>s.age>=25&&s.age<=29&&!s.co&&!s.f.semi,t:'Of the five people who joined the company the same year as you, only you and Chen are left after eighteen months. Yesterday someone else handed in their notice.',ch:[
+ {l:'Talk to your boss about your career plans',c:{k:'net',b:50,s:.8},ok:{t:'Your boss shared what he expects of you, and started giving you bigger cases.',fx:{pro:2,net:2,rep:1}},ng:{t:'Your boss is busy and just says: “Just do good work.”',fx:{hp:-1}}},
+ {l:'Agree with Chen to stick it out together',ok:{t:'You proofread each other’s reports and grew closer.',fx:{chen:6,hp:1}}},
+ {l:'Quietly start sending out resumes',ok:{t:'You interviewed at two firms and found the terms outside were about the same.',fx:{hp:-1,net:1}}}
+]},
+{id:'e_prelim',n:'An English preliminary report in 48 hours',w:9,once:1,when:s=>s.age>=24&&s.age<=31&&NEWB(s),t:'The reinsurer on a factory fire is in London and wants an English preliminary report within 48 hours. Your senior hands the job to you.',ch:[
+ {l:'Write it yourself and have your senior check it',c:{k:'pro',b:50,s:.8},ok:{t:'Your senior changed only a few words, and the report went out on time.',fx:{pro:3,rep:2,lin:3}},ng:{t:'Your senior spent ages on it and said: “Give it to me earlier next time.”',fx:{pro:2,hp:-2}}},
+ {l:'Run your Chinese draft through translation software',ok:{t:'The reinsurer wrote back asking what several terms meant.',fx:{rep:-2}}},
+ {l:'Stay up all night writing it word by word',ok:{t:'You finished before dawn. The report was good; you were barely standing.',fx:{pro:2,hp:-4,rep:1}}}
+]},
+{id:'e_eng',n:'Equipment drawings you can’t read',w:10,once:1,when:s=>s.age<=31&&NEWB(s),t:'On a semiconductor equipment loss, the facility engineer hands you a stack of circuit diagrams and maintenance records. With your business degree, you can’t make sense of them.',ch:[
+ {l:'Take an evening course in electrical and mechanical basics',ok:{t:'Three months later, you could read most of the drawings.',fx:{pro:4,hp:-2,cash:-2}}},
+ {l:'Buy the facility engineer a coffee and ask him to teach you',c:{k:'net',b:50,s:.8},ok:{t:'He explained patiently and later became a friend.',fx:{net:3,pro:2}},ng:{t:'He’s busy and only replies: “Aren’t you supposed to be the expert?”',fx:{rep:-1}}},
+ {l:'Leave it all to the appointed engineer',ok:{t:'The engineer’s report was very good, but you couldn’t answer questions in the meeting.',fx:{rep:-1,pro:1}}}
+]},
+{id:'e_abroad',n:'Your first case abroad',w:9,once:1,when:s=>s.age>=24&&s.age<=31&&NEWB(s),t:'The company sends you with a senior to inspect flood damage at a Taiwanese-owned factory in Vietnam. It’s your first case abroad.',ch:[
+ {l:'Take charge of photos, inventory and notes',c:{k:'pro',b:50,s:.8},ok:{t:'Your senior looked over your inventory sheet and said you could come alone next time.',fx:{pro:3,rep:2}},ng:{t:'You mixed up the numbers of two warehouses, and your senior spent a night sorting it out.',fx:{pro:1,hp:-2}}},
+ {l:'Go to street stalls with your senior at night and hear his old cases',ok:{t:'You heard plenty of stories no textbook has.',fx:{net:2,lin:4,pro:1}}},
+ {l:'Do only what you’re told',ok:{t:'The job went fine, but you didn’t make much of an impression.',fx:{pro:1}}}
+]},
+{id:'e_poach',n:'Headhunted',w:9,once:1,when:s=>s.age>=26&&s.age<=32&&s.track==='adj'&&!s.co&&!s.f.semi,t:'A manager from another adjusting firm takes you to dinner and offers 20% more than you’re making now.',ch:[
+ {l:'Jump ship',ok:{t:'The new firm gave you bigger cases; old colleagues are a little awkward around you.',fx:{raise:.15,net:-2,lin:-5}}},
+ {l:'Use the offer to negotiate a raise with your boss',c:{k:'rep',b:45,s:.8},ok:{t:'Your boss got you a raise and promised more opportunities.',fx:{raise:.08,rep:1}},ng:{t:'Your boss says: “If you want to go, go.” Things got tense.',fx:{rep:-2,net:-1}}},
+ {l:'Decline, and stay to learn from Mr. Lin',ok:{t:'When Mr. Lin heard, he started giving you harder cases.',fx:{pro:2,lin:6}}}
+]},
+{id:'e_switch',n:'Thinking of switching careers',w:9,once:1,when:s=>s.age>=26&&s.age<=32&&!s.co,t:'A college classmate is a product manager in tech, earning twice what you do. He says: “You know insurance and you know the field. InsurTech is perfect for you.”',ch:[
+ {l:'Go to an interview and see',c:{k:'net',b:45,s:.8},ok:{t:'You got an offer and decided to stay, but now you know you have other options.',fx:{net:3,rep:1,hp:1}},ng:{t:'The interviewers asked a lot about data analysis, and you struggled to answer.',fx:{hp:-1,pro:1}}},
+ {l:'Stay, but start learning data analysis',ok:{t:'You learned Python in the evenings and turned the department’s case data into a dashboard.',fx:{pro:3,hp:-2}}},
+ {l:'Not interested: this trade is what you want',ok:{t:'You’re surer than ever about the path you’re on.',fx:{rep:1,hp:1}}}
+]},
+{id:'e_guild',n:'A study group of young pros',w:9,once:1,when:s=>s.age<=31,t:'A few young adjusters and claims handlers from different companies ask you to join a study group, taking turns presenting a case each month.',ch:[
+ {l:'Join, and volunteer to organize it',ok:{t:'The group kept growing, and lots of people got to know you through it.',fx:{net:4,rep:2,hp:-2}}},
+ {l:'Join, but just listen',ok:{t:'You learned a lot about how other companies do things.',fx:{pro:2,net:1}}},
+ {l:'Decline: after work you just want to rest',ok:{t:'You keep your evenings for yourself.',fx:{hp:2}}}
+]},
+
+{id:'e_salary',n:'Your first paycheck',w:30,once:1,when:s=>s.age<=25,t:'Your first paycheck has landed. After Labor Insurance and National Health Insurance, it’s a good bit less than you imagined.',ch:[
+ {l:'Give some to your parents',ok:{t:'Mom said you didn’t have to, then showed it off to the neighbors the next day.',fx:{fam:4,cash:-1}}},
+ {l:'Save it as an emergency fund',ok:{t:'You opened a new account and felt like a grown-up for the first time.',fx:{cash:2,hp:1}}},
+ {l:'Opt in to the 6% voluntary pension contribution',ok:{t:'Your monthly take-home shrank a bit, but you saved some tax at year-end.',fx:{pro:1,cash:1}}},
+ {l:'Treat yourself to a new phone',ok:{t:'The new phone is great; next month was a bit tight.',fx:{hp:2,cash:-3}}}
+]},
+{id:'e_rent',n:'Your first studio',w:12,once:1,when:s=>s.age<=28&&!s.f.married,t:'You decide to move out and find a studio near the office. The landlord wants three months’ deposit.',ch:[
+ {l:'Tell the landlord the legal maximum is two months',c:{k:'net',b:50,s:.8},ok:{t:'The landlord thought it over and agreed to two months.',fx:{cash:-2,pro:1}},ng:{t:'The landlord says: “Then rent somewhere else.” You spent another two weeks looking.',fx:{hp:-2,cash:-2}}},
+ {l:'Pay it and move in',ok:{t:'You paid an extra month’s deposit, but you finally have a place of your own.',fx:{cash:-4,hp:2}}},
+ {l:'Keep living at home and commute an hour',ok:{t:'You save the rent, but spend two extra hours a day in transit.',fx:{fam:3,hp:-2,cash:2}}}
+]},
+{id:'e_loan',n:'The first student loan bill',w:14,once:1,when:s=>s.age>=24&&s.age<=26,t:'A year after graduation, the first repayment notice for your student loan arrives. The monthly amount is more than you expected.',ch:[
+ {l:'Pay it off monthly',ok:{t:'You set up automatic payments and never thought about it again.',fx:{cash:-1}}},
+ {l:'Pay it all off from savings',ok:{t:'Your account hit bottom, but you feel much lighter.',fx:{cash:-12,hp:2}}},
+ {l:'Apply to defer the principal and save up first',ok:{t:'Your income qualifies, and the government covers the interest during the deferral.',fx:{cash:3}}}
+]},
+{id:'e_scooter',n:'Your scooter is gone',w:10,once:1,when:s=>s.age<=31,t:'You come downstairs in the morning and your scooter is gone. You remember you only bought the compulsory insurance.',ch:[
+ {l:'Report it and wait for the police to find it',c:{k:'net',b:35,s:.5},ok:{t:'A week later the police found it by the riverbank, missing only a mirror.',fx:{cash:-1}},ng:{t:'A month passed and it was never found, so you had to buy a new one.',fx:{cash:-6,hp:-1}}},
+ {l:'Buy a new one, and add theft cover this time',ok:{t:'The new scooter rides well, and the premium isn’t high.',fx:{cash:-7,pro:1}}},
+ {l:'Switch to the MRT and buses',ok:{t:'Your commute got longer, but you started reading on the way.',fx:{pro:1,hp:-1}}}
+]},
+{id:'e_friendins',n:'A friend’s policy pitch',w:10,once:1,when:s=>s.age<=31,t:'A college friend has just started selling insurance. Over dinner, he recommends an investment-linked policy: “Protection and investment, all in one.”',ch:[
+ {l:'Ask him to walk you through the terms and charges',c:{k:'pro',b:45,s:.8},ok:{t:'You worked out your coverage gaps together, and in the end you bought a cheap term life policy and accident cover.',fx:{pro:2,net:1,cash:-1}},ng:{t:'He felt you were testing him, and dinner got awkward.',fx:{net:-2}}},
+ {l:'Sign right away, for friendship’s sake',ok:{t:'He was touched. A year later you realized most of the early premiums went to charges.',fx:{net:2,cash:-6}}},
+ {l:'Decline, saying you have group insurance at work',ok:{t:'He didn’t bring it up again, but you talk less now.',fx:{net:-1}}}
+]},
+{id:'e_parents',n:'What your parents hope for',w:10,once:1,when:s=>s.age>=24&&s.age<=29,t:'Home for Lunar New Year, your parents bring it up again: “The civil service is more stable. Why not come back and take the civil service exam?”',ch:[
+ {l:'Explain your job and your plans properly',c:{k:'fam',b:50,s:.8},ok:{t:'After listening, your dad says: “I didn’t know this job was so specialized.”',fx:{fam:4}},ng:{t:'It ended in an argument, and New Year’s Eve dinner was very quiet.',fx:{fam:-3}}},
+ {l:'Agree to their face and keep doing your own thing',ok:{t:'Your parents ask again every New Year.',fx:{fam:-1}}},
+ {l:'Actually sign up for the civil service exam',ok:{t:'You worked by day and studied by night. You didn’t pass, but you know insurance law inside out now.',fx:{pro:3,hp:-3,fam:2}}}
+]},
+{id:'e_flu',n:'A week of flu',w:10,once:1,when:s=>s.age<=30,t:'You’ve caught the flu, with a fever of 39°C. Four cases on your desk are waiting for reports.',ch:[
+ {l:'Take sick leave and rest properly',ok:{t:'When you came back a week later, colleagues had already taken two of the cases.',fx:{hp:4,rep:-1,net:1}}},
+ {l:'Mask up and push through',c:{k:'hp',b:55,s:.8},ok:{t:'Every report went in on time, and you made it through.',fx:{rep:2,hp:-4}},ng:{t:'You nearly fainted on site and ended up in hospital for two days.',fx:{hp:-6,rep:-1,cash:-1}}},
+ {l:'Write reports from home',ok:{t:'Coughing as you typed, you finished two of them.',fx:{hp:-1,pro:1}}}
+]},
+
+{id:'e_whv',n:'Working holiday',w:9,once:1,when:s=>s.age<=29&&!s.f.married,t:'A college friend asks you to go on a year-long working holiday in Australia together: “If we don’t go now, we’ll be too old.”',ch:[
+ {l:'Quit and go',ok:{t:'You spent six months picking blueberries on a farm, and your English and your nerve both grew. When you came back, you found a new adjusting job.',fx:{hp:6,net:3,pro:-3,rep:-2,cash:-5}}},
+ {l:'Save up your annual leave for two weeks in Australia',ok:{t:'You watched the New Year fireworks in Sydney, and came back realizing you still love this job.',fx:{hp:3,cash:-5}}},
+ {l:'Stay and focus on work',ok:{t:'Your friend sent a photo from the farm, and you looked at it for a long time.',fx:{pro:1,hp:-1}}}
+]}
+);
+['e_salary','e_rent','e_loan','e_scooter','e_friendins','e_parents','e_flu','e_whv'].forEach(id=>LIFE.add(id));
+Object.assign(KNOW,{
+ e_redpen:['How an adjuster’s report is built','An adjuster’s report usually covers: how the loss happened, inspection findings, the cause, an opinion on policy liability, the loss calculation, and conclusions and recommendations. Every judgment needs support, such as photos, invoices, test reports or policy wording.'],
+ e_court:['The witness oath','Before testifying, a witness is generally required to swear to tell the truth. Under Article 168 of Taiwan’s Criminal Code, a witness who, after taking the oath, knowingly gives false testimony on a matter material to the case commits perjury, punishable by up to seven years in prison.'],
+ e_ot:['Calculating overtime pay','Under Article 24 of Taiwan’s Labor Standards Act, for the first two hours of overtime on a regular workday the hourly wage must be raised by at least one third, and for the next two hours by at least two thirds. Employers must also record attendance daily, down to the minute.'],
+ e_photo:['Keeping site photos','Site photos are among the most important evidence in a claim. Back them up to two places as soon as possible and keep the original files with their timestamps. Photos in a report must not be altered; note where and in which direction they were taken when needed.'],
+ e_young:['Preparing for an inspection','Before you go, read the policy, check the insured property, address and sum insured, and list what you need to confirm and which documents to collect. Working through the list on site shows professionalism and keeps you from missing questions.'],
+ e_quit:['Keeping new hires','The first few years in claims and adjusting are the hardest, and new-hire turnover is highest then. A planned mentoring system, a clear promotion path and a fair case load are key to keeping people.'],
+ e_prelim:['Preliminary report','After a major loss, the adjuster usually issues a preliminary report soon after inspecting, covering how the loss happened, the likely cause, an opinion on policy liability and a loss estimate, so that insurers and reinsurers can set claim reserves.'],
+ e_eng:['An adjuster’s technical background','Property and engineering losses often involve electrical, mechanical, chemical and construction expertise. Besides insurance knowledge, an adjuster needs to read drawings, equipment specifications and maintenance records, and bring in engineers or the manufacturer for analysis when needed.'],
+ e_abroad:['Global insurance programs','Overseas factories of Taiwanese companies are often insured under a global program: a local insurer issues a local policy under local law, then reinsurance passes the risk to insurers in Taiwan or abroad. A claim has to satisfy both the local policy and the master policy.'],
+ e_poach:['Post-employment non-compete clauses','Under Article 9-1 of Taiwan’s Labor Standards Act, a post-employment non-compete is valid only if the employer has a legitimate business interest to protect, the employee’s position gave access to trade secrets, the period is no longer than two years, and the employer pays reasonable compensation.'],
+ e_switch:['InsurTech','Image recognition, automated loss estimation and data analysis are changing how claims are handled. People who understand both insurance practice and data are what insurers and InsurTech companies need most.'],
+ e_guild:['Learning from peers','Claims and adjusting judgment depends heavily on case experience. Study groups, association workshops and conferences expose you to case types your own company hasn’t seen. When sharing cases, remember to remove anything that identifies the client.'],
+ e_salary:['Voluntary pension contributions','Under Taiwan’s Labor Pension Act, employees can voluntarily contribute up to 6% of their monthly wage to their pension account. The amount contributed is fully deductible from that year’s consolidated income.'],
+ e_rent:['The cap on rental deposits','Under Article 99 of the Land Act and Article 7 of the Rental Housing Market Development and Regulation Act, a residential rental deposit may not exceed two months’ rent. Tenants can also consider tenant liability insurance, which covers what they owe the landlord or neighbors if their own negligence causes a fire or water leak.'],
+ e_loan:['Repaying a student loan','Under Ministry of Education rules, a student loan is repaid in equal monthly installments starting the day after the first anniversary of graduation. Borrowers whose income is below a set level (currently an average of NT$50,000 a month) can apply to defer the principal, one year at a time and up to 12 times, with the government covering the interest during deferral.'],
+ e_scooter:['Scooter theft insurance','Compulsory automobile liability insurance only pays for injury and death caused by accidents; it doesn’t pay when a vehicle is stolen. Theft needs separate theft loss cover, which usually requires a police report and pays only if the vehicle isn’t recovered within a set period (often 30 days).'],
+ e_friendins:['The charges on investment-linked policies','Premiums on an investment-linked policy first have premium charges, cost of insurance and management fees deducted; only the rest goes into the investment account, and the policyholder bears the investment gains and losses. Before buying, check the charge structure and make sure basic life, medical and accident cover is enough first.'],
+ e_parents:['An adjuster’s career path','Taiwan’s insurance adjusters (surveyors) are licensed as either general insurance or marine insurance adjusters. With experience, common moves include claims at an insurer, insurance broking, reinsurance and risk consulting, and some start their own firms.'],
+ e_flu:['Ordinary sick leave','Under Article 4 of Taiwan’s Regulations of Leave-Taking of Workers, ordinary sick leave without hospitalization may not exceed 30 days in total in a year, and pay for those days (up to 30) is half wages.'],
+ e_whv:['Working holiday','Taiwan has working holiday agreements with Australia, New Zealand, Japan and other countries. For Australia, applicants must be 18 to 30. Before leaving, buy insurance that includes overseas medical cover, because medical costs abroad can be very high.']
+});
+
+function spreadQ(list){const used=[];list.forEach(([id,a,b])=>{let y=a+rint(b-a+1);for(let t=0;t<30&&used.some(u=>Math.abs(u-y)<2);t++)y=a+rint(b-a+1);used.push(y);S.q.push({id,at:y})})}
 
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -4003,7 +4138,7 @@ function newGame(seed){
   if(fbg==='loan'){S.cash=-80;S.hp=clamp(S.hp-3,0,100)}
   if(fbg==='pillar')S.fam=clamp(S.fam+8,0,100);
   if(S.traits.includes('sweet'))S.npc.wang=10;
-  S.q.push({id:'love',at:26+rint(6)},{id:'n_lin1',at:24+rint(3)},{id:'ex_adjl',at:24+rint(3)});
+  spreadQ([['n_lin1',24,27],['ex_adjl',24,28],['love',26,31]]);
   if(R()<.45)S.q.push({id:'ex_msc',at:29+rint(10)});
   {const gp=GOALS.map(x=>x.id);for(let i=0;i<3;i++)S.goals.push(gp.splice(rint(gp.length),1)[0])}
   focus='bal';snap();
@@ -4209,7 +4344,7 @@ function tick(){
   let ev=null;
   const di=S.q.findIndex(q=>q.at<=S.age);
   if(di>=0){ev=E.find(e=>e.id===S.q[di].id);S.q.splice(di,1);if(ev.id==='c_crunch'&&(!S.co||S.co.res>=0))ev=null;if(ev&&ROUTE_OK[ev.id]&&!ROUTE_OK[ev.id].includes(S.track)){if(/^b(ig|g_)/.test(ev.id))S.big=0;ev=null}if(ev&&/^brp_/.test(ev.id)&&S.br[S.track])ev=null;if(ev&&(ev.id==='love'||ev.id==='baby')&&!ev.when(S))ev=null;if(ev&&ev.once&&S.seen[ev.id])ev=null;if(ev&&ev.exam&&!ev.when(S))ev=null}
-  else if(R()<0.6){ev=histPick();if(!ev)ev=pickEvent()}
+  else if(R()<(S.age<=30?0.75:0.6)){ev=histPick();if(!ev)ev=pickEvent()}
   let line=null,lfx=null;
   if(!ev&&R()<0.6){const m=pickMinor();if(m){const mf=growFx(m.fx);apply(mf);line=m.t;lfx=mf}}
   if(!line)line=focusLine(f);
@@ -4217,7 +4352,6 @@ function tick(){
   snap();fresh=S.log.length;
   const end=checkEnd()||(mortal()?'sick':null);
   if(end)return finish(end);
-  if(rvDue()){if(ev)S.pend=ev;ev=E.find(e=>e.id==='rv_'+rvGrade())}
   if(ev){EV=ev;S.vr=(!ev.br&&!ev.rv&&R()<0.6)?(LIFE.has(ev.id)?VARS.l:VARS.w)[rint(LIFE.has(ev.id)?VARS.l.length:VARS.w.length)]:null;P='event'}else newYear();
   render();
 }
@@ -4271,7 +4405,7 @@ function choose(i){
   if(ev.id==='big3'||/^bg_\w+3$/.test(ev.id))S.ms.push({k:'big',a:S.age,g:o.g,x:ev.id==='big3'?BIG[S.sp.id].n:BIGR[ev.route[0]].n});
   if(JUST.has(ev.id+':'+i))S.honest++;
   if(ev.cl&&ch.ans){if(ev.ca)S.car++;else S.clr++}
-  if(/^rv_/.test(ev.id))S.pf={g:0,b:0};else if(!LIFE.has(ev.id)&&!/^(fb_|s_|brp_|ex_)/.test(ev.id)){S.pf=S.pf||{g:0,b:0};if(o.g==='g')S.pf.g++;else if(o.g==='b')S.pf.b++}
+  if(!LIFE.has(ev.id)&&!/^(fb_|s_|brp_|ex_|rv_)/.test(ev.id)&&(o.g==='g'||o.g==='b')){if(!Array.isArray(S.pf))S.pf=[];S.pf.push([S.age,o.g==='g'?1:0])}
   if(o.g==='g'&&!LIFE.has(ev.id)&&!ev.br&&!ev.job&&!/^(brp_|fb_|s_|n_|ap_|hosp|c_|rv_|ex_)/.test(ev.id)){const w=((ev.id==='big3'||/^bg_\w+3$/.test(ev.id))?10:ev.big?6:ev.hy?5:/^fs_/.test(ev.id)?4:0)+(o.n==='Great success'?4:o.n==='Success'?2:1)+(ev.cl&&ch.ans?2:0)+((ev.brn||ev.spec)?1:0);S.cases.push({a:S.age,n:nm(ev),o:o.n,w})}
   if(ev.job)S.lj=S.age;
   S.seen[ev.id]=1;S.evc++;
@@ -4283,7 +4417,6 @@ function choose(i){
 }
 function cont(){
   if(RES&&RES.end)return finish(RES.end,RES.r.fx.end);
-  if(S.pend){const e=S.pend;S.pend=null;if((!e.route||e.route.includes(S.track))&&(!ROUTE_OK[e.id]||ROUTE_OK[e.id].includes(S.track))&&(!e.brn||e.brn.includes(S.br[S.track]))){RES=null;EV=e;S.vr=(!e.br&&R()<0.6)?(LIFE.has(e.id)?VARS.l:VARS.w)[rint(LIFE.has(e.id)?VARS.l.length:VARS.w.length)]:null;P='event';render();return}}
   RES=null;EV=null;S.vr=null;P='run';newYear();render();
 }
 function score(kind){
@@ -4712,7 +4845,8 @@ function probHTML(){
    +'<tr><td>Credentials</td><td>Adjuster and broker licenses, ACII, CPCU, a master’s and a doctorate. Credentials that fit your current route (up to 2 count) each lower promotion thresholds by 2, add 3% to promotion chances and 3% to pay, and unlock special events. You can still be promoted without them. The more years your life focus has been on “Keep learning,” the easier the exams.</td></tr>'
    +'<tr><td>Achievements</td><td>The “Achievements” tab in the collection tracks the endings you’ve seen, life goals you’ve met and your best score across lives, saved in this device’s browser.</td></tr>'
    +'<tr><td>Big cases for every career</td><td>Insurers, broking, reinsurance, academia, consulting, broker firms and startups each have their own three-stage big case.</td></tr>'
-   +'<tr><td>Performance review</td><td>Every three years while employed (ages 26 to 62). Graded A/B/C on how the work events of those three years went, plus your Expertise and Reputation; the higher the grade, the easier a raise or promotion is to win. You can also apply to switch to the technical or management track, choose a new specialty, or keep things as they are. A review never takes the place of that year’s regular event.</td></tr>'
+   +'<tr><td>Performance review</td><td>Appears at random while you’re employed (ages 28 to 60), at most once in a life. Graded A/B/C on how the work events of the last five years went, plus your Expertise and Reputation; the higher the grade, the easier a raise or promotion is to win. You can also apply to switch to the technical or management track, choose a new specialty, or keep things as they are.</td></tr>'
+   +'<tr><td>Early years</td><td>Events come up more often from 23 to 30, and there are events just for newcomers, such as your first paycheck, renting, student loans, testifying for the first time, and being headhunted. The opening exam, Mr. Lin and romance events are spread out.</td></tr>'
    +'<tr><td>Late career</td><td>After 45, events of their own appear: an independent director seat, arbitration, early retirement, children studying abroad and settling down, and how to take your pension.</td></tr>'
    +'<tr><td>Specialization</td><td>The year after joining an insurer, a broker, a reinsurer, academia, a consultancy, an adjusting firm, a brokerage or a startup, you choose a specialty (3 options each). Your specialty changes your title, pay or health cost, and unlocks its own events (weight ×2, checks +5%).</td></tr>'
    +'<tr><td>Clause readings</td><td>Judged on Expertise: the right reading +25%, a wrong one −15%. The result card always shows the correct answer and why. The Policy & Law skill applies.</td></tr>'
