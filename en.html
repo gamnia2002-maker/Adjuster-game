@@ -123,7 +123,7 @@ canvas.scene{display:block;width:100%;height:auto;aspect-ratio:120/56;image-rend
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .seg.s3{grid-template-columns:repeat(3,1fr)}
 .seg.s4{grid-template-columns:repeat(4,1fr)}
-@media (max-width:460px){.seg.s4{grid-template-columns:1fr 1fr}.facts{grid-template-columns:1fr 1fr}}
+@media (max-width:460px){.seg.s4 button{font-size:13px;padding:8px 2px}.facts{grid-template-columns:1fr 1fr}}
 .seg button{all:unset;box-sizing:border-box;text-align:center;padding:9px 6px;border:1px solid var(--line);border-radius:6px;cursor:pointer;font-size:14px;line-height:1.35;background:var(--bg)}
 .seg button.on{border-color:var(--ink);background:var(--ink);color:var(--bg);font-weight:700}
 .pbtn{all:unset;box-sizing:border-box;padding:8px 14px;border-radius:6px;border:1px solid var(--ink);font:700 14px var(--f-body);cursor:pointer;min-width:6em;text-align:center}
@@ -253,6 +253,41 @@ td.r,th.r{text-align:right;font-family:var(--f-mono);white-space:nowrap}
 .dexc li.achok{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .dexc li.achok em{font-style:normal;font-size:12px;color:var(--good);white-space:nowrap}
 .dexc li.achok span{line-height:1.6}
+.gcard{gap:12px;padding:12px}
+.kvs.k3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.kv em{display:block;font-style:normal;font-size:12px;line-height:1.4;color:var(--mute);margin-top:2px}
+.pbk{display:flex;flex-direction:column;gap:6px}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pst{font-size:12px;color:var(--mute)}
+.spd{display:flex;gap:4px;flex:none}
+.spd button{all:unset;box-sizing:border-box;min-width:36px;height:30px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:6px;font:600 13px var(--f-body);cursor:pointer;background:var(--bg);color:var(--ink)}
+.spd button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.spd button:focus-visible,.gear:focus-visible{outline:3px solid var(--steel);outline-offset:2px}
+.spd svg{width:10px;height:10px;fill:currentColor}
+.ltrack .yr{position:absolute;top:0;bottom:0;width:calc(100% / 42);min-width:6px;background:var(--accent);transform-origin:left center;transform:scaleX(0)}
+.ltrack .yr.run{animation-name:yfill;animation-timing-function:linear;animation-fill-mode:forwards}
+.ltrack .yr.pz{animation-play-state:paused}
+.ltrack .yr.hold{transform:scaleX(1);background:var(--steel)}
+details.more{border:none;border-top:1px dashed var(--line);border-radius:0;background:none;padding:8px 0 0}
+.more>summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--steel);list-style:none;padding:0}
+.more>summary::-webkit-details-marker{display:none}
+.more>summary::before{content:'+ ';font-family:var(--f-mono)}
+.more[open]>summary::before{content:'− '}
+.more[open]>summary{margin-bottom:6px}
+.more .prof{margin-top:4px}
+.mast .code{margin-left:auto}
+@media (max-width:460px){.mast .code{font-size:11px}}
+.gear{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--mute);padding:4px 8px;border-radius:6px;align-self:center}
+.gear svg{width:16px;height:16px}
+.gear.on{color:var(--ink);background:var(--card)}
+.setp{display:flex;flex-direction:column;align-items:flex-start;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:10px 14px;margin-top:-6px}
+.mini{display:none}
+.mini .mi{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.mini .mi>b{font:700 14px var(--f-mono);white-space:nowrap}
+.mini .ltrack{flex:1;height:8px;min-width:60px}
+.mini .spd button{height:28px;min-width:32px;padding:0 6px;font-size:12px}
+@media (max-width:760px){.mini.show{display:block;position:fixed;top:0;left:0;right:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 4px 12px rgba(0,0,0,.12);padding:6px max(16px,env(safe-area-inset-right,0px)) 6px max(16px,env(safe-area-inset-left,0px))}}
+#evbox{scroll-margin-top:64px}
 </style>
 </head>
 <body>
@@ -968,7 +1003,7 @@ E.forEach(e=>e.ch.forEach(c=>{if(c.hid){const {k,v}=c.hid;c.show=s=>s[k]>=v}}));
 
 
 const TR={
- careful:{n:'Meticulous',d:'Expertise checks +5%'},
+ careful:{n:'Meticulous',d:'Expertise checks +5%; invests conservatively'},
  smooth:{n:'Diplomatic',d:'Network checks +5%; conflict events +5%'},
  stub:{n:'Stubborn',d:'Reputation checks +5%, Network checks −5%'},
  work:{n:'Workaholic',d:'Work hard gains ×1.3; Family −1 more each year'},
@@ -977,7 +1012,7 @@ const TR={
  amb:{n:'Ambitious',d:'Promotion chance +10%, more job offers; Family −0.5 extra per year'},
  sweet:{n:'Charmer',d:'Network +1 per year; Manager Wang starts at +10'},
  just:{n:'Principled',d:'Reputation gains ×1.5 when refusing improper benefits'},
- risk:{n:'Risk-taker',d:'Great success and disaster chances ×1.5'}
+ risk:{n:'Risk-taker',d:'Great success and disaster chances ×1.5; invests aggressively'}
 };
 const TR_X=[['smooth','stub'],['work','home']];
 const CONFLICT=new Set(['angry','credit','scapegoat','newcontact','n_chen1','n_chen_poach','o3','c_key']);
@@ -3738,7 +3773,7 @@ function newGame(seed){
   const tp=Object.keys(TR);let t1=tp[rint(tp.length)];
   const t2c=tp.filter(x=>x!==t1&&!TR_X.some(p=>p.includes(t1)&&p.includes(x)));const t2=t2c[rint(t2c.length)];
   const tal=KEYS[rint(5)];const wk=KEYS.filter(x=>x!==tal);const weak=wk[rint(4)];
-  S=Object.assign({seed,age:23,rank:0,cash:0,inv:0,home:0,mort:0,strat:'safe',stk:'flat',lr:0,co:null,coFail:-99,prevTrack:null,raise:0,track:'adj',mkt:'normal',vr:null,kids:0,kb:[],f:{},q:[],lj:-99,big:0,bg,sp,fm,fbg,traits:[t1,t2],tal,weak,skills:{},npc:{lin:0,chen:0,wang:0,apr:0},st:[],log:[],seen:{},hist:[],evc:0,br:{},hy:0,nc:0,ms:[],honest:0,clr:0,cases:[],goals:[],cert:{},cx:{},car:0},st);
+  S=Object.assign({seed,age:23,rank:0,cash:0,inv:0,home:0,mort:0,strat:[t1,t2].includes('risk')?'agg':[t1,t2].includes('careful')?'safe':'mid',stk:'flat',lr:0,co:null,coFail:-99,prevTrack:null,raise:0,track:'adj',mkt:'normal',vr:null,kids:0,kb:[],f:{},q:[],lj:-99,big:0,bg,sp,fm,fbg,traits:[t1,t2],tal,weak,skills:{},npc:{lin:0,chen:0,wang:0,apr:0},st:[],log:[],seen:{},hist:[],evc:0,br:{},hy:0,nc:0,ms:[],honest:0,clr:0,cases:[],goals:[],cert:{},cx:{},car:0},st);
   if(fbg==='rich'){S.cash=300;S.fam=clamp(S.fam+5,0,100)}
   if(fbg==='loan'){S.cash=-80;S.hp=clamp(S.hp-3,0,100)}
   if(fbg==='pillar')S.fam=clamp(S.fam+8,0,100);
@@ -4312,7 +4347,7 @@ function stage(){
     +'<p class="cap">'+sceneCaption()+'</p>'+(!END&&S.hp<25?'<p class="var warn">Your body is sending warning signs. '+(S.f.hosp?'You have already collapsed once. Next time you may not wake up. ':'')+'Consider switching your focus to “Family & rest”.</p>':'')+bar+life+'</section>';
 }
 function finLine(){
-  if(!detail){let h='<p class="cap">Money: '+STRAT[S.strat].n+(S.home>0?' · Owns property':'')+(S.mort>0?' · Paying mortgage':'')+'</p>';if(S.co){const c=S.co,st=c.res<CO[c.t].cap*.1||c.lp<0?'Tight':c.lp>CO[c.t].P*.15?'Growing':'Stable';h+='<div class="var">'+CO[c.t].n+' · Operations'+st+' · Company discipline'+(c.gov>=70?'Good':c.gov>=45?'Average':'Loose')+' · Strategy: '+POL[c.pol].n+'</div>'}return h}
+  if(!detail)return '<p class="cap">Money: '+STRAT[S.strat].n+(S.home>0?' · Owns property':'')+(S.mort>0?' · Paying mortgage':'')+'</p>';
   const p=['Cash '+cur(S.cash)+'','Investments '+cur(S.inv)+'('+STRAT[S.strat].n+(S.inv>0?', this year '+(S.lr>=0?'+':'')+Math.round(S.lr)+'%':'')+')'];
   if(S.home>0)p.push('Property '+cur(S.home)+''+(S.mort>0?' (mortgage '+cur(S.mort)+')':''));
   let h='<p class="cap mono">'+p.join(' · ')+'</p>';
@@ -4328,37 +4363,78 @@ function profLine(){
   if(S.st.length)rows.push('<b>Status</b> '+S.st.map(z=>STA[z.id].n+(detail?' ('+z.y+' yr)':'')).join(', '));
   return '<div class="cap prof">'+rows.map(r=>'<span>'+r+'</span>').join('')+'</div>';
 }
+const SVG_PAUSE='<svg viewBox="0 0 10 10" aria-hidden="true"><rect x="1.5" y="1" width="2.6" height="8"/><rect x="5.9" y="1" width="2.6" height="8"/></svg>';
+const SVG_PLAY='<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1L9 5L2 9Z"/></svg>';
+const SVG_SET='<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/><circle cx="7" cy="5" r="2.2" fill="var(--bg)"/><circle cx="13" cy="10" r="2.2" fill="var(--bg)"/><circle cx="8" cy="15" r="2.2" fill="var(--bg)"/></svg>';
+let moreOpen=false,gearOpen=false;
+function lifeCap(){
+  const h={room:'Rented room',apt:'Apartment',villa:'House'}[homeKind()];
+  const c=['No car','Small car','Sedan'][carKind()];
+  const fam=[];
+  if(S.f.married)fam.push('Spouse');if(S.kids)fam.push(S.kids+' kid(s)');if(S.fam>=75)fam.push('A dog');
+  return h+' · '+c+(fam.length?' · '+fam.join(', '):'')+(S.f.abroad?' · Overseas posting':'');
+}
+function spdBtns(){
+  const run=P==='run';
+  return '<div class="spd">'+(run?'<button class="'+(paused?'on':'')+'" data-a="pause" aria-label="'+(paused?'Resume':'Pause')+'">'+(paused?SVG_PLAY:SVG_PAUSE)+'</button>':'')
+   +Object.keys(SPD).map(k=>'<button class="'+(speed===k&&!(run&&paused)?'on':'')+'" data-a="speed" data-v="'+k+'">'+SPD[k][1]+'</button>').join('')+'</div>';
+}
+function lifeTrack(){
+  const L=a=>((a-23)/42*100).toFixed(2)+'%',a=Math.min(S.age,65);
+  const marks=S.log.filter(e=>e.m&&e.age>23).map(e=>'<'+(e.m===2?'i class="done"':'em')+' style="left:'+L(e.age)+'"></'+(e.m===2?'i':'em')+'>').join('');
+  let yr='';
+  if(P==='run'&&a<65)yr='<b class="yr run'+(paused?' pz':'')+'" style="left:'+L(a)+';animation-duration:'+dur()+'ms;animation-delay:-'+Math.round(prog())+'ms"></b>';
+  else if(P==='event'||P==='result')yr='<b class="yr hold" style="left:'+L(a)+'"></b>';
+  return '<div class="ltrack"><u style="width:'+L(a)+'"></u>'+yr+marks+'</div>';
+}
+const pState=()=>P==='run'?(paused?'Paused':'Time running'):'Crossroads, time paused';
+function coLine(){
+  if(!S.co||detail)return '';
+  const c=S.co,st=c.res<CO[c.t].cap*.1||c.lp<0?'Tight':c.lp>CO[c.t].P*.15?'Growing':'Stable';
+  return '<div class="var">'+CO[c.t].n+' · Operations'+st+' · Company discipline'+(c.gov>=70?'Good':c.gov>=45?'Average':'Loose')+' · Strategy: '+POL[c.pol].n+'</div>';
+}
 function head(){
   const bars=KEYS.map(k=>'<div class="st"><span>'+KN[k]+'</span><i><u style="width:'+S[k]+'%;background:var(--s-'+k+')"></u></i><b class="'+(S[k]<25?'low':'')+'">'+(detail?Math.round(S[k]):(S[k]<25?'Danger':''))+'</b></div>').join('');
   const tg=[MKT[S.mkt].n,STK[S.stk].n];
-  if(S.f.married)tg.push('Married');if(S.f.divorced)tg.push('Divorced');
-  if(S.kids)tg.push('Kids '+S.kids);if(S.mort>0)tg.push('Mortgage');if(S.f.rent)tg.push('Renting out');
-  if(S.f.abroad)tg.push('Overseas posting');if(S.f.eng)tg.push('English ability');
+  if(S.mort>0)tg.push('Mortgage');if(S.f.rent)tg.push('Renting out');
   if(S.f.sprint)tg.push('Sprint mode');if(S.f.semi)tg.push('Steps back');
   const pend=S.q.filter(q=>!/^b(ig|g_)/.test(q.id)).length;if(S.q.some(q=>/^b(ig|g_)/.test(q.id)))tg.push('Big case ongoing');if(pend)tg.push('Follow-ups '+pend+' pending');
-  return '<section class="hdr"><div class="kvs">'
+  const L=a=>((a-23)/42*100).toFixed(2)+'%';
+  return '<section class="stage gcard"><canvas class="scene" id="scene" width="120" height="56" role="img" aria-label="Your character and life scene"></canvas>'
+   +'<p class="cap">'+lifeCap()+'</p>'
+   +(S.hp<25?'<p class="var warn">Your body is sending warning signs. '+(S.f.hosp?'You have already collapsed once. Next time you may not wake up. ':'')+'Consider switching your focus to “Family & rest”.</p>':'')
+   +'<div class="kvs k3">'
    +'<div class="kv"><span>Age</span><b>'+S.age+'</b></div>'
-   +'<div class="kv"><span>Path</span><b class="zh">'+RT().n+(BR()?' · '+BR().n:'')+'</b></div>'
-   +'<div class="kv"><span>Title</span><b class="zh">'+rankName()+'</b></div>'
+   +'<div class="kv"><span>Title</span><b class="zh">'+rankName()+'</b><em>'+RT().n+(BR()?' · '+BR().n:'')+'</em></div>'
    +(detail?'<div class="kv"><span>Monthly pay (est.)</span><b>'+cur(monthly())+'</b></div>':'')
    +'<div class="kv"><span>Net worth</span><b>'+cur(NW())+'</b></div>'
-   +'</div>'+finLine()+'<div class="sts">'+bars+'</div>'+profLine()
+   +'</div>'+coLine()
+   +'<div class="pbk" id="pbk"><div class="prow"><span class="pst">'+pState()+'</span>'+spdBtns()+'</div>'+lifeTrack()
+   +'<div class="lscale">'+[23,35,45,55,65].map(a=>'<span style="left:'+L(a)+'">'+a+'</span>').join('')+'</div></div>'
+   +'<div class="sts">'+bars+'</div>'
    +(tg.length?'<div class="tags">'+tg.map(x=>chip(x,'pr')).join('')+'</div>':'')
+   +'<details class="more"'+(moreOpen?' open':'')+'><summary>More: traits, skills, credentials and people</summary>'+finLine()+profLine()+'</details>'
    +'</section>';
 }
+function miniBar(){
+  return '<div class="mini" id="mini"><div class="mi"><b>'+fill('Age {a}',{a:S.age})+'</b>'+lifeTrack()+spdBtns()+'</div></div>';
+}
+function miniUpd(){
+  if(typeof document==='undefined')return;
+  const m=document.getElementById('mini'),k=document.getElementById('pbk');
+  if(!m||!m.classList)return;
+  m.classList.toggle('show',!!(k&&k.getBoundingClientRect&&k.getBoundingClientRect().bottom<0));
+}
+if(typeof window!=='undefined'&&window.addEventListener)window.addEventListener('scroll',miniUpd,{passive:true});
+function playMast(){
+  return '<div class="mast"><b>The Loss Adjuster</b><span class="code">Life code '+S.seed+'</span><button class="gear'+(gearOpen?' on':'')+'" data-a="gear" aria-expanded="'+gearOpen+'">'+SVG_SET+'<span>Settings</span></button></div>'
+   +(gearOpen?'<div class="setp"><label class="auto"><input type="checkbox" id="autoBox"'+(auto?' checked':'')+'> Auto-play (the system picks focus and choices)</label><button class="linkbtn" data-a="detail">'+(detail?'Hide detailed stats':'Show detailed stats')+'</button></div>':'');
+}
 function controls(){
-  const run=P==='run';
   const fb=FOCUS.map(f=>'<button data-a="focus" data-v="'+f.id+'" class="'+(focus===f.id?'on':'')+'">'+fName(f)+'</button>').join('');
-  const sb=Object.keys(SPD).map(k=>'<button data-a="speed" data-v="'+k+'" class="'+(speed===k?'on':'')+'">'+SPD[k][1]+'</button>').join('');
   return '<section class="ctrl">'
    +'<span class="lbl">Life focus (change any time)</span><div class="seg s4">'+fb+'</div>'
-   +'<span class="lbl">Investing strategy</span><div class="seg s3">'+Object.keys(STRAT).map(k=>'<button data-a="strat" data-v="'+k+'" class="'+(S.strat===k?'on':'')+'">'+STRAT[k].n+'</button>').join('')+'</div>'
    +(S.co?'<span class="lbl">Company strategy</span><div class="seg s3">'+Object.keys(POL).map(k=>'<button data-a="pol" data-v="'+k+'" class="'+(S.co.pol===k?'on':'')+'">'+POL[k].n+'</button>').join('')+'</div>':'')
-   +'<span class="lbl">Speed</span><div class="ctrl-row">'
-   +(run?'<button class="pbtn '+(paused?'go':'')+'" data-a="pause">'+(paused?'Resume':'Pause')+'</button>':'')
-   +'<div class="seg s3" style="flex:1;min-width:150px">'+sb+'</div></div>'
-   +'<label class="auto"><input type="checkbox" id="autoBox"'+(auto?' checked':'')+'> Auto-play (the system picks focus and choices)</label>'
-   +'<button class="linkbtn" data-a="detail">'+(detail?'Hide detailed stats':'Show detailed stats')+'</button>'
    +'</section>';
 }
 function feedHTML(limit){
@@ -4414,7 +4490,7 @@ function probHTML(){
    +'<tr><td>People</td><td>Goodwill with Mr. Lin, Chen Zhiming and Manager Wang ranges from −50 to 100. Mr. Lin at ≥ 40 backs you in a crisis, and at ≥ 30 recommends you after he retires; low goodwill with Chen Zhiming means he steals credit and poaches, high goodwill may lead him to propose a partnership; Manager Wang’s goodwill affects case volume (income −5% to +10%) and insurer-related checks.</td></tr>'
    +'<tr><td>Ongoing statuses</td><td>'+Object.values(STA).map(x=>x.n+' '+x.y+' yr').join(', ')+'. Named by the media: Reputation checks −5%; industry award: Network checks +5%; back injury: Health checks −8%, Work hard gains ×0.7; newlywed: Family doesn’t fall; under audit scrutiny: major failure chance doubled; big-case glow: income +10%; burnout: all checks −5%.</td></tr>'
    +'<tr><td>Stat links</td><td>Health < 30: work checks −10%; Family < 30: an extra −2 Health a year; each point of Reputation above 60 adds +0.5% income; every 10 years of seniority adds +3% to Expertise checks; after 50, Health checks −5%.</td></tr>'
-   +'<tr><td>Investing</td><td>Each year’s savings go into cash (1.5% interest), then are allocated by strategy: Conservative keeps all in cash; Balanced invests 50%, averaging 5% with ±10% swings; Aggressive invests 80%, averaging 7% with ±25% swings, and market effects ×1.4. Market states: bull +8%, bear −10%, crash −28% (6% chance a year, followed by a bear year). After buying a home, property gains 2–5% a year and the mortgage falls by about US$9.4K a year.</td></tr>'
+   +'<tr><td>Investing</td><td>Each year’s savings go into cash (1.5% interest), then are allocated by personality (Risk-takers invest aggressively, Meticulous types conservatively, everyone else in a balanced way; some events change this): Conservative keeps all in cash; Balanced invests 50%, averaging 5% with ±10% swings; Aggressive invests 80%, averaging 7% with ±25% swings, and market effects ×1.4. Market states: bull +8%, bear −10%, crash −28% (6% chance a year, followed by a bear year). After buying a home, property gains 2–5% a year and the mortgage falls by about US$9.4K a year.</td></tr>'
    +'<tr><td>Starting a company</td><td>Adjusting firm US$94K, broker US$156K, consultancy US$63K, tech startup US$250K. Yearly P&L = company base × size × (ability factor − 1.02 ± volatility + market + strategy; −0.15 more in the first 2 years); ability factor = (Network 35% + Reputation 35% + Expertise 30%) ÷ 60. Half of profit is paid to you, half stays in the company; losses come out of company reserves, and when reserves run out a “cash crunch” is triggered. Strategy: Expand (fast growth, governance −3 a year, Health −2), Steady (governance −1 a year), Lean (profit +8%, governance holds, size slowly shrinks). On a second cash crunch within 3 years, banks stop lending. With governance < 40, profit −15% and more frequent regulatory inspections. If it fails, your investment is lost, Reputation −15, you return to your previous career and can start again after 4 years.</td></tr>'
    +'<tr><td>Overwork</td><td>The first time Health hits zero, you are taken to hospital (a forced event) and can choose to rest, go back to work or take an easier job; only the second time is death by overwork. Below 40 Health, you recover 1 a year naturally.</td></tr>'
    +'<tr><td>Yearly wear</td><td>Family −1.5; Expertise and Network −0.5 each; Health − (path or company wear); after 40, an extra −0.06 × (age − 40). While stepping back, Health wear ×0.3 and salary ×0.5.</td></tr>'
@@ -4544,8 +4620,8 @@ function eventCard(){
   return '';
 }
 function playView(){
-  return mast()+stage()+eventCard()+head()+controls()
-   +'<div><span class="tab dark">Career log</span><div class="card">'+feedHTML(40)+'</div></div>';
+  return playMast()+head()+eventCard()+controls()
+   +'<div><span class="tab dark">Career log</span><div class="card">'+feedHTML(40)+'</div></div>'+miniBar();
 }
 function chartSVG(){
   const H=S.hist,W=320,Ht=150,l=28,r=8,t=8,b=20;
@@ -4766,9 +4842,10 @@ function render(){
   app.innerHTML=h;
   if(S&&P!=='start'&&P!=='dex'&&P!=='end')drawScene(document.getElementById('scene'));
   if(P==='end')cardRender();
+  miniUpd();
   if(P!==lastP){
     if(P==='start'||P==='birth'||P==='end'||P==='dex')window.scrollTo(0,0);
-    if(P==='event'){const b=document.getElementById('evbox');if(b&&b.getBoundingClientRect().top>window.innerHeight*0.7)b.scrollIntoView({block:'start',behavior:'smooth'})}
+    if(P==='event'){const b=document.getElementById('evbox');if(b){const t=b.getBoundingClientRect().top;if(t>window.innerHeight*0.5||t<0)b.scrollIntoView({block:'start',behavior:'smooth'})}}
   }
   lastP=P;
   loop();
@@ -4786,9 +4863,10 @@ app.addEventListener('click',e=>{
   else if(a==='enter'){P='run';newYear();render()}
   else if(a==='focus'){focus=v;render()}
   else if(a==='strat'){S.strat=v;render()}
+  else if(a==='gear'){gearOpen=!gearOpen;render()}
   else if(a==='detail'){detail=!detail;try{localStorage.setItem('adj-detail',detail?'1':'0')}catch(e){}render()}
   else if(a==='pol'){if(S.co)S.co.pol=v;render()}
-  else if(a==='speed'){const f=prog()/dur();speed=v;yrAcc=f*dur();yrRes=now();render()}
+  else if(a==='speed'){const f=prog()/dur();speed=v;yrAcc=f*dur();yrRes=now();if(paused)paused=false;render()}
   else if(a==='pause'){if(!paused){yrAcc+=now()-yrRes;paused=true}else{paused=false;yrRes=now()}render()}
   else if(a==='opt')choose(+v);
   else if(a==='cont')cont();
@@ -4807,6 +4885,7 @@ app.addEventListener('click',e=>{
   }
 });
 app.addEventListener('change',e=>{if(e.target.id==='autoBox'){auto=e.target.checked;render()}});
+app.addEventListener('toggle',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('more'))moreOpen=t.open},true);
 app.addEventListener('input',e=>{if(e.target.id==='seed')startSeed=e.target.value});
 app.addEventListener('keydown',e=>{const tm=e.target.closest&&e.target.closest('.term');if(tm&&(e.key==='Enter'||e.key===' ')){e.preventDefault();glShow(tm)}else if(e.key==='Escape')glHide()});
 if(document.addEventListener)document.addEventListener('click',e=>{if(e.target.closest&&!e.target.closest('.term')&&!e.target.closest('#gpop'))glHide()});
