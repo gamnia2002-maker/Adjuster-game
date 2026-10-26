@@ -1,4 +1,4 @@
-# 冒險公證人 · The Loss Adjuster
+# 公證人求生指南：今天又出險了 · The Adjuster's Survival Guide: Another Day, Another Claim
 
 保險公證人人生模擬文字遊戲。從 23 歲入行到 65 歲退休,在每個十字路口做出選擇,邊玩邊學保險理賠。
 

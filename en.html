@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="A loss adjuster life-sim: from 23 to retirement at 65, make choices at every crossroads and learn real insurance along the way.">
 <style>html{-webkit-text-size-adjust:100%}body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>The Loss Adjuster</title>
+<title>The Adjuster's Survival Guide: Another Day, Another Claim</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -288,6 +288,9 @@ details.more{border:none;border-top:1px dashed var(--line);border-radius:0;backg
 .mini .spd button{height:28px;min-width:32px;padding:0 6px;font-size:12px}
 @media (max-width:760px){.mini.show{display:block;position:fixed;top:0;left:0;right:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 4px 12px rgba(0,0,0,.12);padding:6px max(16px,env(safe-area-inset-right,0px)) 6px max(16px,env(safe-area-inset-left,0px))}}
 #evbox{scroll-margin-top:64px}
+.hero h1 small{display:block;font-size:.48em;letter-spacing:.08em;color:var(--steel);margin-top:6px}
+.mast .code{white-space:nowrap}
+@media (max-width:460px){.mast{flex-wrap:wrap;row-gap:2px}.mast b{flex:1;min-width:0}.mast .code{order:3;flex-basis:100%;margin-left:0}}
 </style>
 </head>
 <body>
@@ -4329,7 +4332,7 @@ function fxChips(fx){
   if(fx.end)o.push(chip('Life turn','hk'));
   return o.join('');
 }
-function mast(){return '<div class="mast"><b>The Loss Adjuster</b><span class="code">Life code '+S.seed+'</span></div>'}
+function mast(){return '<div class="mast"><b>The Adjuster\'s Survival Guide</b><span class="code">Life code '+S.seed+'</span></div>'}
 function stage(){
   let bar='';
   if(P==='run'){
@@ -4427,7 +4430,7 @@ function miniUpd(){
 }
 if(typeof window!=='undefined'&&window.addEventListener)window.addEventListener('scroll',miniUpd,{passive:true});
 function playMast(){
-  return '<div class="mast"><b>The Loss Adjuster</b><span class="code">Life code '+S.seed+'</span><button class="gear'+(gearOpen?' on':'')+'" data-a="gear" aria-expanded="'+gearOpen+'">'+SVG_SET+'<span>Settings</span></button></div>'
+  return '<div class="mast"><b>The Adjuster\'s Survival Guide</b><span class="code">Life code '+S.seed+'</span><button class="gear'+(gearOpen?' on':'')+'" data-a="gear" aria-expanded="'+gearOpen+'">'+SVG_SET+'<span>Settings</span></button></div>'
    +(gearOpen?'<div class="setp"><label class="auto"><input type="checkbox" id="autoBox"'+(auto?' checked':'')+'> Auto-play (the system picks focus and choices)</label><button class="linkbtn" data-a="detail">'+(detail?'Hide detailed stats':'Show detailed stats')+'</button></div>':'');
 }
 function controls(){
@@ -4550,7 +4553,7 @@ function dexView(){
 function dexBtn(){const L=dexList(),D=dexLoad();return '<button class="btn sec" data-a="dex">Claims 101 collection · '+L.filter(x=>D[x.k]).length+' / '+L.length+'</button>'}
 function startView(){
   return '<section class="hero"><span class="stamp">Case file · Loss adjuster</span>'
-   +'<h1>The Loss Adjuster</h1>'
+   +'<h1>The Adjuster\'s Survival Guide<small>Another Day, Another Claim</small></h1>'
    +'<p class="lede">You are an insurance loss adjuster in Taiwan. From joining at 23 to retiring at 65, time moves forward on its own. You set your life focus and make choices at each crossroads. Career offers appear at random: they may come early, or never at all. Your background, specialty, employer, family and personality are drawn by lot, not chosen. You can invest what you save, and with enough money, start your own company. After a career move you can choose a specialty, and you’ll meet clause-reading questions and cases based on real events.</p>'
    +'<div class="facts"><div><b>'+E.length+'</b><span>interactive events</span></div><div><b>'+MINOR.length+'</b><span>life episodes</span></div><div><b>'+Object.keys(ROUTES).length+'</b><span>career paths</span></div><div><b>'+ENDINGS+'</b><span>endings</span></div></div></section>'
    +'<div><span class="tab">New case</span><div class="card">'

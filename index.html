@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="冒險公證人 The Loss Adjuster:保險公證人人生模擬文字遊戲。選擇中文或英文開始。">
+<meta name="description" content="公證人求生指南：今天又出險了 · The Adjuster's Survival Guide:保險公證人人生模擬文字遊戲。選擇中文或英文開始。">
 <style>html{-webkit-text-size-adjust:100%}body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>冒險公證人 · The Loss Adjuster</title>
+<title>公證人求生指南：今天又出險了 · The Adjuster's Survival Guide</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,8 +33,10 @@ body{background:var(--bg);color:var(--ink);font:400 16px/1.7 var(--f-body);margi
   padding:32px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center}
 .wrap{max-width:560px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:22px}
 .stamp{align-self:flex-start;font:700 12px var(--f-mono);letter-spacing:.14em;background:var(--accent);color:var(--accent-ink);padding:4px 10px;border-radius:3px}
-h1{margin:0;font-family:var(--f-display);font-weight:900;line-height:1.15;letter-spacing:.04em;font-size:clamp(40px,12vw,58px)}
-h1 small{display:block;font-size:.46em;letter-spacing:.02em;color:var(--steel);margin-top:6px}
+h1{margin:0;font-family:var(--f-display);font-weight:900;line-height:1.15;letter-spacing:.04em;font-size:clamp(36px,10.5vw,56px)}
+h1 .sub{display:inline-block;font-size:.5em;letter-spacing:.08em;margin-top:8px;padding:0 .25em;background:linear-gradient(transparent 58%,var(--accent) 58%)}
+h1 small{display:block;font-size:.36em;line-height:1.35;letter-spacing:.02em;color:var(--steel);margin-top:10px}
+h1 small i{font-style:normal;color:var(--mute)}
 .lede{margin:0;border-top:2px solid var(--ink);padding-top:14px;display:grid;gap:10px}
 .lede p{margin:0}
 .lede p.en{color:var(--mute);font-size:15px}
@@ -47,7 +49,7 @@ h1 small{display:block;font-size:.46em;letter-spacing:.02em;color:var(--steel);m
 .lang span{font:500 12px var(--f-mono);color:var(--mute);letter-spacing:.06em}
 .lang.sug{border:2px solid var(--accent)}
 .lang.sug::before{content:attr(data-tip);position:absolute;top:10px;left:14px;font:700 11px var(--f-mono);letter-spacing:.1em;color:var(--accent-ink);background:var(--accent);padding:2px 7px;border-radius:3px}
-.scene{display:block;width:100%;height:auto;image-rendering:pixelated;border-radius:6px;background:#9cc3dc}
+.scene{display:block;width:100%;height:auto;aspect-ratio:16/9;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:6px;background:#3f6b84;box-shadow:0 6px 18px rgba(20,33,44,.18)}
 .foot{margin:0;font-size:12px;color:var(--mute);text-align:center}
 @media (prefers-reduced-motion:reduce){.lang{transition:none}.lang:hover{transform:none}}
 </style>
@@ -55,8 +57,8 @@ h1 small{display:block;font-size:.46em;letter-spacing:.02em;color:var(--steel);m
 <body>
 <div class="wrap">
   <span class="stamp">CASE FILE · 案件卷宗</span>
-  <h1>冒險公證人<small>The Loss Adjuster</small></h1>
-  <canvas class="scene" id="sc" width="120" height="40" role="img" aria-label="Pixel scene of a loss adjuster at a site"></canvas>
+  <h1>公證人求生指南<br><span class="sub">今天又出險了</span><small>The Adjuster's Survival Guide<br><i>Another Day, Another Claim</i></small></h1>
+  <canvas class="scene kv" id="sc" width="160" height="90" role="img" aria-label="像素插畫:暴雨中的公證人站在淹水的倉庫前,手機又響了。Pixel art: an adjuster in the rain outside a flooded warehouse as the phone rings again."></canvas>
   <div class="lede">
     <p>從 23 歲入行到 65 歲退休,在火災、颱風、貨損與大案之間做選擇,邊玩邊學保險理賠。</p>
     <p class="en">From your first site visit at 23 to retirement at 65: fires, typhoons, cargo claims and big cases. A life-sim that teaches real insurance along the way.</p>
@@ -68,6 +70,121 @@ h1 small{display:block;font-size:.46em;letter-spacing:.02em;color:var(--steel);m
   <p class="foot">內容純屬虛構 · Entirely fictional. Probabilities are game design.</p>
 </div>
 <script>
+/* key visual: 160x90 pixel scene, "another day, another claim" */
+function kvInit(c){
+  var x=c.getContext('2d');if(!x)return;
+  var W=160,H=90,t=0;
+  var reduce=false;try{reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+  function r(a,b,w,h,col){x.fillStyle=col;x.fillRect(a,b,w,h)}
+  function spr(rows,pal,ox,oy){for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){var k=rows[j][i];if(k!=='.'&&pal[k]){x.fillStyle=pal[k];x.fillRect(ox+i,oy+j,1,1)}}}
+  var P={Y:'#f2b705',y:'#c99400',S:'#e3b48d',s:'#c4906b',E:'#14212c',H:'#3a2a1e',O:'#f07c1e',o:'#c75f12',W:'#eef3f6',B:'#2f5d7c',b:'#24485f',L:'#2b3440',K:'#1b2229',M:'#14212c',G:'#7fd6ff',C:'#8a5a2b',c:'#f8fafb',l:'#9aa5ae',Z:'#b9c2c9'};
+  var ADJ=[
+".......YYYYYY.......",
+".....YYYYYYYYYY.....",
+"....YYYYWYYYYYYY....",
+"....YYYYYYYYYYYY....",
+"..yyyyyyyyyyyyyyyy..",
+".....HSSSSSSSSH.....",
+".....SSSSSSSSSS.MMM.",
+".....SEESSSSEES.MGM.",
+".....SSSSSSSSSS.MGM.",
+".....SSSSssSSSSSMGM.",
+"......SSSSSSSSSSMMM.",
+".......SSSSSS..BB...",
+"...BBOOOBBBBOOOBB...",
+"..BBOOOOOBBOOOOOB...",
+"..BBOOOOOOOOOOOO....",
+"..BBWWWWWWWWWWWW....",
+"..BBOOOOOOOOOOOO....",
+"..BBOOOOOOOOOOOO....",
+"..SSOOOOOOOOOOOO....",
+"....WWWWWWWWWWWW....",
+"....oooooooooooo....",
+"....LLLLLLLLLLLL....",
+"....LLLLL..LLLLL....",
+"....LLLLL..LLLLL....",
+"....LLLLL..LLLLL....",
+"....LLLLL..LLLLL....",
+"....LLLLL..LLLLL....",
+"....KKKKK..KKKKK....",
+"...KKKKKK..KKKKKK...",
+"...KKKKKK..KKKKKK..."];
+  var CLIP=["..ZZ..","CCCCCC","CccccC","ClllcC","CccccC","ClllcC","CccccC","ClllcC","CCCCCC"];
+  var BUB=[".AAAAAAA.","AAAAKAAAA","AAAAKAAAA","AAAAKAAAA","AAAAAAAAA","AAAAKAAAA",".AAAAAAA.","..AA.....",".A......."];
+  var drops=[];for(var i=0;i<90;i++)drops.push([Math.random()*W,Math.random()*H,0.8+Math.random()*0.6]);
+  var boxes=[[100,0],[112,1.7],[125,3.1],[138,.8]];
+  var flash=0,nextFlash=40+Math.random()*80;
+  function sky(){
+    var cols=['#2c3e4f','#34495a','#3d5466','#476073','#516b7e','#5b7689'];
+    for(var i=0;i<cols.length;i++)r(0,i*9,W,9,cols[i]);
+    r(0,54,W,16,'#647f92');
+    if(flash>0){x.fillStyle='rgba(235,242,255,'+(flash/6*0.45)+')';x.fillRect(0,0,W,64)}
+    // clouds
+    var cl='#243545';
+    r(0,0,W,4,cl);r(6,4,30,3,cl);r(48,4,40,4,cl);r(58,8,22,2,cl);r(104,4,56,3,cl);r(118,7,30,3,cl);r(26,7,14,2,cl);
+    r(70,11,12,1,'#2c3e4f');
+    if(flash>2){var bx=134,by=10;x.fillStyle='#fff6c2';[[0,0],[1,1],[1,2],[0,3],[-1,4],[0,5],[1,6],[2,7],[1,8],[0,9]].forEach(function(p){x.fillRect(bx+p[0],by+p[1],1,2)})}
+  }
+  function city(){
+    var s='#3f5567';
+    [[0,40,10,24],[11,34,8,30],[20,44,12,20],[33,38,7,26],[41,46,10,18],[52,36,9,28],[62,42,8,22],[71,47,14,17],[146,40,14,24]].forEach(function(b){r(b[0],b[1],b[2],b[3],s)});
+    var lit='#e9c56a';[[3,44],[14,38],[15,42],[24,48],[35,42],[44,50],[55,40],[56,46],[65,46],[149,44],[152,50]].forEach(function(p){r(p[0],p[1],1,1,lit)});
+  }
+  function warehouse(){
+    r(84,38,64,33,'#8a95a0');r(84,38,64,1,'#a9b2ba');
+    // roof
+    r(82,34,68,4,'#5f6b76');r(82,33,68,1,'#77838d');
+    // torn section
+    r(128,33,12,6,'#2a333b');r(127,33,1,2,'#77838d');r(140,34,1,2,'#77838d');
+    // flying metal sheet
+    var fy=18+Math.round(Math.sin(t/7)*2);r(141,fy,7,1,'#b9c2c9');r(140,fy+1,7,1,'#8a95a0');
+    // panel lines
+    for(var i=88;i<148;i+=6)r(i,39,1,32,'#7d8893');
+    // roller door
+    r(96,46,22,25,'#3b4650');for(var j=48;j<71;j+=3)r(96,j,22,1,'#2e3841');
+    r(95,45,24,1,'#5f6b76');
+    // windows
+    r(124,44,8,5,'#c9d3da');r(136,44,8,5,'#c9d3da');r(124,46,8,1,'#a9b2ba');r(136,46,8,1,'#a9b2ba');
+    // sign
+    r(100,40,14,4,'#f2b705');r(102,41,10,2,'#14212c');
+    // caution tape across door
+    for(var k=0;k<24;k+=4){r(95+k,56,2,2,'#f2b705');r(97+k,56,2,2,'#14212c')}
+  }
+  function water(){
+    var wl=70;
+    r(0,wl,W,H-wl,'#3f6b84');
+    r(0,wl,W,1,'#8fb8cc');
+    for(var y=wl+3;y<H;y+=4){var off=(Math.floor(t/2)+y*3)%20;for(var xx=-20+off;xx<W;xx+=20)r(xx,y,6,1,'#5d8aa2')}
+    // reflection of warehouse
+    r(84,wl+1,64,3,'#56788c');r(96,wl+1,22,2,'#36505f');
+    // boxes bobbing
+    boxes.forEach(function(b){var by=wl-3+Math.round(Math.sin(t/6+b[1])*1);r(b[0],by,7,5,'#b5834a');r(b[0],by,7,1,'#d9b27a');r(b[0]+3,by,1,5,'#d9b27a');r(b[0],by+4,7,1,'#8c6234')});
+  }
+  function cone(){var a=62,b=63;r(a+2,b,3,1,'#f07c1e');r(a+1,b+1,5,2,'#f07c1e');r(a+1,b+2,5,1,'#eef3f6');r(a,b+3,7,2,'#f07c1e');r(a,b+4,7,1,'#eef3f6');r(a-1,b+5,9,2,'#f07c1e');r(a-2,b+7,11,1,'#c75f12')}
+  function rain(){
+    x.fillStyle='rgba(205,225,240,.55)';
+    drops.forEach(function(d){x.fillRect(Math.round(d[0]),Math.round(d[1]),1,2);if(!reduce){d[1]+=3*d[2];d[0]-=1*d[2];if(d[1]>H){d[1]=-2;d[0]=Math.random()*(W+20)}if(d[0]<-2)d[0]=W+Math.random()*10}});
+    x.fillStyle='rgba(205,225,240,.7)';
+    for(var i=0;i<6;i++){var sx=(i*37+t*5)%W,sy=68+((i*13)%20);x.fillRect(Math.round(sx),sy,1,1);x.fillRect(Math.round(sx)-1,sy+1,3,1)}
+  }
+  function person(){
+    var ox=26,oy=46;
+    spr(ADJ,P,ox,oy);
+    spr(CLIP,{Z:'#b9c2c9',C:'#8a5a2b',c:'#f8fafb',l:'#9aa5ae'},ox-3,oy+13);
+    r(ox+2,oy+17,2,2,'#e3b48d');
+    if(reduce||Math.floor(t/7)%3!==2)spr(BUB,{A:'#f2b705',K:'#14212c'},ox+19,oy-9);
+    r(ox+1,oy+26,20,4,'rgba(63,107,132,.88)');r(ox+1,oy+26,20,1,'rgba(143,184,204,.95)');
+  }
+  function frame(){
+    sky();city();warehouse();water();cone();person();rain();
+    if(flash>0)flash--;
+    if(!reduce){if(--nextFlash<=0){flash=6;nextFlash=60+Math.random()*120}}
+    t++;
+  }
+  frame();
+  if(!reduce){var last=0;(function loop(ts){if(ts-last>80){last=ts;frame()}requestAnimationFrame(loop)})(0)}
+}
+
 (function(){
   var last=null;
   try{last=localStorage.getItem('adj-lang')}catch(e){}
@@ -75,18 +192,7 @@ h1 small{display:block;font-size:.46em;letter-spacing:.02em;color:var(--steel);m
   var sug=last||(nl.indexOf('zh')===0?'zh':'en');
   var el=document.getElementById(sug);if(el)el.classList.add('sug');
   ['zh','en'].forEach(function(k){document.getElementById(k).addEventListener('click',function(){try{localStorage.setItem('adj-lang',k)}catch(e){}})});
-  // pixel scene: sky, ground, warehouse, adjuster with hard hat
-  var c=document.getElementById('sc'),x=c.getContext('2d');
-  function r(a,b,w,h,col){x.fillStyle=col;x.fillRect(a,b,w,h)}
-  r(0,0,120,40,'#9cc3dc');r(0,0,120,10,'#86b4d2');
-  r(92,5,6,6,'#f4d46a');
-  r(0,31,120,9,'#6c7a6a');r(0,31,120,1,'#55634f');
-  r(54,14,52,17,'#8a95a0');r(54,14,52,2,'#5f6b76');r(60,20,10,11,'#3b4650');r(76,19,8,6,'#c9d3da');r(90,19,8,6,'#c9d3da');
-  r(62,8,4,6,'#5f6b76');r(61,4,6,3,'#b9c2c9');r(66,2,6,3,'#d0d6db');
-  r(20,17,6,2,'#f2b705');r(19,19,8,1,'#f2b705');r(21,20,4,4,'#e3b48d');
-  r(20,24,6,6,'#2f5d7c');r(18,25,2,4,'#2f5d7c');r(26,25,3,1,'#2f5d7c');r(28,23,4,5,'#f8fafb');r(29,24,2,1,'#5a6a77');r(29,26,2,1,'#5a6a77');
-  r(21,30,2,1,'#14212c');r(24,30,2,1,'#14212c');
-  r(36,28,6,3,'#b53a29');r(37,27,4,1,'#b53a29');
+  var c=document.getElementById('sc');if(c&&c.getContext)kvInit(c);
 })();
 </script>
 

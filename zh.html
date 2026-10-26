@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="保險公證人人生模擬:從 23 歲入行到 65 歲退休,在每個十字路口做出選擇,邊玩邊學保險理賠。">
 <style>html{-webkit-text-size-adjust:100%}body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
-<title>冒險公證人</title>
+<title>公證人求生指南：今天又出險了</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -288,6 +288,9 @@ details.more{border:none;border-top:1px dashed var(--line);border-radius:0;backg
 .mini .spd button{height:28px;min-width:32px;padding:0 6px;font-size:12px}
 @media (max-width:760px){.mini.show{display:block;position:fixed;top:0;left:0;right:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 4px 12px rgba(0,0,0,.12);padding:6px max(16px,env(safe-area-inset-right,0px)) 6px max(16px,env(safe-area-inset-left,0px))}}
 #evbox{scroll-margin-top:64px}
+.hero h1 small{display:block;font-size:.48em;letter-spacing:.08em;color:var(--steel);margin-top:6px}
+.mast .code{white-space:nowrap}
+@media (max-width:460px){.mast{flex-wrap:wrap;row-gap:2px}.mast b{flex:1;min-width:0}.mast .code{order:3;flex-basis:100%;margin-left:0}}
 </style>
 </head>
 <body>
@@ -4333,7 +4336,7 @@ function fxChips(fx){
   if(fx.end)o.push(chip('人生轉折','hk'));
   return o.join('');
 }
-function mast(){return '<div class="mast"><b>冒險公證人</b><span class="code">人生代碼 '+S.seed+'</span></div>'}
+function mast(){return '<div class="mast"><b>公證人求生指南</b><span class="code">人生代碼 '+S.seed+'</span></div>'}
 function stage(){
   let bar='';
   if(P==='run'){
@@ -4431,7 +4434,7 @@ function miniUpd(){
 }
 if(typeof window!=='undefined'&&window.addEventListener)window.addEventListener('scroll',miniUpd,{passive:true});
 function playMast(){
-  return '<div class="mast"><b>冒險公證人</b><span class="code">人生代碼 '+S.seed+'</span><button class="gear'+(gearOpen?' on':'')+'" data-a="gear" aria-expanded="'+gearOpen+'">'+SVG_SET+'<span>設定</span></button></div>'
+  return '<div class="mast"><b>公證人求生指南</b><span class="code">人生代碼 '+S.seed+'</span><button class="gear'+(gearOpen?' on':'')+'" data-a="gear" aria-expanded="'+gearOpen+'">'+SVG_SET+'<span>設定</span></button></div>'
    +(gearOpen?'<div class="setp"><label class="auto"><input type="checkbox" id="autoBox"'+(auto?' checked':'')+'> 自動抉擇(重心與事件都交給系統)</label><button class="linkbtn" data-a="detail">'+(detail?'隱藏詳細數據':'顯示詳細數據')+'</button></div>':'');
 }
 function controls(){
@@ -4554,7 +4557,7 @@ function dexView(){
 function dexBtn(){const L=dexList(),D=dexLoad();return '<button class="btn sec" data-a="dex">理賠小教室圖鑑 · 已收集 '+L.filter(x=>D[x.k]).length+' / '+L.length+'</button>'}
 function startView(){
   return '<section class="hero"><span class="stamp">案件卷宗 · 保險公證人</span>'
-   +'<h1>冒險公證人</h1>'
+   +'<h1>公證人求生指南<small>今天又出險了</small></h1>'
    +'<p class="lede">你是一名保險公證人。從 23 歲入行到 65 歲退休,時間會自己往前走。你決定人生重心、在十字路口做選擇。轉職機會隨機出現,可能來得很早,也可能一輩子都沒來。入行背景、專長、任職公司、家庭背景與個性特質都由系統抽籤,不能挑。存下來的錢可以投資,錢夠了也能自己開公司。轉職後可以選擇專精方向,也會遇到條款解讀題,以及改編自真實事件的案例。</p>'
    +'<div class="facts"><div><b>'+E.length+'</b><span>互動事件</span></div><div><b>'+MINOR.length+'</b><span>人生小插曲</span></div><div><b>'+Object.keys(ROUTES).length+'</b><span>職涯路線</span></div><div><b>'+ENDINGS+'</b><span>種結局</span></div></div></section>'
    +'<div><span class="tab">開案設定</span><div class="card">'
