@@ -3689,6 +3689,226 @@ function achView(){
   return h;
 }
 
+/* ===================== 第十七版:年度日常、人生小插曲、職涯後期、年度考評 ===================== */
+/* 年度日常:依人生階段與家庭狀況挑句子 */
+const FPX={
+ bal:{
+  y:['你下班後去上了一堂瑜伽。','你把第一份年終獎金分成三份:存、花、孝親。','你開始固定每個月讀一本書。','週末你去爬了一座小山。'],
+  m:['你在案子和家庭之間,找到了還算可以的平衡。','你學會把不急的事留到明天。','你每天提早半小時到公司,先把思緒理清楚。','你把工作群組設成靜音,只在固定時間看。'],
+  s:['你開始把經驗寫成筆記,留給後輩。','你不再什麼案子都接,只接自己真正擅長的。','你每週固定和老朋友吃一頓飯。','你發現自己比年輕時更有耐心了。'],
+  fam:['晚餐時間,你盡量不接工作電話。','你和家人約好,每個月一起出遊一次。'],
+  kid:['你答應孩子的事,這一年都做到了。']},
+ field:{
+  y:['你連續三個月沒有休過完整的週末。','你的筆電貼滿了各家保險公司的便條紙。','你學會在車上五分鐘吃完一個便當。','你把所有案子的進度表貼在床頭。'],
+  m:['你同時處理的案子,比部門平均多一倍。','你在三個城市之間來回,行李箱從來沒收起來過。','你的報告越寫越快,白頭髮也越來越多。','客戶說:「找你最快。」'],
+  s:['你還是第一個到案場的人。','年輕同事說,跟你出勤比跑馬拉松還累。','爬樓梯開始有點喘,你還是堅持自己上屋頂。','名片上的職稱換了好幾次,工作量卻沒有變少。'],
+  fam:['家人已經習慣晚餐不等你。'],
+  kid:['孩子問:「你今天會回家睡嗎?」']},
+ study:{
+  y:['你報名了公會的初階理算課程。','你在通勤時間聽完一整套保險法講座。','你把前輩的舊報告一份一份拿來研究。','你考過了一張英文檢定。'],
+  m:['你開始讀國外的理賠判例。','你參加了一場再保險研討會,筆記寫了二十頁。','你把常用的計算方法整理成一本手冊。','一篇學術論文顛覆了你原本的想法。'],
+  s:['你開始學寫程式,想把舊案資料做成資料庫。','你把三十年的案例整理成一套教材。','你去聽年輕講師的課,發現時代真的變了。','你讀完了一本關於氣候變遷與保險的新書。'],
+  kid:['你和孩子一起坐在書桌前讀書。']},
+ rest:{
+  y:['你週末回老家吃飯。','你開始學煮菜。','你養了一盆會開花的植物。','你和朋友去露營了一次。'],
+  m:['你開始固定晨跑。','你終於去看了拖了很久的牙醫。','你把家裡的漏水修好了。','你去花東走了一趟。'],
+  s:['你每天早上去公園快走。','你陪父母去做了一次健康檢查。','你開始練書法。','你報名了社區大學的課程。'],
+  fam:['週末你們一家人一起去逛市場。'],
+  kid:['你每天晚上陪孩子讀繪本。','你學會綁兩種不同的辮子。']}
+};
+const FPHX={
+ ins:['你審完了一整櫃的公證報告。','你和公證人通電話的時間,比和家人還長。','你在理賠系統裡設了二十個待辦提醒。'],
+ brk:['你在客戶工廠裡比在自己公司還熟。','你一個月參加了十二場續約會議。','你的通訊錄裡有三百個保險公司窗口。'],
+ rei:['你在三個時區之間調整作息。','你讀了上百頁的合約條款。','你在新加坡的飯店裡寫完了續約報告。'],
+ edu:['你在研究室待到警衛來關燈。','你批改的報告堆得比你還高。','你一年寫了三份研究計畫。'],
+ co:['你親自追每一筆應收帳款。','你一個月面試了十幾個新人。','你在週日晚上看完整個月的財報。'],
+ tech:['你和工程師在白板前畫流程圖畫到半夜。','你一週見了五個投資人。','你學會在三分鐘內講完公司的故事。']
+};
+function focusLine(f){
+  const g=f.id==='field'?fGroup():null;
+  let pool;
+  if(g&&FPH[g])pool=FPH[g].concat(FPHX[g]||[]);
+  else{
+    const X=FPX[f.id]||{},st=S.age<33?'y':S.age<50?'m':'s';
+    pool=f.ph.concat(X[st]||[]);
+    if(X.fam&&(S.f.married||S.kids))pool=pool.concat(X.fam);
+    if(X.kid&&S.kids)pool=pool.concat(X.kid);
+  }
+  const recent=S.log.slice(-10).map(e=>e.t),fr=pool.filter(t=>!recent.includes(t)),P2=fr.length?fr:pool;
+  return P2[rint(P2.length)];
+}
+/* 人生小插曲:新增 */
+MINOR.push(
+ {t:'你在路邊攤吃到一碗很好吃的牛肉麵,心情好了一整天。',fx:{hp:1},w:5},
+ {t:'捷運上有人認出你:「你是那位公證人嗎?」',fx:{rep:1},w:3,when:s=>ADJR.includes(s.track)&&s.rank>=2},
+ {t:'你的雨衣在颱風天被吹破了。',fx:{cash:-1},w:4,when:s=>ADJR.includes(s.track)},
+ {t:'被保險人硬塞了一箱水果給你,你婉拒了。',fx:{rep:1},w:4,when:s=>ADJR.includes(s.track)},
+ {t:'你在案場發現一窩小貓,幫牠們找到了新家。',fx:{fam:1,hp:1},w:2,when:s=>ADJR.includes(s.track)},
+ {t:'你的報告被保險公司拿去當內部範本。',fx:{rep:2},w:3,when:s=>s.rank>=2},
+ {t:'電腦在交報告的前一晚當機。',fx:{hp:-2},w:4},
+ {t:'你連續加班一週,喉嚨都啞了。',fx:{hp:-2},w:4},
+ {t:'你在高速公路上爆胎,在路肩等了兩小時。',fx:{hp:-1},w:3},
+ {t:'你參加了同業的婚禮,同桌坐滿了保險人。',fx:{net:2},w:4,when:s=>s.age<40},
+ {t:'你在公會的羽球比賽拿了亞軍。',fx:{hp:1,net:1},w:3},
+ {t:'你在書店看到自己參與編寫的教材。',fx:{rep:1},w:3,when:s=>s.rank>=3},
+ {t:'你的名字在公文上被寫錯了三次。',fx:{},w:3},
+ {t:'你的車在案場附近停太久,被拖吊了。',fx:{cash:-1},w:3,when:s=>ADJR.includes(s.track)},
+ {t:'颱風來之前,你把家裡的窗戶都檢查了一遍。',fx:{fam:1},w:4},
+ {t:'你發現自己的住宅火險保額十年沒調整過。',fx:{pro:1},w:3},
+ {t:'你幫鄰居看了他的住宅火險保單。',fx:{net:1},w:4},
+ {t:'家族聚會上,親戚問你:「保險到底賠不賠?」',fx:{fam:1},w:4},
+ {t:'你在急診室陪家人,一邊回客戶的訊息。',fx:{hp:-1,fam:1},w:3,when:s=>s.f.married},
+ {t:'你夢到報告交不出來,嚇醒了。',fx:{hp:-1},w:3},
+ {t:'你買了一雙好的工作鞋,走案場不再腳痛。',fx:{hp:1,cash:-1},w:3,when:s=>ADJR.includes(s.track)},
+ {t:'你在國外出差時吃壞了肚子。',fx:{hp:-2},w:4,when:s=>['rei','brk','bro'].includes(s.track)||s.f.abroad},
+ {t:'你第一次在研討會上用英文發問。',fx:{net:1,pro:1},w:3,when:s=>s.age<40},
+ {t:'新同事問你一個條款的意思,你講了一個小時。',fx:{rep:1},w:4,when:s=>s.rank>=2},
+ {t:'你被拉進一個五百人的理賠群組,每天訊息上千則。',fx:{hp:-1},w:3},
+ {t:'你把舊報告裡的一個錯字改掉了,沒有人發現。',fx:{pro:1},w:3},
+ {t:'你參加了一場公益講座,教大家看懂住宅保單。',fx:{rep:1,net:1},w:3,when:s=>s.rank>=2},
+ {t:'你在雨中走了三公里,才找到案場的入口。',fx:{hp:-1},w:3,when:s=>ADJR.includes(s.track)},
+ {t:'孩子的老師邀你到班上介紹你的工作。',fx:{fam:2},w:4,when:s=>s.kids>0&&s.age<52},
+ {t:'孩子第一次自己騎腳踏車。',fx:{fam:2},w:4,when:s=>s.kids>0&&s.age<45},
+ {t:'孩子考試考砸了,你陪他聊到很晚。',fx:{fam:1,hp:-1},w:4,when:s=>s.kids>0&&s.age<55},
+ {t:'另一半送了你一個新的公事包。',fx:{fam:2},w:3,when:s=>s.f.married},
+ {t:'你和另一半為了誰洗碗吵了一架。',fx:{fam:-1},w:3,when:s=>s.f.married},
+ {t:'家裡的狗陪你度過了一個很累的冬天。',fx:{hp:1,fam:1},w:3,when:s=>s.fam>=75},
+ {t:'你終於配了一副老花眼鏡。',fx:{pro:1},w:4,when:s=>s.age>=45},
+ {t:'同期的同事退休了,你們吃了一頓很長的飯。',fx:{net:1},w:5,when:s=>s.age>=55},
+ {t:'年輕同事教你用一個新的 App,省了你好幾個小時。',fx:{pro:1},w:4,when:s=>s.age>=45},
+ {t:'案場的年輕老闆叫你「前輩」,你愣了一下。',fx:{},w:3,when:s=>s.age>=48},
+ {t:'爬樓梯時,你的膝蓋發出了聲音。',fx:{hp:-1},w:4,when:s=>s.age>=48},
+ {t:'你收到二十年前一位客戶的訃聞。',fx:{net:-1},w:3,when:s=>s.age>=55},
+ {t:'你把舊名片整理成一大盒,捨不得丟。',fx:{},w:3,when:s=>s.age>=50},
+ {t:'你在網路上看到徒弟升遷的消息。',fx:{net:1},w:4,when:s=>!!s.f.apr},
+ {t:'聖誕節前,你收到再保人寄來的賀卡。',fx:{net:1},w:4,when:s=>['rei','ins'].includes(s.track)},
+ {t:'畢業的學生寄來一封長長的感謝信。',fx:{rep:1,fam:1},w:5,when:s=>s.track==='edu'},
+ {t:'公司這個月現金有點緊,你自己先墊了一筆。',fx:{cash:-5},w:4,when:s=>!!s.co},
+ {t:'創業聚會上,有人問你:「你們的護城河是什麼?」',fx:{net:1},w:4,when:s=>s.track==='tech'},
+ {t:'你在客戶工廠吃了一頓員工餐,意外地好吃。',fx:{net:1},w:4,when:s=>['brk','bro','con'].includes(s.track)},
+ {t:'颱風假那天,你還是在家寫完了報告。',fx:{pro:1,fam:-1},w:4},
+ {t:'你發現信箱裡有三百封未讀郵件。',fx:{hp:-1},w:3},
+ {t:'你抽中了尾牙的二獎。',fx:{cash:3},w:2}
+);
+/* 職涯後期事件(45 歲以後) */
+const EMP=s=>!s.co&&!s.f.semi;
+E.push(
+{id:'lt_board',n:'獨立董事的邀請',w:31,once:1,when:s=>s.age>=50&&s.rep>=65,t:'一家上市公司邀你擔任獨立董事,負責審計與風險委員會。這家公司剛好是你一位老客戶的往來廠商。',ch:[
+ {l:'接受,先揭露利益衝突,相關議案一律迴避',c:{k:'rep',b:55,s:.7},ok:{t:'你在董事會上的提問,讓管理層開始正視幾個被忽略的風險。',fx:{rep:2,net:3,cash:15}},ng:{t:'開了兩年會,你總覺得自己只是橡皮圖章。',fx:{rep:1,hp:-2,cash:15}}},
+ {l:'婉拒,避免影響專業上的獨立性',ok:{t:'你把這個位子推薦給一位更合適的前輩。',fx:{rep:2,net:1}}},
+ {l:'接受,但工作太忙常常缺席',ok:{t:'年報上,你的董事會出席率是全公司最低。',fx:{cash:15,rep:-4}}}
+]},
+{id:'lt_arb',n:'仲裁庭的邀請',w:31,once:1,when:s=>s.age>=52&&s.rep>=70&&s.pro>=65,t:'仲裁協會邀你擔任一件工程保險爭議的仲裁人。雙方都請了大律師,卷宗疊起來有半個人高。',ch:[
+ {l:'接受,把卷宗從頭讀到尾',c:{k:'pro',w:{pro:.6,rep:.4},b:50,s:.9},ok:{t:'你寫的仲裁判斷,雙方都接受了。',fx:{rep:3,pro:2,cash:20,hp:-3}},ng:{t:'一方不服,向法院提起撤銷仲裁判斷之訴。',fx:{rep:-2,hp:-3,cash:10}}},
+ {l:'婉拒,你和其中一方合作過',ok:{t:'仲裁協會感謝你的坦白,改請其他人。',fx:{rep:2}}}
+]},
+{id:'lt_book',n:'把經驗寫成書',w:26,once:1,when:s=>s.age>=48&&s.pro>=70,t:'出版社找你寫一本理賠實務的書。你手上有三十年的案例,但每一件都有保密問題。',ch:[
+ {l:'把案例去識別化,改寫成教學情境',c:{k:'pro',b:55,s:.8},ok:{t:'書出版後,成了公會訓練課程的指定教材。',fx:{rep:3,pro:2,cash:5}},ng:{t:'寫到一半,工作一忙就停了。',fx:{hp:-2}}},
+ {l:'直接寫真實案例,比較精彩',ok:{t:'書很好看,但一位老客戶認出了自己的案子,很不高興。',fx:{rep:-3,net:-3,cash:8}}},
+ {l:'婉拒,現在還沒有時間',ok:{t:'你把出版社的名片收進抽屜。',fx:{}}}
+]},
+{id:'lt_lecture',n:'母校的兼課邀請',w:26,once:1,when:s=>s.age>=45&&s.track!=='edu',t:'母校的系主任邀你兼一門「理賠實務」,每週一個晚上。',ch:[
+ {l:'接下,把真實案例帶進教室',c:{w:{pro:.5,net:.5},b:55,s:.7},ok:{t:'學生的期末回饋寫著:「第一次覺得保險很有趣。」',fx:{rep:3,net:3,hp:-2}},ng:{t:'備課比想像中花時間,你上得很吃力。',fx:{hp:-3,rep:1}}},
+ {l:'婉拒,晚上想留給家人',ok:{t:'系主任說:「那等你退休再來。」',fx:{fam:2}}}
+]},
+{id:'lt_boss',n:'年輕的新主管',w:31,once:1,when:s=>s.age>=45&&EMP(s)&&s.rank<5&&s.track!=='edu',t:'新來的部門主管比你小十五歲,第一次開會就說要「全面數位化,淘汰舊流程」。',ch:[
+ {l:'主動約他聊,說明哪些舊流程背後有原因',c:{k:'net',b:55,s:.8},ok:{t:'他後來常來問你的意見,還請你主持新流程的測試。',fx:{net:4,rep:2}},ng:{t:'他覺得你在倚老賣老。',fx:{net:-3}}},
+ {l:'配合新流程,自己學新系統',c:{k:'pro',b:50,s:.7},ok:{t:'你成了部門裡最會用新系統的資深同事。',fx:{pro:3,hp:-1}},ng:{t:'新系統讓你挫折了好幾個月。',fx:{hp:-3}}},
+ {l:'私下跟老同事抱怨',ok:{t:'這些話很快傳到主管耳裡。',fx:{net:-2,rep:-2}}}
+]},
+{id:'lt_knee',n:'上不了屋頂的膝蓋',w:31,once:1,when:s=>s.age>=50&&ADJR.includes(s.track),t:'醫師說你的膝蓋退化了,最好不要再爬梯子。但颱風季的案子,大多在屋頂上。',ch:[
+ {l:'改用無人機,和年輕同事分工,自己專心判斷與寫報告',c:{k:'pro',b:55,s:.7},ok:{t:'分工之後,勘查速度反而更快。',fx:{pro:2,hp:3,rep:1}},ng:{t:'無人機拍不到幾個關鍵角度,報告被退回。',fx:{rep:-2}}},
+ {l:'咬牙繼續爬',ok:{t:'你又上了幾次屋頂,膝蓋腫了一個月。',fx:{hp:-6,rep:1}}},
+ {l:'轉做內勤審核',ok:{t:'少了現場的樂趣,但身體好多了。',fx:{hp:4,pro:-1}}}
+]},
+{id:'lt_vrs',n:'公司的優退方案',w:31,once:1,when:s=>s.age>=52&&s.age<=60&&EMP(s),t:'公司推出優惠退休方案:現在離開,可以多領一年半的薪水。人資說名額有限。',ch:[
+ {l:'接受,轉當約聘顧問,一週上三天班',ok:{t:'你多了很多時間,薪水少了,心情卻輕鬆了。',fx:{cash:40,flag:'semi',hp:4,fam:3}}},
+ {l:'留下來,做到退休',ok:{t:'你決定把最後幾年好好做完。',fx:{rep:1}}},
+ {l:'趁機和公司談轉任資深顧問',c:{k:'net',b:50,s:.8},ok:{t:'公司同意了。薪水少一點,時間自由很多。',fx:{flag:'semi',cash:20,hp:3,fam:2,rep:1}},ng:{t:'公司說顧問職缺已經滿了。',fx:{}}}
+]},
+{id:'lt_oldcase',n:'二十年前的那件案子',w:26,once:1,when:s=>s.age>=45&&(ADJR.includes(s.track)||s.track==='ins'),t:'一封律師函寄到公司:二十年前你處理的一件火災案,被保險人的子女主張當年賠少了,要求重新計算。',ch:[
+ {l:'調出當年的工作底稿,逐項說明',c:{k:'pro',b:50,s:.8},ok:{t:'底稿完整,律師看完就撤回了。',fx:{rep:3,pro:1}},ng:{t:'當年的底稿找不到了,只能憑記憶說明。',fx:{rep:-3,hp:-2}}},
+ {l:'交給公司法務,說明請求權時效早已消滅',ok:{t:'法務回函後,對方沒有再追。',fx:{}}}
+]},
+{id:'lt_study',n:'孩子想出國念書',w:36,once:1,when:s=>s.kids>0&&s.age>=47&&s.age<=58,t:'孩子拿到國外研究所的入學許可,學費加生活費一年要上百萬。',ch:[
+ {l:'全力支持,動用退休準備',ok:{t:'出發那天,你在機場哭得比孩子還兇。',fx:{cash:-150,fam:5}}},
+ {l:'支持一部分,其餘請孩子申請獎學金與貸款',c:{k:'fam',b:55,s:.7},ok:{t:'孩子申請到一半的獎學金,也學會了自己規劃。',fx:{cash:-70,fam:3}},ng:{t:'孩子覺得你不夠支持,家裡氣氛有點僵。',fx:{cash:-70,fam:-2}}},
+ {l:'建議在台灣念',ok:{t:'孩子留在台灣,但你知道他心裡有點遺憾。',fx:{fam:-3}}}
+]},
+{id:'lt_home',n:'孩子的頭期款',w:31,once:1,when:s=>s.kids>0&&s.age>=55,t:'孩子要結婚了,想在台北買房,問你能不能幫忙出一部分頭期款。',ch:[
+ {l:'出一半頭期款',ok:{t:'新家鑰匙交到孩子手上那天,你覺得很值得。',fx:{cash:-300,fam:5}}},
+ {l:'借給孩子,約定慢慢還',c:{k:'fam',b:55,s:.7},ok:{t:'孩子每個月準時還款,也多了一份責任感。',fx:{cash:-200,fam:2}},ng:{t:'親子之間談錢,氣氛有點尷尬。',fx:{cash:-200,fam:-2}}},
+ {l:'不出錢,但陪他看房、談條件',ok:{t:'你幫他看出一間房子的漏水問題,省下一大筆錢。',fx:{fam:2,pro:1}}}
+]},
+{id:'lt_grand',n:'升格當祖父母',w:36,once:1,when:s=>s.kids>0&&s.age>=56,t:'你升格當了祖父母。孩子問你,週末能不能幫忙帶小孩。',ch:[
+ {l:'每個週末都去幫忙',ok:{t:'你重新學會換尿布,也發現自己笑得比工作時多。',fx:{fam:6,hp:-1}}},
+ {l:'偶爾幫忙,保留自己的時間',ok:{t:'你和孩子約好,每個月兩個週末。',fx:{fam:3,hp:1}}}
+]},
+{id:'lt_trip',n:'一起去遠方',w:31,once:1,when:s=>s.f.married&&!s.f.divorced&&s.age>=50,t:'另一半說:「結婚這麼多年,我們還沒一起出國超過一週。」想去歐洲走一個月。',ch:[
+ {l:'請長假,一起去',ok:{t:'你們在里斯本的街頭迷路,笑了一整個下午。',fx:{fam:6,hp:3,cash:-30,rep:-1}}},
+ {l:'先去兩週,工作遠端處理',c:{k:'fam',b:55,s:.7},ok:{t:'旅途中回了幾封信,大部分時間都在陪家人。',fx:{fam:3,cash:-20}},ng:{t:'你一路上都在講電話,另一半很失望。',fx:{fam:-3,cash:-20}}},
+ {l:'等退休再說',ok:{t:'另一半沒有再提。',fx:{fam:-3}}}
+]},
+{id:'lt_farewell',n:'林前輩的告別式',w:31,once:1,when:s=>s.age>=55&&s.npc.lin>-20,t:'帶你入行的林前輩過世了。告別式上,很多當年一起跑案場的同業都來了。',ch:[
+ {l:'上台致詞,講他教你的第一件事',ok:{t:'你講到一半說不下去,台下很多人也紅了眼眶。',fx:{rep:2,net:3,fam:1}}},
+ {l:'默默上香,和老同事敘舊',ok:{t:'聊起當年的颱風夜,大家好像都年輕了二十歲。',fx:{net:3}}}
+]},
+{id:'lt_heir',n:'公司要交給誰',w:36,once:1,when:s=>!!s.co&&s.age>=55,t:'公司經營了這麼多年,是時候想想接班了。',ch:[
+ {l:'培養內部的專業經理人',c:{w:{net:.5,rep:.5},b:50,s:.8},ok:{t:'你花了兩年帶出接班人,公司運作得比你在的時候還順。',fx:{rep:2,hp:3}},ng:{t:'接班人能力不足,你只好又回來坐鎮。',fx:{hp:-3}}},
+ {l:'交給孩子',show:s=>s.kids>0,c:{k:'fam',b:45,s:.8},ok:{t:'孩子帶來新的想法,老客戶也願意給他機會。',fx:{fam:4,rep:2}},ng:{t:'孩子對這一行沒興趣,勉強接了兩年就想轉手。',fx:{fam:-3}}},
+ {l:'找同業收購',ok:{t:'你和收購方談好條件,員工也都留了下來。',fx:{sell:1.1,rep:1}}}
+]},
+{id:'lt_last',n:'退休前的最後一件大案',w:36,once:1,when:s=>s.age>=60&&(ADJR.includes(s.track)||['ins','brk'].includes(s.track)),t:'離退休只剩幾年,一件大型工廠火災指定由你處理。公司說:「這件做完,你就可以安心退休了。」',ch:[
+ {l:'親自帶隊,把它當成代表作',c:{k:'pro',w:{pro:.6,hp:.4},b:50,s:.9},ok:{t:'結案那天,年輕同事把你的報告裝訂成冊,放進公司圖書室。',fx:{rep:3,pro:2,hp:-4}},ng:{t:'案子拖了兩年,你退休時還沒結案。',fx:{hp:-5,rep:-1}}},
+ {l:'讓年輕同事主導,你在旁邊把關',c:{k:'net',b:55,s:.8},ok:{t:'年輕人做得很好,你看著他們,想起當年的自己。',fx:{net:4,rep:3}},ng:{t:'年輕人漏了幾個重點,你最後還是得出手。',fx:{hp:-3}}}
+]},
+{id:'lt_pension',n:'退休金怎麼領',w:36,once:1,when:s=>s.age>=58,t:'快退休了,你要決定勞保老年給付與退休金,哪些一次領、哪些按月領。',ch:[
+ {l:'能月領的都月領,活越久領越多',ok:{t:'你算過了:只要活過平均壽命,月領比較划算。',fx:{fam:1,hp:1}}},
+ {l:'一次領,自己投資',c:{k:'pro',b:50,s:.7},ok:{t:'你把錢放進穩健的投資組合,現金流也規劃好了。',fx:{cash:30}},ng:{t:'退休第二年遇上股災,你看著帳戶睡不著。',fx:{cash:-30,hp:-2}}},
+ {l:'請理財顧問幫忙試算',ok:{t:'顧問做了三種情境的試算,你安心多了。',fx:{pro:1,cash:-2}}}
+]}
+);
+['lt_study','lt_home','lt_grand','lt_trip','lt_pension'].forEach(id=>LIFE.add(id));
+Object.assign(KNOW,{
+ lt_board:['獨立董事','上市公司的獨立董事應具備專業與獨立性,不得與公司有重大利害關係。擔任前應做利益衝突檢查,並在相關議案迴避。'],
+ lt_arb:['仲裁','仲裁是訴訟以外的爭議解決方式,常用於保險與工程爭議。依台灣仲裁法,仲裁判斷與法院確定判決有同一效力;仲裁人必須公正獨立,並揭露可能的利益衝突。'],
+ lt_book:['案例的去識別化','分享理賠案例時,要移除可辨識當事人、地點與金額的資訊。公證人與經紀人對客戶資料有保密義務,也受個人資料保護法規範。'],
+ lt_lecture:['業界教師','許多大學邀請業界專家擔任兼任教師或業師,把實務經驗帶進課堂。對專業人士來說,教學也是整理自己知識的好機會。'],
+ lt_boss:['跨世代合作','資深員工的經驗和年輕主管的新方法並不衝突。說明流程背後的風險考量,比單純反對改變更有說服力。'],
+ lt_knee:['勘查工具的演進','無人機、空拍與 3D 掃描,讓屋頂、高處與危險區域的勘查不必再冒險攀爬,也能保存更完整的證據。'],
+ lt_vrs:['優惠退休方案','企業組織調整時,常以優惠退休方案鼓勵資深員工提前退休。決定前要評估退休金、勞健保與之後的收入規劃。'],
+ lt_oldcase:['檔案保存與時效','台灣保險法第 65 條規定,由保險契約所生的權利,自得為請求之日起經過兩年不行使而消滅。即使如此,工作底稿與往來紀錄仍應依公司政策保存,這是多年後保護自己最好的證據。'],
+ lt_study:['教育金與退休金','子女教育金和自己的退休金,常在同一段時間需要用錢。理財規劃上,通常建議先確保退休準備,再決定能支援多少教育費用。'],
+ lt_home:['住宅的保險與檢查','買房前要注意漏水、壁癌與結構問題。交屋後可以投保住宅火險與地震險,並視需要加保颱風洪水等附加險。'],
+ lt_grand:['兒童的保險規劃','新生兒常見的保險規劃包括醫療與意外保障。保障優先於儲蓄,保費也要在家庭預算能負擔的範圍內。'],
+ lt_trip:['旅遊保險','出國前可以投保旅行平安險與旅遊不便險。海外醫療費用昂貴,要注意保單是否包含海外突發疾病與緊急醫療轉送。'],
+ lt_farewell:['師徒的記憶','理賠的判斷力大多來自師徒之間的言傳身教。把前輩教的事再傳給下一代,是這個行業最珍貴的傳統。'],
+ lt_heir:['企業接班規劃','中小企業的接班可以交給家族成員、內部經理人,或出售給外部買家。及早規劃、培養人才與整理公司制度,是順利交棒的關鍵。'],
+ lt_last:['交接與傳承','資深人員在退休前,把大案交給年輕同事主導、自己在旁把關,是培養下一代最有效的方式。'],
+ lt_pension:['退休給付的選擇','台灣的勞保老年給付與勞工退休金,依年資與加保時間,有一次領與按月領等不同方式。按月領有長壽保障,一次領保留運用彈性,要依健康、家庭與理財能力選擇。']
+});
+/* 年度考評(每三年一次) */
+const RVT={
+ A:'三年一次的考評出爐,你拿到 A。這段期間你經手的事,有 {a} 件順利、{b} 件不順。主管說:「你想要什麼,可以提。」',
+ B:'三年一次的考評出爐,你拿到 B。這段期間你經手的事,有 {a} 件順利、{b} 件不順。主管問:「接下來有什麼打算?」',
+ C:'三年一次的考評出爐,你拿到 C。這段期間你經手的事,有 {a} 件順利、{b} 件不順。主管說:「這幾年辛苦了,我們談談怎麼調整。」'
+};
+function rvGrade(){const p=S.pf||{g:0,b:0},v=p.g-1.5*p.b+(S.pro+S.rep-120)/20;return v>=2.5?'A':v>=-0.5?'B':'C'}
+function rvDue(){return !S.co&&!S.f.semi&&S.age>=26&&S.age<=62&&(S.age-23)%3===0}
+function promoNear(s){const nx=RANK[s.rank+1];if(!nx||s.f.semi||s.co)return false;const o=RT().off,cd=2*certN();return s.age-23>=nx.y-1&&s.pro>=nx.pro+(o.pro||0)-cd&&s.rep>=nx.rep+(o.rep||0)-cd&&s.net>=nx.net+(o.net||0)-cd}
+['A','B','C'].forEach(g=>{
+  const B={A:[70,42,.04],B:[50,25,.025],C:[25,10,.015]}[g];
+  E.push({id:'rv_'+g,n:'年度考評',rv:1,w:0,kk:'review',t:s=>fill(RVT[g],{a:(s.pf||{}).g||0,b:(s.pf||{}).b||0}),ch:[
+   {l:'爭取加薪',c:{w:{rep:.5,pro:.5},b:B[0],s:.5},ok:{t:g==='A'?'主管二話不說就答應了。':g==='B'?'主管答應幫你爭取,最後加了一點。':'主管勉強答應,但說明年要看到改變。',fx:{raise:B[2]}},ng:{t:'主管說今年預算很緊,明年再說。',fx:{rep:-1}}},
+   {l:'爭取升遷',show:s=>promoNear(s),c:{w:{pro:.5,rep:.5},b:B[1],s:.6},ok:{t:'主管把你的名字送上了升遷名單,很快就通過了。',fx:{promo:1,rep:1}},ng:{t:'主管說:「再磨練一陣子。」',fx:{hp:-1,rep:-1}}},
+   {l:'申請轉往技術專家線',a:.05,show:s=>g!=='C'&&s.rank>=2&&s.pro>=60&&(s.track==='adj'||s.track==='mgr'),ok:{t:'公司同意了。你開始專心在鑑識與技術判斷上。',fx:{route:'exp',pro:1}}},
+   {l:'申請轉往管理線',a:.05,show:s=>g!=='C'&&s.rank>=2&&s.net>=60&&(s.track==='adj'||s.track==='exp'),ok:{t:'公司同意了。你開始帶團隊。',fx:{route:'mgr',net:1}}},
+   {l:'申請換個專精方向',a:.15,show:s=>!!(BRN[s.track]&&s.br[s.track]),ok:{t:'主管同意讓你明年重新選擇專精方向。',fx:{rebrn:1}}},
+   {l:'維持現狀,把重心放在生活',ok:{t:'你把多出來的心力留給自己和家人。',fx:{hp:1,fam:2}}}
+  ]});
+});
+KNOW.review=['績效考核與調薪','企業常以定期考核決定調薪與升遷。考核等第通常綜合工作成果、專業能力與態度。提出要求時,用具體成果說話,比只談年資更有說服力。'];
+
 /* ===================== 引擎 ===================== */
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const app=document.getElementById('app');
@@ -3905,6 +4125,8 @@ function apply(fx){
   if(fx.cert&&!S.cert[fx.cert]){S.cert[fx.cert]=S.age;S.ms.push({k:'cert',a:S.age,c:fx.cert});S.log.push({age:S.age,t:'取得'+CERT[fx.cert].n,k:'up',m:1})}
   if(fx.certf)S.cx[fx.certf]=(S.cx[fx.certf]||0)+1;
   if(fx.flag==='cert'&&!S.cert.cila)S.cert.cila=S.age;
+  if(fx.promo){const nx=RANK[S.rank+1];if(nx){S.rank++;S.log.push({age:S.age,t:'升任「'+rankName()+'」',k:'up',m:1});S.ms.push({k:'promo',a:S.age,r:S.rank,t:rankName()})}}
+  if(fx.rebrn&&BRN[S.track]){delete S.br[S.track];if(!S.q.some(x=>x.id==='brp_'+S.track))S.q.unshift({id:'brp_'+S.track,at:S.age+1})}
   if(fx.brn){S.br[S.track]=fx.brn;S.ms.push({k:'brn',a:S.age,r:S.track,b:fx.brn});S.log.push({age:S.age,t:'專精方向:'+BRX[fx.brn].n,k:'up'})}
   if(fx.found)found(fx.found,fx.fcap);
   if(S.co){
@@ -3993,12 +4215,13 @@ function tick(){
   else if(R()<0.6){ev=histPick();if(!ev)ev=pickEvent()}
   let line=null,lfx=null;
   if(!ev&&R()<0.6){const m=pickMinor();if(m){const mf=growFx(m.fx);apply(mf);line=m.t;lfx=mf}}
-  if(!line){const g=f.id==='field'?fGroup():null;const ph=g&&FPH[g]?FPH[g]:f.ph;line=ph[rint(ph.length)]}
+  if(!line)line=focusLine(f);
   S.log.push({age:S.age,t:line,k:'yr',fx:lfx});
   snap();fresh=S.log.length;
   const end=checkEnd()||(mortal()?'sick':null);
   if(end)return finish(end);
-  if(ev){EV=ev;S.vr=(!ev.br&&R()<0.6)?(LIFE.has(ev.id)?VARS.l:VARS.w)[rint(LIFE.has(ev.id)?VARS.l.length:VARS.w.length)]:null;P='event'}else newYear();
+  if(rvDue()){if(ev)S.pend=ev;ev=E.find(e=>e.id==='rv_'+rvGrade())}
+  if(ev){EV=ev;S.vr=(!ev.br&&!ev.rv&&R()<0.6)?(LIFE.has(ev.id)?VARS.l:VARS.w)[rint(LIFE.has(ev.id)?VARS.l.length:VARS.w.length)]:null;P='event'}else newYear();
   render();
 }
 /* 每個選項的可能結果 */
@@ -4012,7 +4235,7 @@ function statOf(ch){
 }
 const cOf=ch=>ch.c||{k:statOf(ch)};
 function outs(ch){
-  if(ch.ok.fx.end||ch.ok.fx.brn)return [{n:'確定',p:100,g:'m',r:ch.ok}];
+  if(ch.ok.fx.end||ch.ok.fx.brn||(EV&&EV.rv&&!ch.c))return [{n:'確定',p:100,g:'m',r:ch.ok}];
   if(ch.c){
     const p=Math.round(pOf(ch.c));
     const rm=hasT('risk')?1.5:1,wm=hasSt('watch')?2:1;
@@ -4051,7 +4274,8 @@ function choose(i){
   if(ev.id==='big3'||/^bg_\w+3$/.test(ev.id))S.ms.push({k:'big',a:S.age,g:o.g,x:ev.id==='big3'?BIG[S.sp.id].n:BIGR[ev.route[0]].n});
   if(JUST.has(ev.id+':'+i))S.honest++;
   if(ev.cl&&ch.ans){if(ev.ca)S.car++;else S.clr++}
-  if(o.g==='g'&&!LIFE.has(ev.id)&&!ev.br&&!ev.job&&!/^(brp_|fb_|s_|n_|ap_|hosp|c_)/.test(ev.id)){const w=((ev.id==='big3'||/^bg_\w+3$/.test(ev.id))?10:ev.big?6:ev.hy?5:/^fs_/.test(ev.id)?4:0)+(o.n==='大成功'?4:o.n==='成功'?2:1)+(ev.cl&&ch.ans?2:0)+((ev.brn||ev.spec)?1:0);S.cases.push({a:S.age,n:nm(ev),o:o.n,w})}
+  if(/^rv_/.test(ev.id))S.pf={g:0,b:0};else if(!LIFE.has(ev.id)&&!/^(fb_|s_|brp_|ex_)/.test(ev.id)){S.pf=S.pf||{g:0,b:0};if(o.g==='g')S.pf.g++;else if(o.g==='b')S.pf.b++}
+  if(o.g==='g'&&!LIFE.has(ev.id)&&!ev.br&&!ev.job&&!/^(brp_|fb_|s_|n_|ap_|hosp|c_|rv_|ex_)/.test(ev.id)){const w=((ev.id==='big3'||/^bg_\w+3$/.test(ev.id))?10:ev.big?6:ev.hy?5:/^fs_/.test(ev.id)?4:0)+(o.n==='大成功'?4:o.n==='成功'?2:1)+(ev.cl&&ch.ans?2:0)+((ev.brn||ev.spec)?1:0);S.cases.push({a:S.age,n:nm(ev),o:o.n,w})}
   if(ev.job)S.lj=S.age;
   S.seen[ev.id]=1;S.evc++;
   S.log.push({age:S.age,t:nm(ev)+'|'+lbl(ch)+'('+o.n+')。'+r.t+(flav?' '+flav:'')+(tw?' '+tw.t:''),k:o.g==='b'?'bad':'ev',fx,m:0});
@@ -4062,6 +4286,7 @@ function choose(i){
 }
 function cont(){
   if(RES&&RES.end)return finish(RES.end,RES.r.fx.end);
+  if(S.pend){const e=S.pend;S.pend=null;if((!e.route||e.route.includes(S.track))&&(!ROUTE_OK[e.id]||ROUTE_OK[e.id].includes(S.track))&&(!e.brn||e.brn.includes(S.br[S.track]))){RES=null;EV=e;S.vr=(!e.br&&R()<0.6)?(LIFE.has(e.id)?VARS.l:VARS.w)[rint(LIFE.has(e.id)?VARS.l.length:VARS.w.length)]:null;P='event';render();return}}
   RES=null;EV=null;S.vr=null;P='run';newYear();render();
 }
 function score(kind){
@@ -4300,6 +4525,8 @@ function arrows(fx){
   if(fx.big&&fx.big>-9)o.push(chip('大案'+(fx.big>0?'優勢':'劣勢'),fx.big>0?'up':'dn'));
   if(fx.sched)o.push(chip(/^big/.test(fx.sched.id)?'大案下一階段':'埋下伏筆','hk'));
   if(fx.sell)o.push(chip('出售公司','hk'));
+  if(fx.promo)o.push(chip('升遷','up'));
+  if(fx.rebrn)o.push(chip('重新選擇專精','hk'));
   if(fx.bust)o.push(chip('公司結束','dn'));
   if(fx.ipo)o.push(chip('公司上市','hk'));
   if(fx.end)o.push(chip('人生轉折','hk'));
@@ -4332,6 +4559,8 @@ function fxChips(fx){
   if(fx.Vm)o.push(chip('公司估值 ×'+fx.Vm,fx.Vm>=1?'up':'dn'));
   if(fx.pol)o.push(chip('方針改為'+POL[fx.pol].n,'hk'));
   if(fx.sell)o.push(chip('出售公司','hk'));
+  if(fx.promo)o.push(chip('升遷','up'));
+  if(fx.rebrn)o.push(chip('重新選擇專精','hk'));
   if(fx.bust)o.push(chip('公司結束','dn'));
   if(fx.ipo)o.push(chip('公司上市','hk'));
   if(fx.end)o.push(chip('人生轉折','hk'));
@@ -4486,6 +4715,8 @@ function probHTML(){
    +'<tr><td>證照與進修</td><td>公證人、經紀人執照、ACII、CPCU、碩士與博士。符合目前路線的證照(最多計 2 張),每張讓升遷門檻 −2、升遷機率 +3%、月薪 +3%,並解鎖專屬事件。沒有證照也能升遷。人生重心放在「充實知識」的年數越多,考試越容易過。</td></tr>'
    +'<tr><td>成就</td><td>圖鑑頁的「成就」分頁會跨局記錄看過的結局、達成過的人生目標與最高總評,儲存在這台裝置的瀏覽器裡。</td></tr>'
    +'<tr><td>各職業大案</td><td>保險公司、經紀業、再保、學界、顧問、經紀公司與新創,都有各自的三階段大案。</td></tr>'
+   +'<tr><td>年度考評</td><td>受雇期間每三年一次(26 到 62 歲)。依這三年經手事件的順利與不順,加上專業與信譽,打出 A/B/C 等第;等第越高,加薪與升遷越容易談成。也可以申請轉換技術或管理線、重新選擇專精,或維持現狀。考評不會佔掉當年原本的事件。</td></tr>'
+   +'<tr><td>職涯後期</td><td>45 歲以後會出現專屬事件,例如獨立董事邀請、仲裁人、優退方案、孩子出國與成家、退休金怎麼領。</td></tr>'
    +'<tr><td>分支專精</td><td>進入保險公司、經紀業、再保、學界、顧問公司、公證公司、經紀公司或新創的隔年,選擇專精方向(各 3 種)。專精會改變職稱、薪資或健康耗損,並解鎖專屬事件(權重 ×2,判定 +5%)。</td></tr>'
    +'<tr><td>條款解讀題</td><td>依專業判定:選對解讀 +25%,選錯 −15%。結果卡一律公布正解與理由。「條款與法律」技能適用。</td></tr>'
    +'<tr><td>真實事件</td><td>改編自真實事件,不綁年份。每年約 9% 機率出現,同一局內依真實年份先後發生,並依目前職業顯示不同視角。</td></tr>'
@@ -4517,6 +4748,7 @@ function dexAdd(k){dexLoad();if(DEX[k])return false;DEX[k]=1;try{localStorage.se
 const knKey=e=>e.id==='big2'?'big2_'+S.sp.id:(e.kk||e.id);
 const DEXCAT=[['fire','財產與火災'],['cargo','貨物與海事'],['eng','工程與再生能源'],['semi','高科技與營業中斷'],['motor','責任險與車險'],['claim','理賠實務與倫理'],['career','職涯發展'],['ins','保險公司與再保'],['brk','經紀、顧問與學界'],['biz','創業與保險科技'],['clause','條款解讀'],['calc','理算題'],['hist','真實事件'],['life','人生與理財']];
 function dexCat(e){
+  if(e.rv)return 'career';
   if(e.ca)return 'calc';
   if(e.cl)return 'clause';
   if(e.hy)return 'hist';
@@ -4727,7 +4959,7 @@ function eventCard(){
     }).join('');
     const bl=bonuses({k:'pro'}).filter(x=>!x[2]&&!['技術專家','專業證照','年輕體力'].includes(x[0]));
     const bline=bl.length?'<p class="var">'+(detail?'你的優勢:'+bl.map(x=>x[0]+(x[1]>0?' +':' ')+x[1]+'%').join('、'):(bl.some(x=>x[1]>0)?'對你有利:'+bl.filter(x=>x[1]>0).map(x=>x[0]).join('、'):'')+(bl.some(x=>x[1]<0)?(bl.some(x=>x[1]>0)?' · ':'')+'對你不利:'+bl.filter(x=>x[1]<0).map(x=>x[0]).join('、'):''))+'</p>':'';
-    return '<div id="evbox"><span class="tab'+(br?' br':EV.hy?' hist':'')+'">'+S.age+' 歲 · '+(br?'職涯機會':bigc?'大案':EV.ca?'理算題':EV.cl?'條款解讀題':EV.hy?'真實事件改編':'十字路口')+'</span><div class="card '+(br?'br':'ev')+'"><h2>'+nm(EV)+'</h2>'+(EV.src?'<p class="src">改編自真實事件:'+EV.src+'</p>':'')+'<p>'+glz(tx(EV))+'</p>'+(EV.cl?'<blockquote class="clause"><span class="kt">'+(EV.ca?'案件資料':'保單條款')+'</span>'+'<div>'+glz(EV.cl.x)+'</div></blockquote>':'')+vr+bline+'<div class="opts">'+opts+'</div></div></div>';
+    return '<div id="evbox"><span class="tab'+(br?' br':EV.hy?' hist':'')+'">'+S.age+' 歲 · '+(br?'職涯機會':bigc?'大案':EV.rv?'年度考評':EV.ca?'理算題':EV.cl?'條款解讀題':EV.hy?'真實事件改編':'十字路口')+'</span><div class="card '+(br?'br':'ev')+'"><h2>'+nm(EV)+'</h2>'+(EV.src?'<p class="src">改編自真實事件:'+EV.src+'</p>':'')+'<p>'+glz(tx(EV))+'</p>'+(EV.cl?'<blockquote class="clause"><span class="kt">'+(EV.ca?'案件資料':'保單條款')+'</span>'+'<div>'+glz(EV.cl.x)+'</div></blockquote>':'')+vr+bline+'<div class="opts">'+opts+'</div></div></div>';
   }
   if(P==='result'){
     const K=kn(RES.ev);

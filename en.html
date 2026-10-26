@@ -9,7 +9,10 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet"><style>@font-face{font-family:QSerif;font-weight:100 1000;src:local('Georgia Bold'),local('Georgia-Bold'),local('Times New Roman Bold'),local('TimesNewRomanPS-BoldMT'),local('NotoSerif-Bold'),local('DejaVu Serif Bold');unicode-range:U+2018-201D}@font-face{font-family:QSans;font-weight:100 600;src:local('Helvetica Neue'),local('HelveticaNeue'),local('Arial'),local('Roboto'),local('DejaVu Sans');unicode-range:U+2018-201D}@font-face{font-family:QSans;font-weight:601 1000;src:local('Helvetica Neue Bold'),local('HelveticaNeue-Bold'),local('Arial Bold'),local('Arial-BoldMT'),local('Roboto Bold'),local('DejaVu Sans Bold');unicode-range:U+2018-201D}</style>
+</head>
+<body>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@700;900&family=Noto+Sans:wght@400;500;700&text=%E2%80%98%E2%80%99%E2%80%9C%E2%80%9D&display=swap" rel="stylesheet">
 <style>
 
 :root{
@@ -17,8 +20,8 @@
   --accent:#f2b705; --accent-ink:#1b1500; --steel:#2f5d7c;
   --good:#23794a; --bad:#b53a29; --track:#d6dee4;
   --s-pro:#2f5d7c; --s-rep:#b8860b; --s-net:#6a4fa3; --s-hp:#1f8a7a; --s-fam:#c0507a;
-  --f-display:'Noto Serif TC','Songti TC','PMingLiU',serif;
-  --f-body:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
+  --f-display:'Noto Serif',QSerif,'Noto Serif TC','Songti TC','PMingLiU',serif;
+  --f-body:'Noto Sans',QSans,'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
   --f-mono:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
 }
 @media (prefers-color-scheme: dark){
@@ -293,8 +296,6 @@ details.more{border:none;border-top:1px dashed var(--line);border-radius:0;backg
 @media (max-width:460px){.mast{flex-wrap:wrap;row-gap:2px}.mast b{flex:1;min-width:0}.mast .code{order:3;flex-basis:100%;margin-left:0}}
 .kvc{display:block;width:100%;height:auto;aspect-ratio:16/9;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:6px;background:#3f6b84;box-shadow:0 6px 18px rgba(20,33,44,.18)}
 </style>
-</head>
-<body>
 
 <main class="wrap" id="app"></main>
 
@@ -3686,6 +3687,226 @@ function achView(){
 }
 
 
+
+const FPX={
+ bal:{
+  y:['You went to a yoga class after work.','You split your first year-end bonus three ways: savings, spending, and your parents.','You started reading one book a month.','You hiked a small mountain over the weekend.'],
+  m:['You found a workable balance between cases and family.','You learned to leave non-urgent things for tomorrow.','You started arriving half an hour early to clear your head first.','You muted the work group chats and only checked them at set times.'],
+  s:['You started writing your experience down as notes for the juniors.','You stopped taking every case and kept to the ones you’re truly good at.','You had dinner with an old friend every week.','You noticed you’ve become more patient than you were when young.'],
+  fam:['At dinner time, you try not to take work calls.','You and your family agreed on one outing together every month.'],
+  kid:['Every promise you made to your child this year, you kept.']},
+ field:{
+  y:['You went three months without a full weekend off.','Your laptop is covered in sticky notes from every insurer.','You learned to finish a lunch box in the car in five minutes.','You pinned the progress sheet for every case above your bed.'],
+  m:['You were handling twice as many cases as the department average.','You shuttled between three cities; your suitcase never got unpacked.','Your reports got faster, and your gray hairs got more numerous.','Clients say: “You’re the fastest one to call.”'],
+  s:['You’re still the first one on site.','A young colleague says going out on a job with you is harder than a marathon.','Stairs leave you a little winded, but you still climb onto the roof yourself.','The title on your business card changed several times; the workload never shrank.'],
+  fam:['Your family is used to not waiting for you at dinner.'],
+  kid:['Your child asks: “Are you sleeping at home tonight?”']},
+ study:{
+  y:['You signed up for the association’s entry-level adjusting course.','You finished a whole lecture series on insurance law during your commute.','You studied the old reports of senior adjusters one by one.','You passed an English proficiency test.'],
+  m:['You started reading overseas claims case law.','You attended a reinsurance seminar and filled twenty pages of notes.','You compiled the calculation methods you use most into a handbook.','An academic paper overturned what you thought you knew.'],
+  s:['You started learning to code, hoping to turn old case files into a database.','You turned thirty years of cases into a set of teaching materials.','You sat in on a young lecturer’s class and realized times really have changed.','You finished a new book on climate change and insurance.'],
+  kid:['You and your child sat at the desk and studied together.']},
+ rest:{
+  y:['You went back to your hometown for dinner on weekends.','You started learning to cook.','You got a potted plant that actually flowers.','You went camping with friends once.'],
+  m:['You started running in the mornings.','You finally went to the dentist you’d been putting off.','You fixed the leak at home.','You took a trip down Taiwan’s east coast.'],
+  s:['You took a brisk walk in the park every morning.','You took your parents for a health check-up.','You started practicing calligraphy.','You signed up for a community college course.'],
+  fam:['On weekends the whole family went to the market together.'],
+  kid:['You read picture books with your child every night.','You learned how to braid hair two different ways.']}
+};
+const FPHX={
+ ins:['You reviewed a whole cabinet of adjusters’ reports.','You spent more time on the phone with adjusters than with your family.','You set twenty to-do reminders in the claims system.'],
+ brk:['You know your clients’ factories better than your own office.','You sat in twelve renewal meetings in one month.','Your contacts list holds three hundred insurer contacts.'],
+ rei:['You kept adjusting your schedule across three time zones.','You read hundreds of pages of treaty wording.','You finished a renewal report in a hotel room in Singapore.'],
+ edu:['You stayed in the lab until the guard came to turn off the lights.','The stack of reports you graded is taller than you.','You wrote three research proposals in one year.'],
+ co:['You chased every receivable personally.','You interviewed more than ten candidates in a month.','You read a whole month of financial statements on a Sunday night.'],
+ tech:['You and the engineers drew flowcharts on the whiteboard until midnight.','You met five investors in one week.','You learned to tell the company’s story in three minutes.']
+};
+function focusLine(f){
+  const g=f.id==='field'?fGroup():null;
+  let pool;
+  if(g&&FPH[g])pool=FPH[g].concat(FPHX[g]||[]);
+  else{
+    const X=FPX[f.id]||{},st=S.age<33?'y':S.age<50?'m':'s';
+    pool=f.ph.concat(X[st]||[]);
+    if(X.fam&&(S.f.married||S.kids))pool=pool.concat(X.fam);
+    if(X.kid&&S.kids)pool=pool.concat(X.kid);
+  }
+  const recent=S.log.slice(-10).map(e=>e.t),fr=pool.filter(t=>!recent.includes(t)),P2=fr.length?fr:pool;
+  return P2[rint(P2.length)];
+}
+
+MINOR.push(
+ {t:'A great bowl of beef noodles from a street stall kept you in a good mood all day.',fx:{hp:1},w:5},
+ {t:'Someone on the MRT recognized you: “Aren’t you that adjuster?”',fx:{rep:1},w:3,when:s=>ADJR.includes(s.track)&&s.rank>=2},
+ {t:'Your raincoat got torn apart on a typhoon day.',fx:{cash:-1},w:4,when:s=>ADJR.includes(s.track)},
+ {t:'The insured tried to press a box of fruit on you; you politely declined.',fx:{rep:1},w:4,when:s=>ADJR.includes(s.track)},
+ {t:'You found a litter of kittens on site and found them a new home.',fx:{fam:1,hp:1},w:2,when:s=>ADJR.includes(s.track)},
+ {t:'An insurer started using your report as an internal template.',fx:{rep:2},w:3,when:s=>s.rank>=2},
+ {t:'Your computer crashed the night before a report was due.',fx:{hp:-2},w:4},
+ {t:'After a week of overtime, you lost your voice.',fx:{hp:-2},w:4},
+ {t:'You got a flat tire on the freeway and waited two hours on the shoulder.',fx:{hp:-1},w:3},
+ {t:'You went to a colleague’s wedding; your whole table was insurance people.',fx:{net:2},w:4,when:s=>s.age<40},
+ {t:'You came second in the association’s badminton tournament.',fx:{hp:1,net:1},w:3},
+ {t:'You saw a textbook you helped write in a bookstore.',fx:{rep:1},w:3,when:s=>s.rank>=3},
+ {t:'Your name was misspelled on official letters three times.',fx:{},w:3},
+ {t:'You parked too long near a site and got towed.',fx:{cash:-1},w:3,when:s=>ADJR.includes(s.track)},
+ {t:'Before the typhoon, you checked every window at home.',fx:{fam:1},w:4},
+ {t:'You realized your own home fire policy’s sum insured hadn’t been updated in ten years.',fx:{pro:1},w:3},
+ {t:'You looked over a neighbor’s home fire policy for him.',fx:{net:1},w:4},
+ {t:'At a family gathering, a relative asked: “So does insurance actually pay or not?”',fx:{fam:1},w:4},
+ {t:'You sat with a family member in the ER while answering client messages.',fx:{hp:-1,fam:1},w:3,when:s=>s.f.married},
+ {t:'You dreamed you couldn’t finish a report and woke up in a panic.',fx:{hp:-1},w:3},
+ {t:'You bought a good pair of work shoes; site visits don’t hurt your feet anymore.',fx:{hp:1,cash:-1},w:3,when:s=>ADJR.includes(s.track)},
+ {t:'You got food poisoning on a business trip abroad.',fx:{hp:-2},w:4,when:s=>['rei','brk','bro'].includes(s.track)||s.f.abroad},
+ {t:'You asked a question in English at a conference for the first time.',fx:{net:1,pro:1},w:3,when:s=>s.age<40},
+ {t:'A new colleague asked what one clause meant; you talked for an hour.',fx:{rep:1},w:4,when:s=>s.rank>=2},
+ {t:'You got added to a 500-person claims group chat with a thousand messages a day.',fx:{hp:-1},w:3},
+ {t:'You fixed a typo in an old report. Nobody noticed.',fx:{pro:1},w:3},
+ {t:'You gave a public talk teaching people how to read a home insurance policy.',fx:{rep:1,net:1},w:3,when:s=>s.rank>=2},
+ {t:'You walked three kilometers in the rain before finding the site entrance.',fx:{hp:-1},w:3,when:s=>ADJR.includes(s.track)},
+ {t:'Your child’s teacher invited you to tell the class about your job.',fx:{fam:2},w:4,when:s=>s.kids>0&&s.age<52},
+ {t:'Your child rode a bicycle alone for the first time.',fx:{fam:2},w:4,when:s=>s.kids>0&&s.age<45},
+ {t:'Your child bombed an exam; you talked with them late into the night.',fx:{fam:1,hp:-1},w:4,when:s=>s.kids>0&&s.age<55},
+ {t:'Your partner gave you a new briefcase.',fx:{fam:2},w:3,when:s=>s.f.married},
+ {t:'You and your partner had a fight over whose turn it was to do the dishes.',fx:{fam:-1},w:3,when:s=>s.f.married},
+ {t:'The family dog kept you company through a very tiring winter.',fx:{hp:1,fam:1},w:3,when:s=>s.fam>=75},
+ {t:'You finally got a pair of reading glasses.',fx:{pro:1},w:4,when:s=>s.age>=45},
+ {t:'A colleague who started the same year as you retired; you had a very long dinner.',fx:{net:1},w:5,when:s=>s.age>=55},
+ {t:'A young colleague showed you a new app that saved you hours.',fx:{pro:1},w:4,when:s=>s.age>=45},
+ {t:'A young business owner on site called you “sir” and you froze for a second.',fx:{},w:3,when:s=>s.age>=48},
+ {t:'Your knees made a noise on the stairs.',fx:{hp:-1},w:4,when:s=>s.age>=48},
+ {t:'You received an obituary notice for a client from twenty years ago.',fx:{net:-1},w:3,when:s=>s.age>=55},
+ {t:'You kept your old business cards in a big box; you couldn’t bring yourself to throw them out.',fx:{},w:3,when:s=>s.age>=50},
+ {t:'You saw online that your apprentice got promoted.',fx:{net:1},w:4,when:s=>!!s.f.apr},
+ {t:'Before Christmas, a reinsurer sent you a greeting card.',fx:{net:1},w:4,when:s=>['rei','ins'].includes(s.track)},
+ {t:'A graduated student sent you a long thank-you letter.',fx:{rep:1,fam:1},w:5,when:s=>s.track==='edu'},
+ {t:'Cash was tight at the company this month, so you covered a payment yourself.',fx:{cash:-5},w:4,when:s=>!!s.co},
+ {t:'At a startup meetup someone asked you: “What’s your moat?”',fx:{net:1},w:4,when:s=>s.track==='tech'},
+ {t:'You ate the staff lunch at a client’s factory. It was surprisingly good.',fx:{net:1},w:4,when:s=>['brk','bro','con'].includes(s.track)},
+ {t:'On a typhoon day off, you still finished the report at home.',fx:{pro:1,fam:-1},w:4},
+ {t:'You found three hundred unread emails in your inbox.',fx:{hp:-1},w:3},
+ {t:'You won second prize at the year-end party.',fx:{cash:3},w:2}
+);
+
+const EMP=s=>!s.co&&!s.f.semi;
+E.push(
+{id:'lt_board',n:'An invitation to the board',w:31,once:1,when:s=>s.age>=50&&s.rep>=65,t:'A listed company invites you to be an independent director on its audit and risk committees. It happens to be a supplier of one of your long-time clients.',ch:[
+ {l:'Accept, disclose the conflict, and recuse yourself from related matters',c:{k:'rep',b:55,s:.7},ok:{t:'Your questions in the boardroom made management face several risks it had been ignoring.',fx:{rep:2,net:3,cash:15}},ng:{t:'After two years of meetings, you still feel like a rubber stamp.',fx:{rep:1,hp:-2,cash:15}}},
+ {l:'Decline, to protect your professional independence',ok:{t:'You recommend a more suitable senior colleague for the seat.',fx:{rep:2,net:1}}},
+ {l:'Accept, but miss meetings because work is too busy',ok:{t:'In the annual report, your board attendance is the lowest in the company.',fx:{cash:15,rep:-4}}}
+]},
+{id:'lt_arb',n:'A call to arbitrate',w:31,once:1,when:s=>s.age>=52&&s.rep>=70&&s.pro>=65,t:'The arbitration association invites you to serve as arbitrator in an engineering insurance dispute. Both sides have hired top lawyers, and the case file is half your height.',ch:[
+ {l:'Accept, and read the file cover to cover',c:{k:'pro',w:{pro:.6,rep:.4},b:50,s:.9},ok:{t:'Both sides accepted the award you wrote.',fx:{rep:3,pro:2,cash:20,hp:-3}},ng:{t:'One side refused to accept it and sued in court to set the award aside.',fx:{rep:-2,hp:-3,cash:10}}},
+ {l:'Decline: you have worked with one of the parties',ok:{t:'The association thanks you for your candor and appoints someone else.',fx:{rep:2}}}
+]},
+{id:'lt_book',n:'Putting it in a book',w:26,once:1,when:s=>s.age>=48&&s.pro>=70,t:'A publisher asks you to write a book on claims practice. You have thirty years of cases, and every one of them comes with confidentiality issues.',ch:[
+ {l:'De-identify the cases and rewrite them as teaching scenarios',c:{k:'pro',b:55,s:.8},ok:{t:'Once published, the book became required reading for the association’s training courses.',fx:{rep:3,pro:2,cash:5}},ng:{t:'Halfway through, work got busy and you stopped.',fx:{hp:-2}}},
+ {l:'Write the real cases as they happened; they’re more gripping',ok:{t:'The book is a good read, but an old client recognized his own case and was not pleased.',fx:{rep:-3,net:-3,cash:8}}},
+ {l:'Decline: you don’t have time yet',ok:{t:'You put the publisher’s business card in a drawer.',fx:{}}}
+]},
+{id:'lt_lecture',n:'An offer to teach at your alma mater',w:26,once:1,when:s=>s.age>=45&&s.track!=='edu',t:'The department head at your alma mater invites you to teach a “Claims Practice” course, one evening a week.',ch:[
+ {l:'Accept, and bring real cases into the classroom',c:{w:{pro:.5,net:.5},b:55,s:.7},ok:{t:'A student’s end-of-term feedback says: “First time I’ve found insurance interesting.”',fx:{rep:3,net:3,hp:-2}},ng:{t:'Preparing classes takes far more time than you thought; it’s a struggle.',fx:{hp:-3,rep:1}}},
+ {l:'Decline: you want to keep evenings for family',ok:{t:'The department head says: “Then come back when you retire.”',fx:{fam:2}}}
+]},
+{id:'lt_boss',n:'The young new boss',w:31,once:1,when:s=>s.age>=45&&EMP(s)&&s.rank<5&&s.track!=='edu',t:'Your new department head is fifteen years younger than you. At the first meeting, he announces “full digitalization; the old processes go.”',ch:[
+ {l:'Ask him for a chat and explain why some old processes exist',c:{k:'net',b:55,s:.8},ok:{t:'He started coming to you for advice, and even asked you to lead the testing of the new process.',fx:{net:4,rep:2}},ng:{t:'He thinks you’re pulling rank on him.',fx:{net:-3}}},
+ {l:'Go along with it and learn the new system yourself',c:{k:'pro',b:50,s:.7},ok:{t:'You became the senior colleague who knows the new system best.',fx:{pro:3,hp:-1}},ng:{t:'The new system frustrated you for months.',fx:{hp:-3}}},
+ {l:'Complain privately to old colleagues',ok:{t:'Your words quickly reached the boss.',fx:{net:-2,rep:-2}}}
+]},
+{id:'lt_knee',n:'Knees that can’t do roofs',w:31,once:1,when:s=>s.age>=50&&ADJR.includes(s.track),t:'The doctor says your knees have worn down and you should stop climbing ladders. But most typhoon-season cases are up on the roof.',ch:[
+ {l:'Switch to drones, split the work with young colleagues, and focus on judgment and reports',c:{k:'pro',b:55,s:.7},ok:{t:'With the work split, inspections actually got faster.',fx:{pro:2,hp:3,rep:1}},ng:{t:'The drone couldn’t capture a few key angles, and the report was sent back.',fx:{rep:-2}}},
+ {l:'Grit your teeth and keep climbing',ok:{t:'You went up a few more roofs, and your knee stayed swollen for a month.',fx:{hp:-6,rep:1}}},
+ {l:'Move to desk-based review',ok:{t:'You miss the fieldwork, but your body is much better for it.',fx:{hp:4,pro:-1}}}
+]},
+{id:'lt_vrs',n:'The early retirement package',w:31,once:1,when:s=>s.age>=52&&s.age<=60&&EMP(s),t:'The company is offering an early retirement package: leave now and get an extra eighteen months’ pay. HR says places are limited.',ch:[
+ {l:'Accept, and come back as a contract consultant three days a week',ok:{t:'You have much more time; the pay is lower, but you feel lighter.',fx:{cash:40,flag:'semi',hp:4,fam:3}}},
+ {l:'Stay on until retirement',ok:{t:'You decide to finish your last few years properly.',fx:{rep:1}}},
+ {l:'Use the moment to negotiate a move to senior consultant',c:{k:'net',b:50,s:.8},ok:{t:'The company agreed. Somewhat less pay, much more freedom.',fx:{flag:'semi',cash:20,hp:3,fam:2,rep:1}},ng:{t:'The company says the consultant positions are already filled.',fx:{}}}
+]},
+{id:'lt_oldcase',n:'The case from twenty years ago',w:26,once:1,when:s=>s.age>=45&&(ADJR.includes(s.track)||s.track==='ins'),t:'A lawyer’s letter arrives at the office: the children of an insured in a fire case you handled twenty years ago claim the payout was too low and demand a recalculation.',ch:[
+ {l:'Pull the old working papers and explain item by item',c:{k:'pro',b:50,s:.8},ok:{t:'The working papers were complete; the lawyer withdrew after reading them.',fx:{rep:3,pro:1}},ng:{t:'The old working papers can’t be found, so you can only explain from memory.',fx:{rep:-3,hp:-2}}},
+ {l:'Hand it to Legal, pointing out the limitation period expired long ago',ok:{t:'After Legal replied, the other side did not pursue it.',fx:{}}}
+]},
+{id:'lt_study',n:'Your child wants to study abroad',w:36,once:1,when:s=>s.kids>0&&s.age>=47&&s.age<=58,t:'Your child has been admitted to a graduate program overseas. Tuition and living costs come to over US$30K a year.',ch:[
+ {l:'Back them fully, using your retirement savings',ok:{t:'On departure day, you cried at the airport harder than your child did.',fx:{cash:-150,fam:5}}},
+ {l:'Cover part of it; your child applies for scholarships and loans for the rest',c:{k:'fam',b:55,s:.7},ok:{t:'Your child won a half scholarship and learned to plan for themselves.',fx:{cash:-70,fam:3}},ng:{t:'Your child feels you weren’t supportive enough, and things at home got tense.',fx:{cash:-70,fam:-2}}},
+ {l:'Suggest studying in Taiwan instead',ok:{t:'Your child stays in Taiwan, but you know they have some regrets.',fx:{fam:-3}}}
+]},
+{id:'lt_home',n:'Your child’s down payment',w:31,once:1,when:s=>s.kids>0&&s.age>=55,t:'Your child is getting married and wants to buy a home in Taipei. They ask if you can help with part of the down payment.',ch:[
+ {l:'Pay half the down payment',ok:{t:'The day the keys were handed to your child, it felt worth it.',fx:{cash:-300,fam:5}}},
+ {l:'Lend it to them, to be repaid over time',c:{k:'fam',b:55,s:.7},ok:{t:'Your child repays on time every month and has grown more responsible.',fx:{cash:-200,fam:2}},ng:{t:'Talking money between parent and child got a bit awkward.',fx:{cash:-200,fam:-2}}},
+ {l:'Don’t pay, but help them view homes and negotiate',ok:{t:'You spotted a leak problem in one place and saved them a lot of money.',fx:{fam:2,pro:1}}}
+]},
+{id:'lt_grand',n:'Becoming a grandparent',w:36,once:1,when:s=>s.kids>0&&s.age>=56,t:'You’ve become a grandparent. Your child asks if you can help look after the baby on weekends.',ch:[
+ {l:'Help every weekend',ok:{t:'You relearned how to change diapers, and found yourself smiling more than you do at work.',fx:{fam:6,hp:-1}}},
+ {l:'Help now and then, and keep some time for yourself',ok:{t:'You and your child agreed on two weekends a month.',fx:{fam:3,hp:1}}}
+]},
+{id:'lt_trip',n:'Somewhere far away',w:31,once:1,when:s=>s.f.married&&!s.f.divorced&&s.age>=50,t:'Your partner says: “All these years married, and we’ve never traveled abroad together for more than a week.” They want a month in Europe.',ch:[
+ {l:'Take long leave and go together',ok:{t:'You got lost in the streets of Lisbon and laughed the whole afternoon.',fx:{fam:6,hp:3,cash:-30,rep:-1}}},
+ {l:'Go for two weeks and work remotely',c:{k:'fam',b:55,s:.7},ok:{t:'You answered a few emails on the road and spent most of the time with family.',fx:{fam:3,cash:-20}},ng:{t:'You were on the phone the whole trip, and your partner was disappointed.',fx:{fam:-3,cash:-20}}},
+ {l:'Wait until retirement',ok:{t:'Your partner didn’t bring it up again.',fx:{fam:-3}}}
+]},
+{id:'lt_farewell',n:'Mr. Lin’s funeral',w:31,once:1,when:s=>s.age>=55&&s.npc.lin>-20,t:'Mr. Lin, who brought you into the trade, has passed away. Many of the people you once ran sites with came to the funeral.',ch:[
+ {l:'Give a eulogy about the first thing he taught you',ok:{t:'You couldn’t finish halfway through, and many in the audience had tears in their eyes.',fx:{rep:2,net:3,fam:1}}},
+ {l:'Quietly offer incense and catch up with old colleagues',ok:{t:'Talking about those old typhoon nights, everyone seemed twenty years younger.',fx:{net:3}}}
+]},
+{id:'lt_heir',n:'Who takes over the company',w:36,once:1,when:s=>!!s.co&&s.age>=55,t:'You’ve run the company for many years. It’s time to think about succession.',ch:[
+ {l:'Develop an in-house professional manager',c:{w:{net:.5,rep:.5},b:50,s:.8},ok:{t:'You spent two years training a successor, and the company runs even more smoothly than when you were there.',fx:{rep:2,hp:3}},ng:{t:'The successor wasn’t up to it, so you had to come back and take charge.',fx:{hp:-3}}},
+ {l:'Hand it to your child',show:s=>s.kids>0,c:{k:'fam',b:45,s:.8},ok:{t:'Your child brings new ideas, and old clients are willing to give them a chance.',fx:{fam:4,rep:2}},ng:{t:'Your child has no interest in the trade and wants to sell after two reluctant years.',fx:{fam:-3}}},
+ {l:'Find a buyer in the industry',ok:{t:'You agreed terms with the buyer, and all the staff kept their jobs.',fx:{sell:1.1,rep:1}}}
+]},
+{id:'lt_last',n:'One last big case before retirement',w:36,once:1,when:s=>s.age>=60&&(ADJR.includes(s.track)||['ins','brk'].includes(s.track)),t:'Only a few years to retirement, and a major factory fire has been assigned to you by name. The company says: “Finish this one and you can retire with peace of mind.”',ch:[
+ {l:'Lead the team yourself and make it your signature case',c:{k:'pro',w:{pro:.6,hp:.4},b:50,s:.9},ok:{t:'On the day it closed, the young colleagues bound your report and put it in the company library.',fx:{rep:3,pro:2,hp:-4}},ng:{t:'The case dragged on for two years and was still open when you retired.',fx:{hp:-5,rep:-1}}},
+ {l:'Let the young colleagues lead, and check their work',c:{k:'net',b:55,s:.8},ok:{t:'The young team did very well. Watching them, you remembered yourself at their age.',fx:{net:4,rep:3}},ng:{t:'The young team missed a few key points, and in the end you had to step in.',fx:{hp:-3}}}
+]},
+{id:'lt_pension',n:'How to take your pension',w:36,once:1,when:s=>s.age>=58,t:'Retirement is near. You have to decide which parts of your Labor Insurance old-age benefit and your pension to take as a lump sum and which as monthly payments.',ch:[
+ {l:'Take everything you can monthly; the longer you live, the more you get',ok:{t:'You ran the numbers: as long as you outlive average life expectancy, monthly payments come out ahead.',fx:{fam:1,hp:1}}},
+ {l:'Take a lump sum and invest it yourself',c:{k:'pro',b:50,s:.7},ok:{t:'You put the money into a conservative portfolio and planned your cash flow.',fx:{cash:30}},ng:{t:'A market crash hit in your second year of retirement, and you couldn’t sleep watching the account.',fx:{cash:-30,hp:-2}}},
+ {l:'Ask a financial adviser to run the numbers',ok:{t:'The adviser modeled three scenarios, and you felt much more at ease.',fx:{pro:1,cash:-2}}}
+]}
+);
+['lt_study','lt_home','lt_grand','lt_trip','lt_pension'].forEach(id=>LIFE.add(id));
+Object.assign(KNOW,{
+ lt_board:['Independent directors','Independent directors of listed companies must have relevant expertise and independence, with no material interest in the company. Before accepting, check for conflicts of interest, and recuse yourself from related matters.'],
+ lt_arb:['Arbitration','Arbitration resolves disputes outside the courts and is common in insurance and construction disputes. Under Taiwan’s Arbitration Act, an award has the same effect as a final court judgment; arbitrators must be impartial and independent and disclose possible conflicts of interest.'],
+ lt_book:['De-identifying cases','When sharing claim cases, remove anything that identifies the parties, places or amounts. Adjusters and brokers owe clients a duty of confidentiality and are also bound by Taiwan’s Personal Data Protection Act.'],
+ lt_lecture:['Industry lecturers','Many universities invite industry experts to teach as adjunct lecturers, bringing practical experience into the classroom. For professionals, teaching is also a good way to organize what they know.'],
+ lt_boss:['Working across generations','A senior employee’s experience and a young manager’s new methods need not conflict. Explaining the risk reasoning behind a process persuades more than simply resisting change.'],
+ lt_knee:['How inspection tools have evolved','Drones, aerial photography and 3D scanning let you inspect roofs, heights and hazardous areas without risky climbing, and keep more complete evidence.'],
+ lt_vrs:['Early retirement packages','When companies restructure, they often offer early retirement packages to encourage senior staff to leave early. Before deciding, weigh your pension, Labor and National Health Insurance, and your income plans afterwards.'],
+ lt_oldcase:['Record keeping and limitation periods','Under Article 65 of Taiwan’s Insurance Act, rights arising from an insurance contract are extinguished if not exercised within two years from when they could first be claimed. Even so, keep working papers and correspondence according to company policy: years later, they are your best protection.'],
+ lt_study:['Education funds and retirement','Children’s education and your own retirement often need money at the same time. Financial planning usually puts securing retirement first, then decides how much education support you can afford.'],
+ lt_home:['Home insurance and inspection','Before buying a home, check for leaks, efflorescence and structural problems. After handover, you can buy residential fire and earthquake insurance, and add typhoon and flood cover as needed.'],
+ lt_grand:['Insurance for children','Common coverage for a newborn includes medical and accident protection. Protection comes before savings, and premiums should stay within what the family budget can bear.'],
+ lt_trip:['Travel insurance','Before going abroad, you can buy travel accident insurance and travel inconvenience insurance. Medical costs overseas are high, so check whether the policy covers sudden illness abroad and emergency medical evacuation.'],
+ lt_farewell:['What mentors leave behind','Most claims judgment is passed from mentor to apprentice, by word and example. Handing down what your seniors taught you is the trade’s most precious tradition.'],
+ lt_heir:['Business succession planning','A small business can pass to family members or in-house managers, or be sold to an outside buyer. Planning early, developing people and putting systems in order are the keys to a smooth handover.'],
+ lt_last:['Handover and legacy','Before retiring, letting young colleagues lead a big case while you check their work is the most effective way to develop the next generation.'],
+ lt_pension:['Choosing retirement benefits','Taiwan’s Labor Insurance old-age benefit and labor pension can be taken as a lump sum or monthly, depending on years of service and coverage. Monthly payments protect against outliving your savings; a lump sum keeps flexibility. Choose based on health, family and how well you manage money.']
+});
+
+const RVT={
+ A:'Your three-yearly review is in: you got an A. Over this period, {a} things you handled went well and {b} didn’t. Your boss says: “If there’s something you want, ask.”',
+ B:'Your three-yearly review is in: you got a B. Over this period, {a} things you handled went well and {b} didn’t. Your boss asks: “What are your plans from here?”',
+ C:'Your three-yearly review is in: you got a C. Over this period, {a} things you handled went well and {b} didn’t. Your boss says: “These years have been hard. Let’s talk about what to adjust.”'
+};
+function rvGrade(){const p=S.pf||{g:0,b:0},v=p.g-1.5*p.b+(S.pro+S.rep-120)/20;return v>=2.5?'A':v>=-0.5?'B':'C'}
+function rvDue(){return !S.co&&!S.f.semi&&S.age>=26&&S.age<=62&&(S.age-23)%3===0}
+function promoNear(s){const nx=RANK[s.rank+1];if(!nx||s.f.semi||s.co)return false;const o=RT().off,cd=2*certN();return s.age-23>=nx.y-1&&s.pro>=nx.pro+(o.pro||0)-cd&&s.rep>=nx.rep+(o.rep||0)-cd&&s.net>=nx.net+(o.net||0)-cd}
+['A','B','C'].forEach(g=>{
+  const B={A:[70,42,.04],B:[50,25,.025],C:[25,10,.015]}[g];
+  E.push({id:'rv_'+g,n:'Performance review',rv:1,w:0,kk:'review',t:s=>fill(RVT[g],{a:(s.pf||{}).g||0,b:(s.pf||{}).b||0}),ch:[
+   {l:'Ask for a raise',c:{w:{rep:.5,pro:.5},b:B[0],s:.5},ok:{t:g==='A'?'Your boss agreed without hesitation.':g==='B'?'Your boss promised to push for you, and in the end you got a little more.':'Your boss reluctantly agreed, but says he wants to see change next year.',fx:{raise:B[2]}},ng:{t:'Your boss says the budget is tight this year; maybe next year.',fx:{rep:-1}}},
+   {l:'Ask for a promotion',show:s=>promoNear(s),c:{w:{pro:.5,rep:.5},b:B[1],s:.6},ok:{t:'Your boss put your name on the promotion list, and it went through quickly.',fx:{promo:1,rep:1}},ng:{t:'Your boss says: “Give it a bit more time.”',fx:{hp:-1,rep:-1}}},
+   {l:'Apply to move to the technical track',a:.05,show:s=>g!=='C'&&s.rank>=2&&s.pro>=60&&(s.track==='adj'||s.track==='mgr'),ok:{t:'The company agreed. You now focus on forensics and technical judgment.',fx:{route:'exp',pro:1}}},
+   {l:'Apply to move to the management track',a:.05,show:s=>g!=='C'&&s.rank>=2&&s.net>=60&&(s.track==='adj'||s.track==='exp'),ok:{t:'The company agreed. You now lead a team.',fx:{route:'mgr',net:1}}},
+   {l:'Apply to change your specialty',a:.15,show:s=>!!(BRN[s.track]&&s.br[s.track]),ok:{t:'Your boss agreed to let you choose a new specialty next year.',fx:{rebrn:1}}},
+   {l:'Keep things as they are and put life first',ok:{t:'You give the energy you’ve freed up to yourself and your family.',fx:{hp:1,fam:2}}}
+  ]});
+});
+KNOW.review=['Performance reviews and pay','Companies often use regular reviews to decide raises and promotions. Grades usually combine results, professional skill and attitude. When you ask for something, concrete results persuade more than seniority alone.'];
+
+
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const app=document.getElementById('app');
 let P='start',S=null,R=null,EV=null,RES=null,END=null,auto=false,paused=false,speed='slow',T=null,startSeed='',fresh=0,focus='bal';
@@ -3901,6 +4122,8 @@ function apply(fx){
   if(fx.cert&&!S.cert[fx.cert]){S.cert[fx.cert]=S.age;S.ms.push({k:'cert',a:S.age,c:fx.cert});S.log.push({age:S.age,t:'Earned '+CERT[fx.cert].n,k:'up',m:1})}
   if(fx.certf)S.cx[fx.certf]=(S.cx[fx.certf]||0)+1;
   if(fx.flag==='cert'&&!S.cert.cila)S.cert.cila=S.age;
+  if(fx.promo){const nx=RANK[S.rank+1];if(nx){S.rank++;S.log.push({age:S.age,t:'Promoted to “'+rankName()+'”',k:'up',m:1});S.ms.push({k:'promo',a:S.age,r:S.rank,t:rankName()})}}
+  if(fx.rebrn&&BRN[S.track]){delete S.br[S.track];if(!S.q.some(x=>x.id==='brp_'+S.track))S.q.unshift({id:'brp_'+S.track,at:S.age+1})}
   if(fx.brn){S.br[S.track]=fx.brn;S.ms.push({k:'brn',a:S.age,r:S.track,b:fx.brn});S.log.push({age:S.age,t:'Specialty: '+BRX[fx.brn].n,k:'up'})}
   if(fx.found)found(fx.found,fx.fcap);
   if(S.co){
@@ -3989,12 +4212,13 @@ function tick(){
   else if(R()<0.6){ev=histPick();if(!ev)ev=pickEvent()}
   let line=null,lfx=null;
   if(!ev&&R()<0.6){const m=pickMinor();if(m){const mf=growFx(m.fx);apply(mf);line=m.t;lfx=mf}}
-  if(!line){const g=f.id==='field'?fGroup():null;const ph=g&&FPH[g]?FPH[g]:f.ph;line=ph[rint(ph.length)]}
+  if(!line)line=focusLine(f);
   S.log.push({age:S.age,t:line,k:'yr',fx:lfx});
   snap();fresh=S.log.length;
   const end=checkEnd()||(mortal()?'sick':null);
   if(end)return finish(end);
-  if(ev){EV=ev;S.vr=(!ev.br&&R()<0.6)?(LIFE.has(ev.id)?VARS.l:VARS.w)[rint(LIFE.has(ev.id)?VARS.l.length:VARS.w.length)]:null;P='event'}else newYear();
+  if(rvDue()){if(ev)S.pend=ev;ev=E.find(e=>e.id==='rv_'+rvGrade())}
+  if(ev){EV=ev;S.vr=(!ev.br&&!ev.rv&&R()<0.6)?(LIFE.has(ev.id)?VARS.l:VARS.w)[rint(LIFE.has(ev.id)?VARS.l.length:VARS.w.length)]:null;P='event'}else newYear();
   render();
 }
 
@@ -4008,7 +4232,7 @@ function statOf(ch){
 }
 const cOf=ch=>ch.c||{k:statOf(ch)};
 function outs(ch){
-  if(ch.ok.fx.end||ch.ok.fx.brn)return [{n:'OK',p:100,g:'m',r:ch.ok}];
+  if(ch.ok.fx.end||ch.ok.fx.brn||(EV&&EV.rv&&!ch.c))return [{n:'OK',p:100,g:'m',r:ch.ok}];
   if(ch.c){
     const p=Math.round(pOf(ch.c));
     const rm=hasT('risk')?1.5:1,wm=hasSt('watch')?2:1;
@@ -4041,16 +4265,17 @@ function choose(i){
   fx=growFx(fx);
   const r={t:base.t,fx};
   const bs=bonuses(c);
-  const line=O.length>1?'Rolled '+roll+' · by '+cLab(c)+'('+Math.round(sv(c))+')'+(bs.length?' · bonuses '+bs.map(x=>x[0]+(x[1]>0?'+':'')+x[1]).join(', '):'')+(S.vr?' · variable '+S.vr.n:'')+' · '+O.map(x=>x.n+' '+x.p+'%').join(' / '):'';
+  const line=O.length>1?'Rolled '+roll+' · by '+cLab(c)+' ('+Math.round(sv(c))+')'+(bs.length?' · bonuses '+bs.map(x=>x[0]+(x[1]>0?'+':'')+x[1]).join(', '):'')+(S.vr?' · variable '+S.vr.n:'')+' · '+O.map(x=>x.n+' '+x.p+'%').join(' / '):'';
   apply(fx);
   if(ev.hy)S.ms.push({k:'hist',a:S.age,src:ev.src});
   if(ev.id==='big3'||/^bg_\w+3$/.test(ev.id))S.ms.push({k:'big',a:S.age,g:o.g,x:ev.id==='big3'?BIG[S.sp.id].n:BIGR[ev.route[0]].n});
   if(JUST.has(ev.id+':'+i))S.honest++;
   if(ev.cl&&ch.ans){if(ev.ca)S.car++;else S.clr++}
-  if(o.g==='g'&&!LIFE.has(ev.id)&&!ev.br&&!ev.job&&!/^(brp_|fb_|s_|n_|ap_|hosp|c_)/.test(ev.id)){const w=((ev.id==='big3'||/^bg_\w+3$/.test(ev.id))?10:ev.big?6:ev.hy?5:/^fs_/.test(ev.id)?4:0)+(o.n==='Great success'?4:o.n==='Success'?2:1)+(ev.cl&&ch.ans?2:0)+((ev.brn||ev.spec)?1:0);S.cases.push({a:S.age,n:nm(ev),o:o.n,w})}
+  if(/^rv_/.test(ev.id))S.pf={g:0,b:0};else if(!LIFE.has(ev.id)&&!/^(fb_|s_|brp_|ex_)/.test(ev.id)){S.pf=S.pf||{g:0,b:0};if(o.g==='g')S.pf.g++;else if(o.g==='b')S.pf.b++}
+  if(o.g==='g'&&!LIFE.has(ev.id)&&!ev.br&&!ev.job&&!/^(brp_|fb_|s_|n_|ap_|hosp|c_|rv_|ex_)/.test(ev.id)){const w=((ev.id==='big3'||/^bg_\w+3$/.test(ev.id))?10:ev.big?6:ev.hy?5:/^fs_/.test(ev.id)?4:0)+(o.n==='Great success'?4:o.n==='Success'?2:1)+(ev.cl&&ch.ans?2:0)+((ev.brn||ev.spec)?1:0);S.cases.push({a:S.age,n:nm(ev),o:o.n,w})}
   if(ev.job)S.lj=S.age;
   S.seen[ev.id]=1;S.evc++;
-  S.log.push({age:S.age,t:nm(ev)+'|'+lbl(ch)+'('+o.n+').'+r.t+(flav?' '+flav:'')+(tw?' '+tw.t:''),k:o.g==='b'?'bad':'ev',fx,m:0});
+  S.log.push({age:S.age,t:nm(ev)+'|'+lbl(ch)+' ('+o.n+'). '+r.t+(flav?' '+flav:'')+(tw?' '+tw.t:''),k:o.g==='b'?'bad':'ev',fx,m:0});
   snap();fresh=S.log.length;
   RES={ev,ch,r,o,tw,flav,line,end:fx.end?'special':checkEnd()};
   RES.newCard=kn(ev)?dexAdd(knKey(ev)):false;if(RES.newCard)S.nc++;
@@ -4058,6 +4283,7 @@ function choose(i){
 }
 function cont(){
   if(RES&&RES.end)return finish(RES.end,RES.r.fx.end);
+  if(S.pend){const e=S.pend;S.pend=null;if((!e.route||e.route.includes(S.track))&&(!ROUTE_OK[e.id]||ROUTE_OK[e.id].includes(S.track))&&(!e.brn||e.brn.includes(S.br[S.track]))){RES=null;EV=e;S.vr=(!e.br&&R()<0.6)?(LIFE.has(e.id)?VARS.l:VARS.w)[rint(LIFE.has(e.id)?VARS.l.length:VARS.w.length)]:null;P='event';render();return}}
   RES=null;EV=null;S.vr=null;P='run';newYear();render();
 }
 function score(kind){
@@ -4296,6 +4522,8 @@ function arrows(fx){
   if(fx.big&&fx.big>-9)o.push(chip('Big case '+(fx.big>0?'advantage':'disadvantage'),fx.big>0?'up':'dn'));
   if(fx.sched)o.push(chip(/^big/.test(fx.sched.id)?'Big case: next stage':'Sets up a follow-up','hk'));
   if(fx.sell)o.push(chip('Sells company','hk'));
+  if(fx.promo)o.push(chip('Promotion','up'));
+  if(fx.rebrn)o.push(chip('Choose specialty again','hk'));
   if(fx.bust)o.push(chip('Company closes','dn'));
   if(fx.ipo)o.push(chip('Going public','hk'));
   if(fx.end)o.push(chip('Life turn','hk'));
@@ -4315,7 +4543,7 @@ function fxChips(fx){
   if(fx.big&&fx.big>-9)o.push(chip('Big case '+(fx.big>0?'advantage +':'disadvantage ')+fx.big,fx.big>0?'up':'dn'));
   if(fx.sched)o.push(chip(/^big/.test(fx.sched.id)?'Big case: next stage':'Sets up a follow-up','hk'));
   ['lin','chen','wang','apr'].forEach(k=>{if(fx[k])o.push(chip(NPCN[k]+' goodwill '+(fx[k]>0?'+':'')+fx[k],fx[k]>0?'up':'dn'))});
-  if(fx.st)o.push(chip('Status: '+STA[fx.st].n+'('+STA[fx.st].y+' yr)','hk'));
+  if(fx.st)o.push(chip('Status: '+STA[fx.st].n+' ('+STA[fx.st].y+' yr)','hk'));
   if(fx.sk)o.push(chip('Learns: '+SK[fx.sk].n,'hk'));
   if(fx.strat)o.push(chip('Investing set to '+STRAT[fx.strat].n,'hk'));
   if(fx.invSell)o.push(chip('Sell '+(fx.invSell<1?'half of ':'all ')+'investments','hk'));
@@ -4328,6 +4556,8 @@ function fxChips(fx){
   if(fx.Vm)o.push(chip('Company value ×'+fx.Vm,fx.Vm>=1?'up':'dn'));
   if(fx.pol)o.push(chip('Strategy set to '+POL[fx.pol].n,'hk'));
   if(fx.sell)o.push(chip('Sells company','hk'));
+  if(fx.promo)o.push(chip('Promotion','up'));
+  if(fx.rebrn)o.push(chip('Choose specialty again','hk'));
   if(fx.bust)o.push(chip('Company closes','dn'));
   if(fx.ipo)o.push(chip('Going public','hk'));
   if(fx.end)o.push(chip('Life turn','hk'));
@@ -4352,7 +4582,7 @@ function stage(){
 }
 function finLine(){
   if(!detail)return '<p class="cap">Money: '+STRAT[S.strat].n+(S.home>0?' · Owns property':'')+(S.mort>0?' · Paying mortgage':'')+'</p>';
-  const p=['Cash '+cur(S.cash)+'','Investments '+cur(S.inv)+'('+STRAT[S.strat].n+(S.inv>0?', this year '+(S.lr>=0?'+':'')+Math.round(S.lr)+'%':'')+')'];
+  const p=['Cash '+cur(S.cash)+'','Investments '+cur(S.inv)+' ('+STRAT[S.strat].n+(S.inv>0?', this year '+(S.lr>=0?'+':'')+Math.round(S.lr)+'%':'')+')'];
   if(S.home>0)p.push('Property '+cur(S.home)+''+(S.mort>0?' (mortgage '+cur(S.mort)+')':''));
   let h='<p class="cap mono">'+p.join(' · ')+'</p>';
   if(S.co){const c=S.co;h+='<div class="var">'+CO[c.t].n+' · Size '+c.sz.toFixed(1)+' · Last year '+(c.lp>=0?'profit +':'loss ')+cur(c.lp)+' · Company value '+cur(c.V)+' · Reserves '+cur(c.res)+' · Governance '+Math.round(c.gov)+' · Strategy: '+POL[c.pol].n+'</div>'}
@@ -4482,6 +4712,8 @@ function probHTML(){
    +'<tr><td>Credentials</td><td>Adjuster and broker licenses, ACII, CPCU, a master’s and a doctorate. Credentials that fit your current route (up to 2 count) each lower promotion thresholds by 2, add 3% to promotion chances and 3% to pay, and unlock special events. You can still be promoted without them. The more years your life focus has been on “Keep learning,” the easier the exams.</td></tr>'
    +'<tr><td>Achievements</td><td>The “Achievements” tab in the collection tracks the endings you’ve seen, life goals you’ve met and your best score across lives, saved in this device’s browser.</td></tr>'
    +'<tr><td>Big cases for every career</td><td>Insurers, broking, reinsurance, academia, consulting, broker firms and startups each have their own three-stage big case.</td></tr>'
+   +'<tr><td>Performance review</td><td>Every three years while employed (ages 26 to 62). Graded A/B/C on how the work events of those three years went, plus your Expertise and Reputation; the higher the grade, the easier a raise or promotion is to win. You can also apply to switch to the technical or management track, choose a new specialty, or keep things as they are. A review never takes the place of that year’s regular event.</td></tr>'
+   +'<tr><td>Late career</td><td>After 45, events of their own appear: an independent director seat, arbitration, early retirement, children studying abroad and settling down, and how to take your pension.</td></tr>'
    +'<tr><td>Specialization</td><td>The year after joining an insurer, a broker, a reinsurer, academia, a consultancy, an adjusting firm, a brokerage or a startup, you choose a specialty (3 options each). Your specialty changes your title, pay or health cost, and unlocks its own events (weight ×2, checks +5%).</td></tr>'
    +'<tr><td>Clause readings</td><td>Judged on Expertise: the right reading +25%, a wrong one −15%. The result card always shows the correct answer and why. The Policy & Law skill applies.</td></tr>'
    +'<tr><td>Real events</td><td>Based on real events, not tied to calendar years. Each year has about a 9% chance of one; within a life they happen in real chronological order, shown from your current job’s perspective.</td></tr>'
@@ -4513,6 +4745,7 @@ function dexAdd(k){dexLoad();if(DEX[k])return false;DEX[k]=1;try{localStorage.se
 const knKey=e=>e.id==='big2'?'big2_'+S.sp.id:(e.kk||e.id);
 const DEXCAT=[['fire','Property & Fire'],['cargo','Cargo & Marine'],['eng','Engineering & Renewables'],['semi','High-Tech & Business Interruption'],['motor','Liability & Motor'],['claim','Claims Practice & Ethics'],['career','Career Development'],['ins','Insurers & Reinsurance'],['brk','Brokers, Consultants & Academia'],['biz','Startups & Insurtech'],['clause','Clause Readings'],['calc','Adjusting math'],['hist','Real Events'],['life','Life & Money']];
 function dexCat(e){
+  if(e.rv)return 'career';
   if(e.ca)return 'calc';
   if(e.cl)return 'clause';
   if(e.hy)return 'hist';
@@ -4700,7 +4933,7 @@ function birthView(){
 function eventCard(){
   if(P==='event'){
     const br=!!(EV.br||EV.job),bigc=!!EV.big;
-    const vr=S.vr?'<p class="var">On the scene: '+S.vr.n+(detail?'('+(S.vr.k==='all'?'all checks':KN[S.vr.k]+' checks')+' '+(S.vr.v>0?'+':'−')+Math.abs(S.vr.v)+'%)':'')+'</p>':'';
+    const vr=S.vr?'<p class="var">On the scene: '+S.vr.n+(detail?' ('+(S.vr.k==='all'?'all checks':KN[S.vr.k]+' checks')+' '+(S.vr.v>0?'+':'−')+Math.abs(S.vr.v)+'%)':'')+'</p>':'';
     const opts=EV.ch.map((c,i)=>{
       if(!shown(c))return '';
       const ok=open(c);
@@ -4723,7 +4956,7 @@ function eventCard(){
     }).join('');
     const bl=bonuses({k:'pro'}).filter(x=>!x[2]&&!['Technical expert','Professional qualifications','Youthful energy'].includes(x[0]));
     const bline=bl.length?'<p class="var">'+(detail?'Your edge: '+bl.map(x=>x[0]+(x[1]>0?' +':' ')+x[1]+'%').join(', '):(bl.some(x=>x[1]>0)?'In your favor: '+bl.filter(x=>x[1]>0).map(x=>x[0]).join(', '):'')+(bl.some(x=>x[1]<0)?(bl.some(x=>x[1]>0)?' · ':'')+'Against you: '+bl.filter(x=>x[1]<0).map(x=>x[0]).join(', '):''))+'</p>':'';
-    return '<div id="evbox"><span class="tab'+(br?' br':EV.hy?' hist':'')+'">'+S.age+' yrs old · '+(br?'Career offer':bigc?'Big case ':EV.ca?'Adjusting math':EV.cl?'Clause question':EV.hy?'Real event':'Crossroads')+'</span><div class="card '+(br?'br':'ev')+'"><h2>'+nm(EV)+'</h2>'+(EV.src?'<p class="src">Based on a real event: '+EV.src+'</p>':'')+'<p>'+glz(tx(EV))+'</p>'+(EV.cl?'<blockquote class="clause"><span class="kt">'+(EV.ca?'Case data':'Policy wording')+'</span>'+'<div>'+glz(EV.cl.x)+'</div></blockquote>':'')+vr+bline+'<div class="opts">'+opts+'</div></div></div>';
+    return '<div id="evbox"><span class="tab'+(br?' br':EV.hy?' hist':'')+'">'+S.age+' yrs old · '+(br?'Career offer':bigc?'Big case ':EV.rv?'Performance review':EV.ca?'Adjusting math':EV.cl?'Clause question':EV.hy?'Real event':'Crossroads')+'</span><div class="card '+(br?'br':'ev')+'"><h2>'+nm(EV)+'</h2>'+(EV.src?'<p class="src">Based on a real event: '+EV.src+'</p>':'')+'<p>'+glz(tx(EV))+'</p>'+(EV.cl?'<blockquote class="clause"><span class="kt">'+(EV.ca?'Case data':'Policy wording')+'</span>'+'<div>'+glz(EV.cl.x)+'</div></blockquote>':'')+vr+bline+'<div class="opts">'+opts+'</div></div></div>';
   }
   if(P==='result'){
     const K=kn(RES.ev);
