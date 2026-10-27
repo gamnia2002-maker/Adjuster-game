@@ -334,6 +334,10 @@ details.more{border:none;border-top:1px dashed var(--line);border-radius:0;backg
 .spend i{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
 .spend u{display:block;height:100%;background:var(--accent)}
 .spend b{font-size:12px}
+.kv .k2{margin-top:6px}
+.kv b.c2{font:700 14px var(--f-mono)}
+.kv b.neg{color:var(--bad)}
+.story p.bnote{font-size:12px;line-height:1.6;color:var(--mute)}
 </style>
 
 <main class="wrap" id="app"></main>
@@ -2737,7 +2741,7 @@ const GOALS=[
  {id:'g_r4',n:'Early success',d:'Reach rank 5 before 45',ck:s=>s.ms.some(x=>x.k==='promo'&&x.r>=4&&x.a<=45)},
  {id:'g_clean',n:'Clean hands',d:'Turn down improper benefits at least twice',ck:s=>s.honest>=2},
  {id:'g_fam',n:'Family first',d:'End life with Family at “Excellent” or above',ck:s=>s.fam>=60},
- {id:'g_hp',n:'Healthy to the end',d:'Retire safely with Health at “Good” or above',ck:(s,k)=>k==='retire'&&s.hp>=50},
+ {id:'g_hp',n:'Healthy to the end',d:'Retire safely with Health at “Good” or above',ck:(s,k)=>k==='retire'&&(s.rhp!==undefined?s.rhp:s.hp)>=50},
  {id:'g_rich',n:'Financial freedom',d:'Net worth above US$1.56M',ck:()=>NW()>=5000},
  {id:'g_abroad',n:'The world is my loss site',d:'Work an overseas posting',ck:s=>!!s.f.abroad},
  {id:'g_boss',n:'Be your own boss',d:'Start a company that doesn’t fail',ck:s=>s.ms.some(x=>x.k==='route'&&CO[x.r])&&!s.f.failed},
@@ -3827,7 +3831,7 @@ MINOR.push(
  {t:'You won second prize at the year-end party.',fx:{cash:3},w:2}
 );
 
-const EMP=s=>!s.co&&!s.f.semi;
+const EMP=s=>!s.co&&!s.f.semi&&!s.f.retired;
 E.push(
 {id:'lt_board',n:'An invitation to the board',w:31,once:1,when:s=>s.age>=50&&s.rep>=65,t:'A listed company invites you to be an independent director on its audit and risk committees. It happens to be a supplier of one of your long-time clients.',ch:[
  {l:'Accept, disclose the conflict, and recuse yourself from related matters',c:{k:'rep',b:55,s:.7},ok:{t:'Your questions in the boardroom made management face several risks it had been ignoring.',fx:{rep:2,net:3,cash:15}},ng:{t:'After two years of meetings, you still feel like a rubber stamp.',fx:{rep:1,hp:-2,cash:15}}},
@@ -3900,7 +3904,7 @@ E.push(
 ]},
 {id:'lt_pension',n:'How to take your pension',w:36,once:1,when:s=>s.age>=58,t:'Retirement is near. You have to decide which parts of your Labor Insurance old-age benefit and your pension to take as a lump sum and which as monthly payments.',ch:[
  {l:'Take everything you can monthly; the longer you live, the more you get',ok:{t:'You ran the numbers: as long as you outlive average life expectancy, monthly payments come out ahead.',fx:{fam:1,hp:1}}},
- {l:'Take a lump sum and invest it yourself',c:{k:'pro',b:50,s:.7},ok:{t:'You put the money into a conservative portfolio and planned your cash flow.',fx:{cash:30}},ng:{t:'A market crash hit in your second year of retirement, and you couldn’t sleep watching the account.',fx:{cash:-30,hp:-2}}},
+ {l:'Take a lump sum and invest it yourself',c:{k:'pro',b:50,s:.7},ok:{t:'You put the money into a conservative portfolio and planned your cash flow.',fx:{cash:30,lump:1}},ng:{t:'A market crash hit in your second year of retirement, and you couldn’t sleep watching the account.',fx:{cash:-30,hp:-2,lump:1}}},
  {l:'Ask a financial adviser to run the numbers',ok:{t:'The adviser modeled three scenarios, and you felt much more at ease.',fx:{pro:1,cash:-2}}}
 ]}
 );
@@ -3931,7 +3935,7 @@ const RVT={
 };
 function pfc(){const r=(Array.isArray(S.pf)?S.pf:[]).filter(x=>x[0]>=S.age-4),g=r.filter(x=>x[1]).length;return {a:g,b:r.length-g}}
 function rvGrade(){const p=pfc(),v=.6*(p.a-1.5*p.b)+(S.pro+S.rep-120)/20;return v>=2?'A':v>=-0.5?'B':'C'}
-const RVW=45,RVOK=s=>!s.co&&!s.f.semi&&s.age>=28&&s.age<=60&&!s.seen.rv_A&&!s.seen.rv_B&&!s.seen.rv_C;
+const RVW=45,RVOK=s=>!s.co&&!s.f.semi&&!s.f.retired&&s.age>=28&&s.age<=60&&!s.seen.rv_A&&!s.seen.rv_B&&!s.seen.rv_C;
 function promoNear(s){const nx=RANK[s.rank+1];if(!nx||s.f.semi||s.co)return false;const o=RT().off,cd=2*certN();return s.age-23>=nx.y-1&&s.pro>=nx.pro+(o.pro||0)-cd&&s.rep>=nx.rep+(o.rep||0)-cd&&s.net>=nx.net+(o.net||0)-cd}
 ['A','B','C'].forEach(g=>{
   const B={A:[70,42,.04],B:[50,25,.025],C:[25,10,.015]}[g];
@@ -4148,7 +4152,8 @@ function hOpt(r,t,mode){
   const o={price,fee,n,down,ln,pay,need,ok:true,why:''};
   if(S.hs&&S.hs.r===r&&S.hs.t===t){o.ok=false;o.why='You already live in this kind of home'}
   else if(need>liq(S)+ti){o.ok=false;o.why='Not enough cash'}
-  else if(ln>0&&pay>monthly()*12*.5){o.ok=false;o.why='The mortgage would be over half your income; the bank won’t approve it'}
+  else if(ln>0&&S.age>=65){o.ok=false;o.why='Over 65; the bank won’t approve a mortgage'}
+  else if(ln>0&&pay>incomeY()*.5){o.ok=false;o.why='The mortgage would be over half your income; the bank won’t approve it'}
   return o;
 }
 function cOpt(t,mode){
@@ -4236,25 +4241,34 @@ function kidCost(){
 }
 function cashFlow(f){
   const hh=S.f.married&&!S.f.divorced,c={a:S.age,co:0};
-  c.sal=monthly()*12*(f.inc||1)*(f.id==='field'&&hasT('work')?1.1:1);
-  c.tax=c.sal*clamp(.05+c.sal/2000,.05,.3);
-  c.live=(8+.38*(c.sal-c.tax)+(hh?4:0))*(S.fr>0?.8:1);
-  c.rent=(S.hs?0:(S.kids?30:hh?24:10))*(S.fr>0?.75:1);
+  c.sal=S.f.retired?0:monthly()*12*(f.inc||1)*(f.id==='field'&&hasT('work')?1.1:1);
+  if(!S.f.retired){S.lsal=c.sal;S.lpa=(S.lpa||0)*1.03+.06*Math.min(monthly(),15)*12;S.liy=(S.liy||0)+1}
+  c.pen=S.f.retired?penNow():0;
+  c.gig=(S.f.retired&&focus==='r_con'&&S.age<80&&S.ce&&S.ce.kind!=='banned')?Math.min(40,(S.lsal||0)*.15):0;
+  c.alt=(S.ce&&S.ce.kind!=='retire'&&S.age<(S.ce.kind==='special'?70:65))?(S.lsal||0)*(S.ce.kind==='special'?.5:.4):0;
+  const ti=c.sal+c.pen+c.gig+c.alt;
+  c.tax=ti*clamp(.05+ti/2000,.05,.3)*(S.f.retired?.5:1);
+  c.live=(S.f.retired?12+.3*(ti-c.tax)+(hh?6:0):8+.38*(ti-c.tax)+(hh?4:0))*(S.fr>0?.8:1);
+  c.rent=(S.hs?0:(kidsHome()?30:hh?24:10))*(S.fr>0?.75:1);
   c.sp=hh?24:0;if(S.fr>0)S.fr--;
   c.mort=0;c.hfee=0;c.rpin=0;
-  if(S.hs){const h=S.hs;c.hfee=HFEE[h.r][h.t];if(h.ln>0){const it=h.ln*MRATE,m=Math.min(h.pay,h.ln+it);c.mort=m;h.ln=Math.max(0,h.ln+it-m);if(h.ln<.5){h.ln=0;S.log.push({age:S.age+1,t:LG.mortOff,k:'up',m:1})}}}
+  if(S.hs){const h=S.hs;c.hfee=HFEE[h.r][h.t];if(h.ln>0&&!S.f.rm){const it=h.ln*MRATE,m=Math.min(h.pay,h.ln+it);c.mort=m;h.ln=Math.max(0,h.ln+it-m);if(h.ln<.5){h.ln=0;S.log.push({age:S.age+1,t:LG.mortOff,k:'up',m:1})}}}
   if(S.rp){const p=S.rp;c.rpin=24;c.hfee+=1.5;if(p.ln>0){const it=p.ln*MRATE,m=Math.min(p.pay,p.ln+it);c.mort+=m;p.ln=Math.max(0,p.ln+it-m);if(p.ln<.5)p.ln=0}}
+  c.rmi=0;if(S.f.rm&&S.hs&&S.hs.ln<S.hs.v*.9){c.rmi=S.rmY||0;S.hs.ln+=c.rmi*1.025}
   c.car=0;
   if(S.vh){const v=S.vh;c.car=CARS[v.t].c;if(v.ln>0){const it=v.ln*CLR,m=Math.min(v.pay,v.ln+it);c.car+=m;v.ln=Math.max(0,v.ln+it-m);if(v.ln<.5)v.ln=0}}
   const ke=kidCost();c.kid=ke[0];c.edu=ke[1];
+  c.med=S.age>=65?3+Math.max(0,60-S.hp)/5:0;
+  if(S.f.retired&&S.age>=70&&S.hp<25&&!S.care){S.care=30;S.log.push({age:S.age+1,t:LGO.care,k:'bad'})}
+  c.care=S.care||0;c.trav=(S.f.retired&&focus==='r_trav')?15:0;
   c.debt=0;
   if(S.debt>0){const it=S.debt*.04,pr=Math.min(S.debt,S.dpay||S.debt/5);c.debt=it+pr;S.debt-=pr;exAdd('int',it);if(S.debt<.5){S.debt=0;S.dpay=0;S.log.push({age:S.age+1,t:LG.debtOff,k:'up'})}}
   c.sl=0;if(S.sl>0){c.sl=Math.min(S.sl,8);S.sl-=c.sl}
   c.fam=(S.fbg==='pillar'&&S.age<40)?c.sal*.08:0;
-  c.inn=c.sal+c.rpin+c.sp;
-  c.out=c.tax+c.live+c.rent+c.mort+c.hfee+c.car+c.kid+c.edu+c.debt+c.sl+c.fam;
+  c.inn=c.sal+c.rpin+c.sp+c.pen+c.gig+c.alt+c.rmi;
+  c.out=c.tax+c.live+c.rent+c.mort+c.hfee+c.car+c.kid+c.edu+c.debt+c.sl+c.fam+c.med+c.care+c.trav;
   S.cash+=c.inn-c.out;
-  exAdd('inc',c.inn);exAdd('tax',c.tax);exAdd('live',c.live+c.fam);exAdd('rent',c.rent);exAdd('house',c.mort+c.hfee);exAdd('car',c.car);exAdd('kid',c.kid);exAdd('edu',c.edu);
+  exAdd('inc',c.inn);exAdd('tax',c.tax);exAdd('live',c.live+c.fam);exAdd('rent',c.rent);exAdd('house',c.mort+c.hfee);exAdd('car',c.car);exAdd('kid',c.kid);exAdd('edu',c.edu);exAdd('med',c.med+c.care);exAdd('trav',c.trav);
   S.cf=c;
 }
 function assetStep(){
@@ -4378,7 +4392,7 @@ function familyHTML(){
   return h+'</div>';
 }
 
-const EXN={house:'Home (down payment, mortgage, upkeep)',rent:'Rent',car:'Car',kid:'Raising the children',edu:'School fees',gad:'Phones and watches',int:'Loan interest',live:'Living costs',tax:'Tax and insurance contributions'};
+const EXN={med:'Medical and care',trav:'Travel',house:'Home (down payment, mortgage, upkeep)',rent:'Rent',car:'Car',kid:'Raising the children',edu:'School fees',gad:'Phones and watches',int:'Loan interest',live:'Living costs',tax:'Tax and insurance contributions'};
 function assetsHTML(){
   const L=[];
   if(S.hs)L.push([homeName(),S.hs.v,S.hs.ln>0?fill('Mortgage left: {x}',{x:cur(S.hs.ln)}):'Mortgage paid off']);
@@ -4393,17 +4407,17 @@ function assetsHTML(){
   return '<div class="story"><span class="kt">'+fill('Final assets · Net worth {x}',{x:cur(NW())})+'</span><ul class="assets">'+L.map(x=>'<li><b>'+x[0]+'</b><span class="mono">'+cur(x[1])+'</span>'+(x[2]?'<em>'+x[2]+'</em>':'')+'</li>').join('')+'</ul></div>';
 }
 function spendHTML(){
-  const e=S.ex||{},ks=['house','rent','car','kid','edu','gad','int','live','tax'].filter(k=>(e[k]||0)>=1);
+  const e=S.ex||{},ks=['house','rent','car','kid','edu','med','trav','gad','int','live','tax'].filter(k=>(e[k]||0)>=1);
   if(!ks.length)return '';const mx=Math.max(...ks.map(k=>e[k]));
   return '<div class="story"><span class="kt">'+fill('Lifetime spending · Lifetime income {x}',{x:cur(e.inc||0)})+'</span><ul class="spend">'+ks.map(k=>'<li><span>'+EXN[k]+'</span><i><u style="width:'+(e[k]/mx*100).toFixed(1)+'%"></u></i><b class="mono">'+cur(e[k])+'</b></li>').join('')+'</ul></div>';
 }
 
-const CFN={sal:'Salary ',sp:'Spouse’s share of household costs',co:'Company dividend',rpin:'Rental income',tax:'Tax and insurance contributions',live:'Living costs',rent:'Rent',mort:'Mortgage',hfee:'Home upkeep',car:'Car',kid:'Raising the children',edu:'School fees',debt:'Personal loan',sl:'Student loan',fam:'Family support'};
+const CFN={pen:'Pension',gig:'Consulting income',alt:'Other work income',rmi:'Reverse mortgage',med:'Medical',care:'Long-term care',trav:'Travel',sal:'Salary ',sp:'Spouse’s share of household costs',co:'Company dividend',rpin:'Rental income',tax:'Tax and insurance contributions',live:'Living costs',rent:'Rent',mort:'Mortgage',hfee:'Home upkeep',car:'Car',kid:'Raising the children',edu:'School fees',debt:'Personal loan',sl:'Student loan',fam:'Family support'};
 function cfTable(){
   const c=S.cf;if(!c||c.sal===undefined)return '';
   const row=(k,v,s)=>'<tr><td>'+CFN[k]+'</td><td>'+s+cur1(v)+'</td></tr>';
-  const inn=['sal','sp','co','rpin'].filter(k=>c[k]>=.05).map(k=>row(k,c[k],'+')).join('');
-  const out=['tax','live','rent','mort','hfee','car','kid','edu','debt','sl','fam'].filter(k=>c[k]>=.05).map(k=>row(k,c[k],'−')).join('');
+  const inn=['sal','pen','gig','alt','rmi','sp','co','rpin'].filter(k=>c[k]>=.05).map(k=>row(k,c[k],'+')).join('');
+  const out=['tax','live','rent','mort','hfee','car','kid','edu','med','care','trav','debt','sl','fam'].filter(k=>c[k]>=.05).map(k=>row(k,c[k],'−')).join('');
   const net=c.inn-c.out;
   return '<div class="cf"><span class="kt">'+fill('Money in and out at age {a}',{a:c.a})+'</span><table>'+inn+out+'<tr class="tot"><td>Balance</td><td>'+(net>=0?'+':'−')+cur1(Math.abs(net))+'</td></tr></table></div>';
 }
@@ -4449,7 +4463,7 @@ function shopPanel(){
 }
 
 function aiBuy(){
-  if(!S)return;const L=liq(S),g=monthly()*12;
+  if(!S)return;const L=liq(S),g=incomeY();
   if(!S.vh&&S.age>=27&&R()<.2){const ok=Object.keys(CARS).filter(t=>cOpt(t,'loan').ok&&L>=CARS[t].p*.3+40&&CARS[t].p<=g*1.2);if(ok.length){const t=ok[rint(ok.length)];buy('car',t,L>=CARS[t].p+60?'full':'loan')}}
   if(!S.hs&&S.age>=28&&S.age<=55&&R()<.25){const ok=[];Object.keys(HREG).forEach(r=>Object.keys(HTYP).forEach(t=>{const o=hOpt(r,t,'loan');if(o.ok&&o.pay+HFEE[r][t]<=g*.3&&L-o.need>=50)ok.push(r+'_'+t)}));if(ok.length)buy('house',ok[rint(ok.length)],'loan')}
   if((!S.ph||S.age-S.ph.a>=4)&&R()<.25){const t=R()<.5?'top':'mid';if(pOpt(t).ok)buy('phone',t,'full')}
@@ -4510,6 +4524,255 @@ Object.assign(KNOW,{
  ks_js:['12-year basic education','Taiwan introduced 12-year basic education in 2014. Elementary and junior high school are compulsory and tuition-free at public schools; after junior high, students take the Comprehensive Assessment Program and move on based on their scores and preferences.'],
  ks_hs:['Tuition-free high school','Since February 2024, high school and vocational school students in Taiwan pay no tuition, at public and private schools alike, with no application needed. Miscellaneous fees, other school charges and boarding are still paid by families.'],
  ks_uni:['The cost of studying abroad','Tuition plus living costs for university in the US often run over NT$1.5 million a year; a private university in Taiwan charges about NT$100,000 a year in tuition, and public universities less. Before going, buy overseas medical cover and leave room for exchange-rate swings.']
+});
+
+
+const MAXAGE=99;
+
+const RFOCUS=[
+ {id:'r_hp',n:'Health and exercise',fx:{hp:4,fam:1},ph:['You took a brisk walk in the park every morning.','You took up tai chi.','You kept your checkups, and your blood pressure is well under control.','You learned to cook light, tasty meals.','You swim three times a week.','You gave up late-night snacks.','You and old friends hike the hills near the city.','You sleep far better than you did when you were working.']},
+ {id:'r_fam',n:'Time with family',fx:{fam:5,hp:1},ph:['You have dinner with family every weekend.','You finally have time to really listen to your family.','You sorted the family photos into several albums.','You learned to video-call family who live far away.','The whole family takes a trip together once a year.','You look after the plants on the family balcony.','You started writing letters to your family.','You remember every family member’s birthday.']},
+ {id:'r_con',n:'Consulting and teaching',fx:{rep:1,net:2,pro:1,hp:-1},ph:['You teach a claims practice course at a university.','Your old firm asks you back to review big-case reports.','You shared thirty years of cases at an association workshop.','You reviewed a small business’s insurance policies.','Young adjusters often call you for advice.','You wrote an article on catastrophe claims.','You served as an advisor in a claims dispute mediation.','The consulting fees aren’t much, but they keep your mind sharp.']},
+ {id:'r_trav',n:'Travel and hobbies',fx:{hp:2,fam:2},ph:['You went to Hokkaido to see the snow.','You cycled all the way around Taiwan.','You spent a month in Kyoto.','You learned watercolor and paint wherever you go.','You took a ten-day tour of Europe.','You started learning Japanese for your next trip.','You spent a week at a guesthouse on the east coast.','You joined the community choir.']}
+];
+const curF=()=>S&&S.f.retired?RFOCUS:FOCUS;
+const OLDOK=new Set(['checkup','invest','crash','reunion','lt_grand','lt_trip','lt_home','lt_farewell','lt_book','lt_lecture','lt_arb','lt_board','lt_pension','lt_study','s_property']);
+const LGO={
+ ce_retire:'Retired. Career ending: “{x}.”',
+ ce_banned:'Struck off by the industry; left the insurance business.',
+ ce_special:'Changed course in life: “{x}.”',
+ coOut:'Handed over the company and got back {x}.',
+ lump:'Took the labor pension account as a lump sum: {x}.',
+ care:'You need someone to care for you now; a caregiver starts coming.',
+ hosp:'You collapsed at home and were taken to hospital by ambulance. After discharge, the doctor told you to rest and recover.',
+ die:'Passed away at {a}.',
+ carOff:'You sold the car; from now on it’s taxis and the MRT.'
+};
+
+function setPension(){
+  const yrs=S.liy||0;S.labA=yrs*4.58*.0155*12;
+  const ca=S.age>=60?S.age:65;S.labAge=ca;if(ca<65)S.labA*=1-.04*(65-ca);
+  S.lpL=S.lpa||0;S.lpY=S.lpL/20;S.lpAge=Math.max(60,S.age);
+}
+function penNow(){
+  let p=0;if(S.age>=S.labAge)p+=S.labA;
+  if(S.age>=S.lpAge&&S.lpL>0){
+    if(S.f.lump){const x=S.lpL;S.cash+=x;S.lpL=0;exAdd('inc',x);S.log.push({age:S.age+1,t:fill(LGO.lump,{x:cur(x)}),k:'up'})}
+    else{const x=Math.min(S.lpL,S.lpY);S.lpL-=x;p+=x}
+  }
+  return p;
+}
+const kidsHome=()=>(S.kd||[]).filter(k=>S.age-k.b<=22).length;
+const incomeY=()=>S.f.retired?((S.cf&&S.cf.inn)||0):monthly()*12;
+
+function retQ(){
+  const a=S.age,cool=S.retAsk&&a-S.retAsk<2;
+  if(S.co){if(a>=75)return true;return !cool&&a>=62&&R()<.2}
+  if(a>=70)return true;if(cool)return false;if(a>=65)return R()<.35;if(a>=60)return R()<.2;return false;
+}
+function retireNow(kind){
+  S.f.retired=true;S.ret=S.age;S.rhp=S.hp;
+  if(S.co){const m=S.rmode==='hand'?.5:1,got=(S.co.V+Math.max(0,S.co.res))*m;S.cash+=got;S.co=null;S.log.push({age:S.age,t:fill(LGO.coOut,{x:cur(got)}),k:'up'})}
+  S.f.semi=false;setPension();
+  S.q=S.q.filter(q=>/^(ks_|o_)/.test(q.id)||OLDOK.has(q.id));
+  S.big=0;focus='r_hp';
+}
+function careerEnd(kind,sp,quiet){
+  const o=careerTitle(kind,sp);
+  S.ce={kind,t:o.t,d:o.d,age:S.age,s0:score(kind),goals:goalsEval(kind)};
+  retireNow(kind);
+  S.log.push({age:S.age,t:fill(LGO['ce_'+kind],{x:o.t}),k:kind==='banned'?'bad':'up',m:2});
+  if(!quiet){RES=null;EV=null;S.vr=null;P='run';newYear();render()}
+}
+function finish(kind,sp){
+  if(!S.f.retired&&(kind==='retire'||kind==='banned'||kind==='special')){careerEnd(kind,sp);return}
+  let o;
+  if(S.ce){o=Object.assign({},S.ce,{died:S.age,how:S.dhow||'old'})}
+  else{const t=careerTitle(kind,sp);o={kind,t:t.t,d:t.d,age:S.age,s0:score(kind),died:S.age,how:kind}}
+  const now=goalsEval(o.kind),GL=S.ce?S.ce.goals.map((g,i)=>S.goals[i]==='g_fam'?now[i]:g):now;
+  const late=S.ce?Math.min(4,Math.max(0,Math.round((S.age-75)/4)))+(S.fam>=70?2:0):0;
+  END=Object.assign(o,{goals:GL,score:Math.min(100,o.s0+3*GL.filter(x=>x.ok).length+late)});
+  achRec();
+  S.log.push({age:S.age,t:S.ce?fill(LGO.die,{a:S.age}):'Ending: '+o.t,k:'bad',m:1});
+  P='end';auto=false;render();
+}
+function mortEnd(){
+  if(S.age<40)return null;
+  const q=2.1e-5*Math.exp(.095*S.age)*(S.hp<60?1+(60-S.hp)/40:S.hp>75?.75:1)*(S.f.retired?1:.4);
+  if(R()>=q)return null;
+  if(!S.f.retired)return 'sick';
+  S.dhow=S.hp<40?'ill':'old';return 'death';
+}
+E.push({id:'ret',n:'Time to retire?',w:0,dt:1,tg:'Retire',kk:'ret',
+  t:s=>s.co?(s.age>=75?'You’re 75 now. It’s time to hand over the company.':'Your accountant asks: “How long do you plan to run the company? Should we start planning your retirement?”'):(s.age>=70?'Company policy is retirement at 70; HR has your paperwork ready.':'HR reminds you: you’re now eligible to retire.'),ch:[
+ {l:'Retire',show:s=>!s.co,a:s=>s.age>=65?1:.5,ok:{t:'You finished the retirement paperwork, and your colleagues threw you a farewell party.',fx:{retire:'emp'}}},
+ {l:'Sell the company and retire',show:s=>!!s.co,ok:{t:'You sold the company to a competitor, and all the staff kept their jobs.',fx:{retire:'sell'}}},
+ {l:'Hand it to a successor and retire',show:s=>!!s.co,ok:{t:'You handed the company to the deputy you trained, and stepped back.',fx:{retire:'hand',fam:2,rep:2}}},
+ {l:'Work a few more years',show:s=>s.co?s.age<75:s.age<70,a:.7,ok:{t:'You put the retirement form back in the drawer.',fx:{hp:-1,rask:1}}}
+]});
+
+E.push(
+{id:'o_fall',n:'A fall in the bathroom',w:12,once:1,old:1,when:s=>s.age>=70,t:'Getting up in the night, you slipped in the bathroom and broke your hip.',ch:[
+ {l:'Have surgery and work hard at rehab',c:{k:'hp',b:50,s:.8},ok:{t:'Three months later, you could walk to the park on your own again.',fx:{hp:-3,cash:-8}},ng:{t:'Rehab was slow; from then on you needed a cane to go out.',fx:{hp:-8,cash:-8}}},
+ {l:'Have surgery and make the home barrier-free',ok:{t:'Grab bars and a non-slip floor went into the bathroom, and the family worries less.',fx:{hp:-2,cash:-20,fam:2}}},
+ {l:'Skip surgery and rest at home',ok:{t:'You spent months in bed and lost a lot of strength.',fx:{hp:-10}}}
+]},
+{id:'o_chronic',n:'Red flags on the checkup',w:12,once:1,old:1,when:s=>s.age>=65,t:'Your checkup shows high blood pressure and blood sugar; the doctor says you’ll need long-term medication.',ch:[
+ {l:'Take the medicine and watch your diet',ok:{t:'The numbers slowly came back into the normal range.',fx:{hp:3,cash:-2}}},
+ {l:'Switch to health supplements',c:{k:'pro',b:40,s:.6},ok:{t:'You kept up your follow-up visits too, and things stayed fairly stable.',fx:{hp:1,cash:-6}},ng:{t:'The supplements cost a lot, and the numbers didn’t improve.',fx:{hp:-4,cash:-8}}},
+ {l:'You feel fine; ignore it for now',ok:{t:'A year later, dizziness landed you in the emergency room.',fx:{hp:-8,cash:-3}}}
+]},
+{id:'o_surg',n:'A new knee joint',w:10,once:1,old:1,when:s=>s.age>=66,t:'The doctor says your knee needs replacing. The joint covered by National Health Insurance will do; a self-paid one lasts longer but costs over US$3K more.',ch:[
+ {l:'Use the self-paid implant',ok:{t:'Recovery went smoothly; walking no longer hurts.',fx:{hp:5,cash:-15}}},
+ {l:'Use the covered implant',ok:{t:'The surgery went well; recovery just took a bit longer.',fx:{hp:3,cash:-2}}},
+ {l:'Check whether your medical insurance pays first',c:{k:'pro',b:55,s:.6},ok:{t:'The reimbursement medical policy you bought when young covered most of the self-paid implant.',fx:{hp:5,cash:-3,pro:1}},ng:{t:'Digging out the policy, you found it pays a daily hospital benefit and doesn’t cover implants.',fx:{hp:5,cash:-15}}}
+]},
+{id:'o_care',n:'Who will care for you',w:s=>s.hp<40?40:0,once:1,old:1,when:s=>s.age>=72&&!s.care,t:'You’re much weaker now and need help bathing and going out. The family starts discussing care arrangements.',ch:[
+ {l:'Hire a live-in caregiver at home',ok:{t:'The caregiver is attentive, and you still live in the home you know.',fx:{care:30,hp:3,fam:1}}},
+ {l:'Move into a long-term care facility',ok:{t:'The facility has nurses and physical therapists, and the family visits every week.',fx:{care:50,hp:4,fam:-2}}},
+ {l:'Have the family take turns',show:s=>s.f.married||s.kids>0,ok:{t:'The family takes shifts. Everyone is tired, but you see them every day.',fx:{care:8,fam:3,hp:1}}}
+]},
+{id:'o_dementia',n:'Keys in the fridge',w:8,once:1,old:1,when:s=>s.age>=72,t:'Your family notices you often ask the same thing twice, and you put your keys in the fridge.',ch:[
+ {l:'Get a dementia assessment and arrange a guardianship agreement while you can',ok:{t:'You and your child signed a voluntary guardianship contract before a notary.',fx:{fam:3,hp:-1,cash:-1}}},
+ {l:'It’s just age; no need to fuss',ok:{t:'Things slowly got worse, and the family is worried.',fx:{fam:-3,hp:-5}}}
+]},
+{id:'o_acp',n:'The last stretch',w:8,once:1,old:1,when:s=>s.age>=68,t:'A friend’s father spent six months on a ventilator in intensive care before he died. You start thinking about how you want your own last stretch to go.',ch:[
+ {l:'Do advance care planning and sign an advance decision',ok:{t:'You went to the consultation with your family and said everything clearly.',fx:{fam:4}}},
+ {l:'Just tell the family verbally',ok:{t:'Your family listened, but no one dared write it down.',fx:{fam:1}}}
+]},
+{id:'o_hear',n:'Hard of hearing',w:8,once:1,old:1,when:s=>s.age>=70,t:'When family members talk, you often have to ask two or three times.',ch:[
+ {l:'Get a hearing aid',ok:{t:'You can hear your family clearly again.',fx:{cash:-8,fam:2,net:1}}},
+ {l:'No, they can just speak up',ok:{t:'Your family talks louder and louder, and you speak less and less.',fx:{fam:-2,net:-1}}}
+]},
+{id:'o_will',n:'Time for a will',w:10,once:1,old:1,when:s=>s.age>=65,t:'A lawyer friend reminds you: “You have quite a few assets. Better make a will early.”',ch:[
+ {l:'Make a notarized will at a notary’s office',ok:{t:'With two witnesses present, the notary drew up your will.',fx:{cash:-1,fam:2,flag:'will'}}},
+ {l:'Write one by hand yourself',c:{k:'pro',b:50,s:.6},ok:{t:'You wrote out the whole text by hand, dated it and signed it.',fx:{flag:'will'}},ng:{t:'Afterwards you realized the parts you typed on the computer may not be valid.',fx:{}}},
+ {l:'It’s early; later',ok:{t:'You put it at the bottom of your to-do list.',fx:{}}}
+]},
+{id:'o_split',n:'The children’s quarrel',w:10,once:1,old:1,when:s=>s.age>=68&&s.kids>=2,t:'At Lunar New Year, your two children argued over who will get the home someday.',ch:[
+ {l:'Settle it now and put it in a will',ok:{t:'You explained your reasons. The children weren’t fully happy, but they accepted it.',fx:{fam:3,flag:'will'}}},
+ {l:'Split it equally, by law',ok:{t:'The children stopped arguing, but no one was especially happy.',fx:{fam:1}}},
+ {l:'Let them work it out themselves',ok:{t:'The rift between the siblings never healed.',fx:{fam:-5}}}
+]},
+{id:'o_rm',n:'Reverse mortgage',w:10,once:1,old:1,when:s=>!!s.hs&&s.hs.ln<1&&s.age>=65,t:'A bank adviser tells you about a reverse mortgage: you pledge the home to the bank, receive a living allowance every month, and keep living there.',ch:[
+ {l:'Apply, for extra monthly income',ok:{t:'A little more money every month, but the home will have to repay the bank first.',fx:{rm:1}}},
+ {l:'Don’t apply; leave the home to the children',ok:{t:'You feel the home is meant for the next generation.',fx:{fam:1}}}
+]},
+{id:'o_scam',n:'The “teacher” in the investment group',w:10,once:1,old:1,when:s=>s.age>=65,t:'You’ve been added to an investment group where a “teacher” posts stock tips every day, and everyone says they’re making a fortune.',ch:[
+ {l:'Call the 165 anti-fraud hotline to check',ok:{t:'The police say it’s a classic fake-investment scam, and you leave the group at once.',fx:{pro:1}}},
+ {l:'Put in a little to try it',c:{k:'pro',b:30,s:.5},ok:{t:'You sensed something was off and lost only a small amount.',fx:{cash:-10}},ng:{t:'The first two times showed “profits”; after you put in more the third time, the group vanished.',fx:{cash:-120,hp:-4,fam:-2}}},
+ {l:'Ask your children',show:s=>s.kids>0,ok:{t:'Your child saw at once that it was a scam and deleted the group for you.',fx:{fam:2}}}
+]},
+{id:'o_trust',n:'Elderly care trust',w:8,once:1,old:1,when:s=>s.age>=66&&liq(s)>=200,t:'A bank is offering an elderly care trust: hand part of your savings to the bank to manage, and it pays out living and medical costs every month.',ch:[
+ {l:'Put part of your savings in the trust',ok:{t:'With someone watching over the money, you and your family feel much more at ease.',fx:{fam:2,cash:-1}}},
+ {l:'Manage it yourself',ok:{t:'You still prefer to handle your own money.',fx:{}}}
+]},
+{id:'o_gift',n:'Your child’s startup money',w:8,once:1,old:1,when:s=>s.kids>0&&liq(s)>=600,t:'Your child wants to start a business and asks if you can give some money now.',ch:[
+ {l:'Give it over two years, within the gift tax exemption',ok:{t:'You gave your child US$94K over two years without paying any tax.',fx:{cash:-300,fam:4}}},
+ {l:'Give US$156K at once',ok:{t:'You filed and paid gift tax on the amount above the exemption.',fx:{cash:-526,fam:5}}},
+ {l:'Don’t; let them make their own way',ok:{t:'Your child was a little disappointed, then took out a loan and opened a shop alone.',fx:{fam:-2}}}
+]},
+{id:'o_down',n:'A home with an elevator',w:10,once:1,old:1,when:s=>!!s.hs&&s.hs.t==='old'&&s.age>=68,t:'The stairs are getting harder, and your child suggests selling the walk-up and moving to a small place with an elevator.',ch:[
+ {l:'Sell the walk-up and move to a small elevator flat',ok:{t:'The new home is a bit smaller, but going out is much easier.',fx:{down:1,hp:3}}},
+ {l:'You’re used to it; stay',ok:{t:'Four flights of stairs a day: call it exercise.',fx:{hp:-2}}}
+]},
+{id:'o_consult',n:'An old client’s request',w:10,once:1,old:1,when:s=>s.age<=80&&s.rep>=50&&s.ce&&s.ce.kind!=='banned',t:'An old client’s factory has had a big fire. He calls you: “I don’t trust anyone else. Could you come take a look?”',ch:[
+ {l:'Take it on as a consultant and get his claim documents in order',c:{k:'pro',b:55,s:.8},ok:{t:'The insurer quickly agreed to an interim payment, and your old client gave you a piece of calligraphy.',fx:{cash:20,rep:2,hp:-2}},ng:{t:'You’ve been away from the field too long and missed a few new rules.',fx:{cash:8,hp:-2}}},
+ {l:'Recommend your former apprentice or colleagues',ok:{t:'They handled it well, and your old client was satisfied.',fx:{net:2,apr:5}}},
+ {l:'Decline; you’re retired',ok:{t:'Your old client says: “Fair enough. You’ve earned your rest.”',fx:{hp:1}}}
+]},
+{id:'o_vol',n:'Disaster-preparedness volunteer',w:10,once:1,old:1,when:s=>s.age<=82,t:'The district office is recruiting volunteers to teach residents how to prepare for typhoons and how to claim afterwards.',ch:[
+ {l:'Sign up and give the claims talks',ok:{t:'You gave twenty talks; the most popular was “How flooded cars get paid after a typhoon.”',fx:{net:3,rep:2,hp:1,lms:'vol'}}},
+ {l:'Sign up, but just help on the ground',ok:{t:'You handed out supplies at the shelter and got to know many neighbors.',fx:{net:2,hp:1,fam:1,lms:'vol'}}},
+ {l:'Don’t take part',ok:{t:'You see the volunteers hard at work on the news.',fx:{}}}
+]},
+{id:'o_memoir',n:'Writing a life down',w:8,once:1,old:1,when:s=>s.age>=66,t:'Someone asks you: “What does an adjuster actually do?” You decide to write down your life’s cases.',ch:[
+ {l:'Write a memoir and self-publish it',c:{k:'pro',b:50,s:.6},ok:{t:'Five hundred copies were printed, and people in the trade snapped them up.',fx:{rep:3,cash:-15,fam:2,lms:'memoir'}},ng:{t:'You got stuck halfway; the manuscript sits in a drawer.',fx:{cash:-2}}},
+ {l:'Write a blog, one post a week',ok:{t:'Readers commented that they’d never known how many stories lie behind claims.',fx:{net:3,rep:1,lms:'blog'}}}
+]},
+{id:'o_learn',n:'The senior learning center',w:8,once:1,old:1,when:s=>s.age<=85,t:'The community’s senior learning center is offering photography, programming and woodworking classes.',ch:[
+ {l:'Learn photography',ok:{t:'Your photo of the morning light won a prize at the community exhibition.',fx:{hp:2,net:1}}},
+ {l:'Learn programming',c:{k:'pro',b:45,s:.7},ok:{t:'You wrote a small program to help old colleagues calculate a home’s sum insured.',fx:{pro:2,net:1}},ng:{t:'The course was too hard; you gave up after three classes.',fx:{hp:-1}}},
+ {l:'Learn woodworking',ok:{t:'You made a little stool as a gift for your family.',fx:{fam:2,hp:1}}}
+]},
+{id:'o_exam',n:'An invitation from the exam ministry',w:6,once:1,old:1,when:s=>s.rep>=70&&s.age<=78&&s.ce&&s.ce.kind!=='banned',t:'The Ministry of Examination invites you to set and grade questions for the insurance adjuster licensing exam.',ch:[
+ {l:'Accept, and write a loss calculation question',ok:{t:'Your question kept many candidates writing until the last minute.',fx:{rep:3,pro:1,hp:-1}}},
+ {l:'Decline and leave the chance to younger scholars',ok:{t:'You recommended a professor, who was very grateful.',fx:{net:2}}}
+]},
+{id:'o_startup',n:'A startup’s advisory offer',w:6,once:1,old:1,when:s=>s.age<=78&&s.pro>=60,t:'An InsurTech startup wants you as an advisor, paid in shares, to help design its claims process.',ch:[
+ {l:'Accept, and take the shares',c:{k:'net',b:45,s:.6},ok:{t:'The startup was bought by a big company, and your shares turned into a sum of money.',fx:{cash:60,pro:1}},ng:{t:'The startup folded two years later; the shares became a piece of paper.',fx:{hp:-1}}},
+ {l:'Accept, but take a consulting fee only',ok:{t:'A small monthly income, and it keeps you up to date on new technology.',fx:{cash:15,pro:1}}},
+ {l:'Decline',ok:{t:'You feel it’s time to keep your time for life.',fx:{hp:1}}}
+]}
+);
+['ret','o_fall','o_chronic','o_surg','o_care','o_dementia','o_acp','o_hear','o_will','o_split','o_rm','o_scam','o_trust','o_gift','o_down','o_consult','o_vol','o_memoir','o_learn','o_exam','o_startup'].forEach(id=>LIFE.add(id));
+MINOR.push(
+ {t:'At the market, the stallholders all know your name.',fx:{fam:1},w:3,old:1},
+ {t:'An old colleague called to ask about a clause, and you talked for half an hour.',fx:{net:1},w:3,old:1},
+ {t:'A news report on a factory fire had you estimating the loss in your head.',fx:{pro:1},w:3,old:1},
+ {t:'You learned to video-call family on your phone.',fx:{fam:1},w:3,old:1},
+ {t:'Before the typhoon, you reminded neighbors to check whether their home fire policy includes typhoon and flood cover.',fx:{net:1},w:3,old:1},
+ {t:'You boxed up your old reports and donated them to the association library.',fx:{rep:1},w:2,old:1},
+ {t:'Your health insurance card shows more and more doctor visits.',fx:{hp:-1},w:3,old:1},
+ {t:'You got yet another pair of reading glasses.',fx:{},w:2,old:1},
+ {t:'You taught people at the community center how to read an insurance policy.',fx:{net:1,rep:1},w:2,old:1},
+ {t:'You put your old business cards into a photo album.',fx:{},w:2,old:1},
+ {t:'You took up an afternoon nap.',fx:{hp:1},w:3,old:1},
+ {t:'You played chess with old friends at a teahouse all afternoon.',fx:{hp:1,net:1},w:3,old:1},
+ {t:'Someone asked you about a claim, and you couldn’t help talking for an hour.',fx:{net:1},w:3,old:1},
+ {t:'Your phone is full of family photos.',fx:{fam:1},w:3,old:1},
+ {t:'You listed all the household’s insurance policies in one table and gave it to your family.',fx:{fam:1},w:2,old:1},
+ {t:'As soon as winter comes, your knees start to ache.',fx:{hp:-1},w:3,old:1}
+);
+
+const RFS={r_hp:'In retirement, they exercised every day and were healthier than when they were young.',r_fam:'In retirement, they gave most of their time to family.',r_con:'In retirement, they were still often invited to consult and teach.',r_trav:'In retirement, they traveled widely and took up new interests.'};
+const LMS={memoir:'They wrote a memoir, leaving a lifetime of cases to the next generation.',blog:'They wrote claims stories online for years.',vol:'They volunteered for years in disaster preparedness.'};
+const DIE={old:'They passed away peacefully in their sleep one winter, at {a}.',ill:'They passed away from illness at {a}, with family at their side.',weak:'At {a}, their body finally gave out, and they slipped away quietly.','99':'They passed away at {a}, the longest-lived member of the family.'};
+function lateStory(){
+  const v=[];if(!S.ce||!END||!END.died)return v;
+  const fy=S.fy||{},top=RFOCUS.map(x=>x.id).sort((a,b)=>(fy[b]||0)-(fy[a]||0))[0];
+  if(fy[top])v.push(RFS[top]);
+  (S.lms||[]).forEach(k=>v.push(LMS[k]));
+  v.push(fill(DIE[END.how]||DIE.old,{a:END.died}));
+  return v;
+}
+function estTax(n){if(n<=0)return 0;return n<=5621?n*.1:n<=11242?562.1+(n-5621)*.15:1405.25+(n-11242)*.2}
+function estateHTML(){
+  const gross=Math.max(0,NW()),hh=S.f.married&&!S.f.divorced,k=S.kids||0;
+  const ded=1333+(hh?553:0)+56*k+138,tx=estTax(gross-ded);
+  const heirs=hh&&k?fill('spouse and {n} children',{n:k}):hh?'Spouse':k?fill('{n} children',{n:k}):'other relatives';
+  return '<div class="story"><span class="kt">Estate</span><ul class="assets">'
+   +'<li><b>Total estate</b><span class="mono">'+cur(gross)+'</span></li>'
+   +'<li><b>Exemption and deductions</b><span class="mono">'+cur(ded)+'</span></li>'
+   +'<li><b>Estate tax</b><span class="mono">'+cur(tx)+'</span></li>'
+   +'<li><b>'+fill('Left to {x}',{x:heirs})+'</b><span class="mono">'+cur(gross-tx)+'</span><em>'+(S.f.will?'Divided according to the will.':'No will; divided by the statutory order of inheritance under the Civil Code.')+'</em></li>'
+   +'</ul><p class="bnote">Estate tax is estimated with Taiwan’s 2026 figures: an NT$13.33 million exemption, NT$5.53 million spouse deduction, NT$560,000 per child, NT$1.38 million for funeral costs, and rates of 10%, 15% and 20%. In an actual filing, land and buildings are valued at the announced land value and assessed building value, usually below market price.</p></div>';
+}
+
+function oldStep(){if(S.vh&&S.age>=80&&R()<.25){sellCar(true);S.log.push({age:S.age+1,t:LGO.carOff,k:'yr'})}}
+function caneMap(m){for(let j=11;j<=16;j++)m[j]=m[j].slice(0,9)+'K'}
+Object.assign(KNOW,{
+ ret:['What makes up a pension','Taiwanese workers’ pensions come mainly from two parts: the Labor Insurance old-age pension, based on years of coverage and average insured monthly salary and reduced by 4% for each year claimed early; and the Labor Pension individual account, to which employers contribute at least 6% of monthly wages, payable from age 60, with a choice of monthly payments or a lump sum after 15 years of contributions.'],
+ o_fall:['Preventing falls at home','Falls often cause hip fractures in older people. Grab bars and non-slip mats in the bathroom, night lights and clutter-free floors all lower the risk. Eligible seniors can apply through Long-Term Care 2.0 for subsidies for assistive devices and barrier-free home improvements.'],
+ o_chronic:['Refillable prescriptions for chronic illness','For patients with stable chronic conditions, doctors can issue a refillable prescription valid for up to three months, collected one month at a time at a pharmacy, so there’s no need to see the doctor every month.'],
+ o_surg:['Reimbursement cover and self-paid implants','Where National Health Insurance covers a treatment, patients can still choose implants that are partly or fully self-paid. Reimbursement-type medical insurance usually pays part of the cost of self-paid implants; daily-benefit medical insurance pays by days in hospital and may not cover implants.'],
+ o_care:['Long-Term Care 2.0','People aged 65 and over with disabilities can call the 1966 long-term care hotline to apply for an assessment. After a care manager visits, subsidies are arranged according to the level of disability, such as home care, day care, transport and respite care.'],
+ o_dementia:['Voluntary guardianship','Since 2019, Taiwan’s Civil Code allows voluntary guardianship: while of sound mind, you can agree with someone you trust that they will become your guardian if you lose capacity. The guardianship contract must be notarized.'],
+ o_acp:['Patient Right to Autonomy Act','Under the Patient Right to Autonomy Act, in force since 2019, adults who complete advance care planning consultation can sign an advance decision stating whether they accept life-sustaining treatment or artificial nutrition in specified clinical conditions.'],
+ o_hear:['Hearing and dementia','Research has found that hearing loss from midlife on is one of the modifiable risk factors for dementia. Wearing hearing aids early helps maintain social and cognitive function.'],
+ o_will:['Ways to make a will','Taiwan’s Civil Code recognizes five forms of will: holographic, notarized, sealed, dictated to a writer, and oral. A holographic will must be written entirely in your own hand, dated and signed; a notarized will requires at least two witnesses and is dictated before a notary.'],
+ o_split:['Compulsory share','A will can distribute property freely, but it can’t infringe on statutory heirs’ compulsory share. For children and a spouse, the compulsory share is half of what they would inherit by law.'],
+ o_rm:['Reverse mortgage','A reverse mortgage is a loan from a bank: the owner pledges the home, receives a monthly allowance, and keeps living there. When the borrower dies or the loan matures, the heirs can repay the loan and keep the home, or the bank disposes of it.'],
+ o_scam:['Fake investment scams','Fake investment is one of the most common scams in recent years. Guaranteed profits, requests to download unknown apps, or transfers to personal accounts are all warning signs. If in doubt, call the 165 anti-fraud hotline.'],
+ o_trust:['Elderly care trust','An elderly care trust places assets with a trustee such as a bank, which pays living, medical and care costs monthly under the contract. A supervisor can also be named, lowering the risk of fraud or misuse of the assets.'],
+ o_gift:['Gift tax exemption','Each donor has an annual gift tax exemption of NT$2.44 million (2026), combined across all recipients in the same year. Gifts from parents when a child marries are excluded from the total up to an additional NT$1 million.'],
+ o_down:['The owner-occupier break in the combined property tax','Property acquired from 2016 is subject to the combined land and building income tax when sold. If you, your spouse or minor children were registered and lived in it for six full years, gains up to NT$4 million are tax-free and the rest is taxed at 10%.'],
+ o_consult:['Conflicts of interest after retirement','Consulting after retirement still raises conflicts of interest: if you’ve handled cases involving the same insurer or the opposing party, disclose it first.'],
+ o_vol:['Insurance for volunteers','Under Taiwan’s Volunteer Service Act, organizations that use volunteers must provide them with accident insurance, and medical insurance where necessary.'],
+ o_memoir:['Confidentiality after retirement','When sharing cases in a memoir or blog, remove anything that identifies the parties, places or amounts. The duty of confidentiality to clients doesn’t end with retirement.'],
+ o_learn:['Learning in later life','Taiwan’s Ministry of Education runs senior learning centers across the country, offering courses for people 55 and over, from health and personal finance to crafts and digital skills.'],
+ o_exam:['Professional and technical examinations','Insurance adjusters, brokers and agents in Taiwan are all licensed through professional and technical examinations run by the Ministry of Examination, covering subjects such as insurance law and insurance studies.'],
+ o_startup:['The risk of startup equity','Startup shares are highly illiquid, usually cashable only on an acquisition or listing, and most startups don’t survive their first few years. Before taking shares as pay, weigh the company’s prospects and the risk you can bear.']
 });
 
 
@@ -4688,7 +4951,7 @@ function companyStep(){
   if(c.res<0&&!S.q.some(x=>x.id==='c_crunch'))S.q.unshift({id:'c_crunch',at:S.age+1});
 }
 function monthly(){return (1+.03*certN())*(BR()&&BR().m||1)*RANK[S.rank].m*RT().m*(inFirm()?S.fm.m:1)*(1+S.raise)*(1+(S.pro-50)/250)*(S.f.semi?0.5:1)*MKT[S.mkt].inc*(['ins','rei','edu','tech'].includes(S.track)?1:1+clamp(S.npc.wang,-50,100)/1000)*(1+Math.max(0,S.rep-60)*0.005)*(hasSt('halo')?1.1:1)}
-function drain(){return Math.max(0,((RT().d===null?S.fm.d:RT().d)+(BR()&&BR().dd||0))*(S.f.semi?0.3:1)-(hasT('opt')?0.5:0))}
+function drain(){if(S.f.retired)return 0;return Math.max(0,((RT().d===null?S.fm.d:RT().d)+(BR()&&BR().dd||0))*(S.f.semi?0.3:1)-(hasT('opt')?0.5:0))}
 function saveRate(){return Math.max(0.05,0.3-(S.mort>0?0.08:0)-0.04*S.kids-(S.fbg==='loan'&&S.age<28?0.1:0)-(S.fbg==='pillar'&&S.age<40?0.1:0))}
 function setRoute(r){
   if(CO[r])S.rank=1;
@@ -4723,6 +4986,13 @@ function apply(fx){
   if(fx.rent)S.f.rent=true;
   if(fx.flag==='house'&&S.home<=0){S.home=1000;S.mort=700}
   if(fx.shop)S.oshop=fx.shop;
+  if(fx.retire){S.rmode=fx.retire;careerEnd('retire',null,true)}
+  if(fx.care)S.care=fx.care;
+  if(fx.rask)S.retAsk=S.age;
+  if(fx.rm&&S.hs){S.f.rm=true;S.rmY=S.hs.v*.7/25}
+  if(fx.down&&S.hs){const r=S.hs.r,np=hPrice(r,'mid')*.6;S.cash+=hNet()-np*1.02;S.hs={r,t:'mid',v:np,ln:0,pay:0,n:0,a:S.age};syncH()}
+  if(fx.lms){S.lms=S.lms||[];if(!S.lms.includes(fx.lms))S.lms.push(fx.lms)}
+  if(fx.lump){S.f.lump=true;if(S.f.retired&&S.lpL>0&&S.age>=S.lpAge){S.cash+=S.lpL;exAdd('inc',S.lpL);S.lpL=0}}
   if(fx.edu)eduSet(fx.edu);
   if(fx.rp)buyRP();
   if(fx.gap)gapFix(fx.gap);
@@ -4747,8 +5017,8 @@ function apply(fx){
   if(fx.route)setRoute(fx.route);
   if(fx.sched){const [a,b]=fx.sched.in;S.q.push({id:fx.sched.id,at:S.age+a+rint(b-a+1)})}
 }
-function survive(){if(S.hp<=0&&!S.f.hosp){S.f.hosp=true;S.ms.push({k:'hosp',a:S.age});S.hp=15;if(!S.q.some(x=>x.id==='hosp'))S.q.unshift({id:'hosp',at:S.age});return true}return false}
-function checkEnd(){if(S.hp<=0&&!survive())return 'collapse';if(S.rep<=0)return 'banned';if(S.age>=65)return 'retire';return null}
+function survive(){if(S.hp>0)return false;if(S.f.retired){if(S.f.ohosp)return false;S.f.ohosp=true;S.hp=15;S.log.push({age:S.age,t:LGO.hosp,k:'bad',m:1});return true}if(S.f.hosp)return false;S.f.hosp=true;S.ms.push({k:'hosp',a:S.age});S.hp=15;if(!S.q.some(x=>x.id==='hosp'))S.q.unshift({id:'hosp',at:S.age});return true}
+function checkEnd(){if(S.hp<=0&&!survive()){S.dhow='weak';return S.f.retired?'death':'collapse'}if(!S.f.retired&&S.rep<=0)return 'banned';if(S.age>=MAXAGE){S.dhow='99';return 'death'}return null}
 function mortal(){
   if(S.age<=45)return false;
   return R()<0.0003*(S.age-45)*(1+Math.max(0,60-S.hp)/40);
@@ -4762,7 +5032,8 @@ function eligible(e){
     &&(!ROUTE_OK[e.id]||ROUTE_OK[e.id].includes(S.track))
     &&(!e.yrs||(yrs>=e.yrs[0]&&yrs<=e.yrs[1]))
     &&(!e.job||(S.age-S.lj>=3&&(!S.co||e.id==='co_found')))
-    &&(!e.when||e.when(S));
+    &&(!e.when||e.when(S))
+    &&(S.f.retired?(!!e.old||OLDOK.has(e.id)):!e.old);
 }
 function pickEvent(){
   const c=E.filter(eligible);
@@ -4775,8 +5046,9 @@ function histPick(){
   if(!c.length)return null;
   const top=c.slice(0,3),e=wpick(top,x=>3-top.indexOf(x));S.hy=e.hy;return e;
 }
-function pickMinor(){return wpick(MINOR.filter(m=>!m.when||m.when(S)),m=>m.w)}
+function pickMinor(){return wpick(MINOR.filter(m=>(!m.when||m.when(S))&&(!!S.f.retired===!!m.old)),m=>m.w)}
 function promote(){
+  if(S.f.retired)return;
   if(S.co){const nr=clamp(Math.round(S.co.sz*1.2),1,5);if(nr!==S.rank){const up=nr>S.rank;S.rank=nr;S.log.push({age:S.age,t:(up?'The company grows. ':'The company downsizes. ')+'Title: '+rankName(),k:up?'up':'bad',m:up?1:0})}return}
   const nx=RANK[S.rank+1];if(!nx||S.f.semi)return;
   const o=RT().off;
@@ -4797,17 +5069,17 @@ function marketStep(){
 function tick(){
   if(auto)aiBuy();
   marketStep();stockStep();
-  const f=FOCUS.find(x=>x.id===focus);S.fy=S.fy||{};S.fy[f.id]=(S.fy[f.id]||0)+1;
+  const f=curF().find(x=>x.id===focus)||curF()[0];S.fy=S.fy||{};S.fy[f.id]=(S.fy[f.id]||0)+1;
   let ffx=Object.assign({},f.fx);
   if(f.id==='field'&&hasT('work'))ffx=scaleFx(ffx,1,1.3);
   if(f.id==='field'&&hasSt('back'))ffx=scaleFx(ffx,1,0.7);
   if(f.id==='rest'&&hasT('home'))ffx=scaleFx(ffx,1,1.5);
   ffx=growFx(ffx);
   KEYS.forEach(k=>{if(ffx[k])S[k]=clamp(S[k]+ffx[k],0,100)});
-  S.hp=clamp(S.hp-drain()-Math.max(0,S.age-40)*0.06-(S.fam<30?2:0)+(S.hp<40?1:0),0,100);
+  S.hp=clamp(S.hp-drain()-Math.max(0,S.age-40)*0.06-Math.max(0,S.age-70)*0.1-(S.fam<30?2:0)+(S.hp<40?1:0),0,100);
   S.fam=clamp(S.fam-(hasSt('honey')?0:1.5)-(hasT('work')?1:0)-(hasT('amb')?0.5:0),0,100);
   S.pro=clamp(S.pro-0.5,0,100);S.net=clamp(S.net-0.5+(hasT('sweet')?1:0),0,100);
-  cashFlow(f);assetStep();
+  cashFlow(f);assetStep();oldStep();
   investStep();companyStep();
   S.st.forEach(z=>z.y--);S.st.filter(z=>z.y<=0).forEach(z=>S.log.push({age:S.age+1,t:'Status ended: '+STA[z.id].n,k:'yr'}));S.st=S.st.filter(z=>z.y>0);
   S.age++;
@@ -4817,15 +5089,16 @@ function tick(){
   let ev=null;
   let di=S.q.findIndex(q=>q.at<=S.age&&/^ks_/.test(q.id));if(di<0)di=S.q.findIndex(q=>q.at<=S.age);const fromQ=di>=0;
   if(di>=0){ev=E.find(e=>e.id===S.q[di].id);S.q.splice(di,1);if(ev.id==='c_crunch'&&(!S.co||S.co.res>=0))ev=null;if(ev&&ROUTE_OK[ev.id]&&!ROUTE_OK[ev.id].includes(S.track)){if(/^b(ig|g_)/.test(ev.id))S.big=0;ev=null}if(ev&&/^brp_/.test(ev.id)&&S.br[S.track])ev=null;if(ev&&(ev.id==='love'||ev.id==='baby')&&!ev.when(S))ev=null;if(ev&&ev.once&&S.seen[ev.id])ev=null;if(ev&&ev.exam&&!ev.when(S))ev=null;if(ev&&/^ks_/.test(ev.id)&&!ev.when(S))ev=null}
-  else if(R()<(S.age<=30?0.75:0.6)){ev=histPick();if(!ev)ev=pickEvent()}
+  else if(R()<(S.age<=30?0.75:S.f.retired?0.5:0.6)){ev=S.f.retired?null:histPick();if(!ev)ev=pickEvent()}
   let line=null,lfx=null;
   if(!ev&&R()<0.6){const m=pickMinor();if(m){const mf=growFx(m.fx);apply(mf);line=m.t;lfx=mf}}
   if(!line)line=focusLine(f);
   S.log.push({age:S.age,t:line,k:'yr',fx:lfx});
   snap();fresh=S.log.length;
-  const end=checkEnd()||(mortal()?'sick':null);
+  const end=checkEnd()||mortEnd();
   if(end)return finish(end);
   if(S.cash<-0.5){if(ev&&fromQ)S.q.unshift({id:ev.id,at:S.age+1});ev=E.find(e=>e.id==='gap')}
+  else if(!S.f.retired&&retQ()){if(ev&&fromQ)S.q.unshift({id:ev.id,at:S.age+1});ev=E.find(e=>e.id==='ret')}
   if(ev){EV=ev;S.vr=(!ev.br&&!ev.rv&&!ev.dt&&R()<0.6)?(LIFE.has(ev.id)?VARS.l:VARS.w)[rint(LIFE.has(ev.id)?VARS.l.length:VARS.w.length)]:null;P='event'}else newYear();
   render();
 }
@@ -4898,7 +5171,7 @@ function score(kind){
   return Math.round(clamp(avg*0.6+S.rank*5+clamp(NW()/400,0,10)+(kind==='retire'?5:0),0,100));
 }
 const ENDINGS=ENDALL.length;
-function finish(kind,sp){
+function careerTitle(kind,sp){
   let t,d;const tr=S.track,r=S.rank;
   if(kind==='special'){t=sp.t;d=sp.d}
   else if(kind==='collapse'){t='Collapsed from overwork';d='You collapse in a temporary tent beside the site and never wake up. Someone else submits that report for you.'}
@@ -4928,15 +5201,12 @@ function finish(kind,sp){
   else if(S.fam<=20){t='Successful, and alone';d='The reports are beautiful; the house is quiet. You start to wonder whether there was a time you should have taken a day off.'}
   else if(r>=3){t='The team’s backbone';d='You weren’t the one who shone brightest, but every team needs someone like you. When things go wrong, you are the first call.'}
   else{t='An ordinary, reliable professional';d='You finished the cases you had to, and held the lines you had to hold.'}
-  const GL=goalsEval(kind);
-  END={kind,t,d,goals:GL,score:Math.min(100,score(kind)+3*GL.filter(x=>x.ok).length)};
-  achRec();
-  S.log.push({age:S.age,t:'Ending: '+t,k:(kind==='retire'||kind==='special')?'up':'bad',m:1});
-  P='end';auto=false;render();
+  return {t,d};
 }
 
 
 function autoFocus(){
+  if(S.f.retired){if(S.hp<45)return 'r_hp';const w={r_hp:40+(100-S.hp)/2,r_fam:30+(100-S.fam)/2,r_con:(S.age<75&&S.ce&&S.ce.kind!=='banned')?25:0,r_trav:liq(S)>150?25:3};return wpick(RFOCUS,f=>w[f.id]).id}
   if(S.hp<45||S.fam<30)return 'rest';
   const w={bal:55,study:110-S.pro,field:30+Math.max(0,60-S.net),rest:((100-S.hp)+(100-S.fam))/2};
   return wpick(FOCUS,f=>w[f.id]).id;
@@ -4983,6 +5253,7 @@ function skyAt(t){
 }
 function hairAt(age){return age<42?'#2a2522':age<52?'#5e5853':age<60?'#9d9893':'#dcdad6'}
 function outfit(){
+  if(S.f&&S.f.retired)return {T:'#8a9a6b',A:'#7d8d60',W:'#efe9da',P:'#6b6255'};
   const r=S.rank,tr=S.track,sp=END&&END.kind==='special';
   if(sp||S.f.semi)return {T:'#4f9ac7',A:'#3f86b3',W:'#4f9ac7',P:'#c8b991'};
   if(tr==='edu')return {T:'#5d7d4a',A:'#f2efe6',W:'#f2efe6',P:'#6e604c',glass:1,book:1};
@@ -5013,7 +5284,7 @@ function drawScene(cv){
   const px=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
   const spr=(map,x,y,pal)=>map.forEach((row,j)=>{for(let i=0;i<row.length;i++){const k=pal[row[i]];if(k)px(x+i,y+j,1,1,k)}});
   const dead=END&&(END.kind==='collapse'||END.kind==='sick');
-  const t=clamp((S.age-23)/42,0,1);
+  const t=clamp((S.age-23)/76,0,1);
   const night=dead||t>.93;
   
   const sky=dead?'#1c2240':skyAt(t);
@@ -5059,7 +5330,7 @@ function drawScene(cv){
     spr(STONE,X+1,Y+7,{G:'#8d939c',D:'#5c626b'});
     [[X,'#e05a6a'],[X+2,'#f5c400'],[X+7,'#e05a6a'],[X+9,'#ffffff']].forEach(([x,col])=>px(x,45,1,1,col));
   }else{
-    spr(m,X,Y,{H:hairAt(age),Y:o.helm,S:'#f1c7a1',D:'#cf9a78',E:'#2b2b2b',G:'#3a3a3a',M:'#a2533f',T:o.T,A:o.A,W:o.W,P:o.P,B:'#2a2a2a'});
+    if(age>=75)caneMap(m);spr(m,X,Y,{K:'#7a5230',H:hairAt(age),Y:o.helm,S:'#f1c7a1',D:'#cf9a78',E:'#2b2b2b',G:'#3a3a3a',M:'#a2533f',T:o.T,A:o.A,W:o.W,P:o.P,B:'#2a2a2a'});
     if(END&&END.kind==='banned'){px(X+1,Y+10,8,5,'#b88a52');px(X+1,Y+12,8,1,'#8a6438')}
     else if(!END||END.kind!=='special'){
       if(o.bag&&!S.f.semi){px(X+8,Y+13,3,3,'#6b4428');px(X+9,Y+12,1,1,'#6b4428')}
@@ -5117,6 +5388,10 @@ function arrows(fx){
   if(fx.edu){const q=fx.edu.split(':');o.push(chip(fill('School fees about {x} a year',{x:cur(EDU[q[0]][q[1]])}),'hk'))}
   if(fx.gap)o.push(chip({w:'Sell the watch',c:'Sell the car',rp:'Sell the studio',h:'Sell the home',seq:'Sell assets',co:'Close the company',fr:'Cut back',loan:'Personal loan'}[fx.gap],'hk'));
   if(fx.rp)o.push(chip('Rental studio','up'));
+  if(fx.retire)o.push(chip('Retire','up'));
+  if(fx.care)o.push(chip(fill('Care costs {x} a year',{x:cur(fx.care)}),'hk'));
+  if(fx.rm)o.push(chip('Reverse mortgage','hk'));
+  if(fx.down)o.push(chip('Move home','hk'));
   if(fx.promo)o.push(chip('Promotion','up'));
   if(fx.rebrn)o.push(chip('Choose specialty again','hk'));
   if(fx.bust)o.push(chip('Company closes','dn'));
@@ -5154,6 +5429,10 @@ function fxChips(fx){
   if(fx.edu){const q=fx.edu.split(':');o.push(chip(fill('School fees about {x} a year',{x:cur(EDU[q[0]][q[1]])}),'hk'))}
   if(fx.gap)o.push(chip({w:'Sell the watch',c:'Sell the car',rp:'Sell the studio',h:'Sell the home',seq:'Sell assets',co:'Close the company',fr:'Cut back',loan:'Personal loan'}[fx.gap],'hk'));
   if(fx.rp)o.push(chip('Rental studio','up'));
+  if(fx.retire)o.push(chip('Retire','up'));
+  if(fx.care)o.push(chip(fill('Care costs {x} a year',{x:cur(fx.care)}),'hk'));
+  if(fx.rm)o.push(chip('Reverse mortgage','hk'));
+  if(fx.down)o.push(chip('Move home','hk'));
   if(fx.promo)o.push(chip('Promotion','up'));
   if(fx.rebrn)o.push(chip('Choose specialty again','hk'));
   if(fx.bust)o.push(chip('Company closes','dn'));
@@ -5170,13 +5449,13 @@ function stage(){
   }else if(P==='event'||P==='result'){
     bar='<div class="yb"><span>Crossroads, time paused</span><b>'+S.age+' yrs old</b></div><div class="ytrack"><u class="hold"></u></div>';
   }
-  const L=a=>((a-23)/42*100).toFixed(2)+'%';
+  const L=a=>((a-23)/76*100).toFixed(2)+'%';
   const marks=S.log.filter(e=>e.m&&e.age>23).map(e=>'<'+(e.m===2?'i class="done"':'em')+' style="left:'+L(e.age)+'"></'+(e.m===2?'i':'em')+'>').join('');
   const life=END?'':'<div class="life"><div class="yb"><span>Life progress · diamonds = career moves, yellow dots = promotions</span><b>'+Math.round((S.age-23)/42*100)+'%</b></div>'
     +'<div class="ltrack"><u style="width:'+L(Math.min(S.age,65))+'"></u>'+marks+'</div>'
-    +'<div class="lscale">'+[23,35,45,55,65].map(a=>'<span style="left:'+L(a)+'">'+a+'</span>').join('')+'</div></div>';
+    +'<div class="lscale">'+[23,40,60,80,99].map(a=>'<span style="left:'+L(a)+'">'+a+'</span>').join('')+'</div></div>';
   return '<section class="stage"><canvas class="scene" id="scene" width="120" height="56" role="img" aria-label="Character and life scene"></canvas>'
-    +'<p class="cap">'+sceneCaption()+'</p>'+(!END&&S.hp<25?'<p class="var warn">Your body is sending warning signs. '+(S.f.hosp?'You have already collapsed once. Next time you may not wake up. ':'')+'Consider switching your focus to “Family & rest”.</p>':'')+bar+life+'</section>';
+    +'<p class="cap">'+sceneCaption()+'</p>'+(!END&&S.hp<25?'<p class="var warn">Your body is sending warning signs. '+(S.f.hosp?'You have already collapsed once. Next time you may not wake up. ':'')+(S.f.retired?'Consider switching your focus to “Health and exercise.”':'Consider switching your life focus to “Family & rest.”')+'</p>':'')+bar+life+'</section>';
 }
 function finLine(){
   const A=['Cash '+cur(S.cash)];
@@ -5216,10 +5495,10 @@ function spdBtns(){
    +Object.keys(SPD).map(k=>'<button class="'+(speed===k&&!(run&&paused)?'on':'')+'" data-a="speed" data-v="'+k+'">'+SPD[k][1]+'</button>').join('')+'</div>';
 }
 function lifeTrack(){
-  const L=a=>((a-23)/42*100).toFixed(2)+'%',a=Math.min(S.age,65);
+  const L=a=>((a-23)/76*100).toFixed(2)+'%',a=Math.min(S.age,99);
   const marks=S.log.filter(e=>e.m&&e.age>23).map(e=>'<'+(e.m===2?'i class="done"':'em')+' style="left:'+L(e.age)+'"></'+(e.m===2?'i':'em')+'>').join('');
   let yr='';
-  if(P==='run'&&a<65)yr='<b class="yr run'+(paused?' pz':'')+'" style="left:'+L(a)+';animation-duration:'+dur()+'ms;animation-delay:-'+Math.round(prog())+'ms"></b>';
+  if(P==='run'&&a<99)yr='<b class="yr run'+(paused?' pz':'')+'" style="left:'+L(a)+';animation-duration:'+dur()+'ms;animation-delay:-'+Math.round(prog())+'ms"></b>';
   else if(P==='event'||P==='result')yr='<b class="yr hold" style="left:'+L(a)+'"></b>';
   return '<div class="ltrack"><u style="width:'+L(a)+'"></u>'+yr+marks+'</div>';
 }
@@ -5235,18 +5514,18 @@ function head(){
   if(S.hs&&S.hs.ln>0)tg.push('Mortgage');if(S.rp)tg.push('Renting out');if(S.debt>0)tg.push('Personal loan');
   if(S.f.sprint)tg.push('Sprint mode');if(S.f.semi)tg.push('Steps back');
   const pend=S.q.filter(q=>!/^b(ig|g_)/.test(q.id)).length;if(S.q.some(q=>/^b(ig|g_)/.test(q.id)))tg.push('Big case ongoing');if(pend)tg.push('Follow-ups '+pend+' pending');
-  const L=a=>((a-23)/42*100).toFixed(2)+'%';
+  const L=a=>((a-23)/76*100).toFixed(2)+'%';
   return '<section class="stage gcard"><canvas class="scene" id="scene" width="120" height="56" role="img" aria-label="Your character and life scene"></canvas>'
    +'<p class="cap">'+lifeCap()+'</p>'
-   +(S.hp<25?'<p class="var warn">Your body is sending warning signs. '+(S.f.hosp?'You have already collapsed once. Next time you may not wake up. ':'')+'Consider switching your focus to “Family & rest”.</p>':'')
+   +(S.hp<25?'<p class="var warn">Your body is sending warning signs. '+(S.f.hosp?'You have already collapsed once. Next time you may not wake up. ':'')+(S.f.retired?'Consider switching your focus to “Health and exercise.”':'Consider switching your life focus to “Family & rest.”')+'</p>':'')
    +'<div class="kvs k3">'
    +'<div class="kv"><span>Age</span><b>'+S.age+'</b></div>'
-   +'<div class="kv"><span>Title</span><b class="zh">'+rankName()+'</b><em>'+RT().n+(BR()?' · '+BR().n:'')+'</em></div>'
-   +(detail?'<div class="kv"><span>Monthly pay (est.)</span><b>'+cur(monthly())+'</b></div>':'')
-   +'<div class="kv"><span>Net worth</span><b>'+cur(NW())+'</b></div>'
+   +'<div class="kv"><span>Title</span><b class="zh">'+(S.ce?(S.ce.kind==='retire'?'Retired':S.ce.kind==='special'?S.ce.t:'Left the industry'):rankName())+'</b><em>'+(S.ce?fill('At {a} · {x}',{a:S.ce.age,x:S.ce.t}):RT().n+(BR()?' · '+BR().n:''))+'</em></div>'
+   +(detail&&!S.f.retired?'<div class="kv"><span>Monthly pay (est.)</span><b>'+cur(monthly())+'</b></div>':'')
+   +'<div class="kv"><span>Net worth</span><b>'+cur(NW())+'</b><span class="k2">Cash</span><b class="c2'+(S.cash<0?' neg':'')+'">'+cur(S.cash)+'</b></div>'
    +'</div>'+coLine()
    +'<div class="pbk" id="pbk"><div class="prow"><span class="pst">'+pState()+'</span>'+spdBtns()+'</div>'+lifeTrack()
-   +'<div class="lscale">'+[23,35,45,55,65].map(a=>'<span style="left:'+L(a)+'">'+a+'</span>').join('')+'</div></div>'
+   +'<div class="lscale">'+[23,40,60,80,99].map(a=>'<span style="left:'+L(a)+'">'+a+'</span>').join('')+'</div></div>'
    +'<div class="sts">'+bars+'</div>'
    +(tg.length?'<div class="tags">'+tg.map(x=>chip(x,'pr')).join('')+'</div>':'')
    +'<details class="more"'+(moreOpen?' open':'')+'><summary>More: money, assets, traits, skills and people</summary>'+finLine()+profLine()+'</details>'
@@ -5267,9 +5546,9 @@ function playMast(){
    +(gearOpen?'<div class="setp"><label class="auto"><input type="checkbox" id="autoBox"'+(auto?' checked':'')+'> Auto-choose (focus, events and purchases are left to the game)</label><button class="linkbtn" data-a="detail">'+(detail?'Hide detailed stats':'Show detailed stats')+'</button></div>':'');
 }
 function controls(){
-  const fb=FOCUS.map(f=>'<button data-a="focus" data-v="'+f.id+'" class="'+(focus===f.id?'on':'')+'">'+fName(f)+'</button>').join('');
+  const fb=curF().map(f=>'<button data-a="focus" data-v="'+f.id+'" class="'+(focus===f.id?'on':'')+'">'+fName(f)+'</button>').join('');
   return '<section class="ctrl">'
-   +'<span class="lbl">Life focus (change any time)</span><div class="seg s4">'+fb+'</div>'
+   +'<span class="lbl">'+(S.f.retired?'Retirement focus (change any time)':'Life focus (change any time)')+'</span><div class="seg s4">'+fb+'</div>'
    +'<span class="lbl">Purchases (the game pauses while open)</span><div class="seg s4 buyr">'+Object.keys(BUYN).map(k=>'<button data-a="shop" data-v="'+k+'" class="'+(shopCat===k?'on':'')+'"><b>'+BUYN[k]+'</b><small>'+ownShort(k)+'</small></button>').join('')+'</div>'
    +(shopCat?shopPanel():'')
    +(S.co?'<span class="lbl">Company strategy</span><div class="seg s3">'+Object.keys(POL).map(k=>'<button data-a="pol" data-v="'+k+'" class="'+(S.co.pol===k?'on':'')+'">'+POL[k].n+'</button>').join('')+'</div>':'')
@@ -5322,6 +5601,9 @@ function probHTML(){
    +'<tr><td>Money in and out</td><td>Each year your salary, minus tax and insurance contributions, living costs, rent or mortgage, home upkeep, the car, the children’s upbringing and school fees, and any loan, plus company dividends and rental income, is that year’s balance. The details are under “More.”</td></tr>'
    +'<tr><td>Cash shortfall</td><td>When cash runs short, investments are sold first; if that’s not enough, a “Cash shortfall” event lets you sell assets, close your company or take a personal loan (4% a year, repaid over 5 years). Borrowing to get by two years in a row costs Reputation and Health.</td></tr>'
    +'<tr><td>School choice</td><td>When each child starts elementary school, junior high, high school and university, you choose public, private or abroad (an international school for elementary and junior high). Whether the choice suits the child’s personality shapes what they think of you; the ending lists each child’s path and a line from them.</td></tr>'
+   +'<tr><td>Retirement</td><td>Employees may be asked each year from 60 whether to retire, and must retire by 70; if you run your own company, you can sell or hand it over from 62, by 75 at the latest. Your career ending is decided at the moment you retire, and then retired life goes on. Being struck off or changing course also ends your career, but life continues.</td></tr>'
+   +'<tr><td>Pension</td><td>The Labor Insurance old-age pension is years of coverage × 1.55% × insured salary, 4% less for each year claimed before 65; the Labor Pension account builds up at 6% of wages and can be drawn monthly or as a lump sum from 60. After retiring there’s also consulting income, rent and reverse mortgages, along with medical and long-term care costs.</td></tr>'
+   +'<tr><td>Lifespan</td><td>Each year, the chance of dying depends on age and health, with Taiwan’s average life expectancy (80.77 in 2024) as the reference; the healthier you are, the longer you live, up to 99. The closing report appears only at death, along with the estate and estate tax.</td></tr>'
    +'<tr><td>Late career</td><td>After 45, events of their own appear: an independent director seat, arbitration, early retirement, children studying abroad and settling down, and how to take your pension.</td></tr>'
    +'<tr><td>Specialization</td><td>The year after joining an insurer, a broker, a reinsurer, academia, a consultancy, an adjusting firm, a brokerage or a startup, you choose a specialty (3 options each). Your specialty changes your title, pay or health cost, and unlocks its own events (weight ×2, checks +5%).</td></tr>'
    +'<tr><td>Clause readings</td><td>Judged on Expertise: the right reading +25%, a wrong one −15%. The result card always shows the correct answer and why. The Policy & Law skill applies.</td></tr>'
@@ -5631,7 +5913,7 @@ const STY={
  special:'At {a}, they chose a different life: “{x}”.',
  collapse:'At {a}, they collapsed at work and never made it to retirement.',
  sick:'At {a}, they died of illness before they could retire.',
- banned:'At {a}, they were struck off, and everything stopped there.',
+ banned:'At {a}, they were struck off by the industry and left the insurance business.',
  buy:'At {a}, bought a first home: {x}.',
  close:'At {a}, closed the company to stay afloat.'
 };
@@ -5641,13 +5923,13 @@ const ORG={fire:'started out at fire scenes',cargo:'started out on the docks',en
 const TRT={pro:'top-tier expertise',rep:'an outstanding reputation',net:'a wide network',fam:'a deep devotion to family'};
 const SUMT='A {z} with {y} who {x}, {w}, {v}.';
 const SKP={2:'became skilled in {x} as well as {y}',1:'became skilled in {x}',0:'relied on hard-won experience'};
-const CODA={banned:'but stumbled on integrity in the end',dead:'though they never reached retirement',fail:'and rose again after a fall',hon:'and held the line all their life',fam:'and never missed out on family',lone:'at the cost of an empty home',rich:'and earned their freedom too',def:'and went the distance step by step'};
+const CODA={long:'and lived a long old age',banned:'but stumbled on integrity in the end',dead:'though they never reached retirement',fail:'and rose again after a fall',hon:'and held the line all their life',fam:'and never missed out on family',lone:'at the cost of an empty home',rich:'and earned their freedom too',def:'and went the distance step by step'};
 function lifeSummary(){
   const b=BR(),per=b&&PERB[b.id]?PERB[b.id]:PERS[S.track]||PERS.adj;
   const top=['pro','rep','net','fam'].reduce((a,k)=>S[k]>S[a]?k:a,'pro');
   const sk=Object.keys(S.skills).slice(0,2).map(x=>lc(SK[x].n));
   const k=END.kind;
-  const cd=k==='banned'?'banned':(k==='collapse'||k==='sick')?'dead':(S.f.failed&&S.rank>=3)?'fail':S.honest>=2?'hon':S.fam>=75?'fam':S.fam<=25?'lone':NW()>=3500?'rich':'def';
+  const cd=k==='banned'?'banned':(k==='collapse'||k==='sick')?'dead':(S.ce&&END.died>=90)?'long':(S.f.failed&&S.rank>=3)?'fail':S.honest>=2?'hon':S.fam>=75?'fam':S.fam<=25?'lone':NW()>=3500?'rich':'def';
   return fill(SUMT,{x:ORG[S.sp.id],y:TRT[top],z:lc(per),w:fill(SKP[sk.length],{x:sk[0],y:sk[1]}),v:CODA[cd]});
 }
 function lifeStory(){
@@ -5677,7 +5959,7 @@ function lifeStory(){
   if(S.honest)v.push(fill(S.honest>1?STY.honN:STY.hon1,{n:S.honest}));
   const sk=Object.keys(S.skills).slice(0,3).map(x=>lc(SK[x].n));if(sk.length)v.push(fill(STY.skills,{x:listJ(sk)}));
   const cs=Object.keys(S.cert||{}).map(x=>CERT[x].n);if(cs.length)v.push(fill(STY.cert,{x:listJ(cs)}));
-  const k=END.kind;v.push(fill(STY[k==='retire'?'retire':k==='special'?'special':k],{a:S.age,x:END.t}));
+  const k=END.kind;v.push(fill(STY[k==='retire'?'retire':k==='special'?'special':k],{a:END.age||S.age,x:END.t}));v.push(...lateStory());
   return v.join(LANG==='en'?' ':'');
 }
 const CARDH={adj:'Loss Adjuster License',exp:'Loss Adjuster License',mgr:'Loss Adjuster License',own:'Adjusting Firm Principal',ins:'Insurer Staff ID',rei:'Reinsurer Staff ID',brk:'Insurance Broker License',bro:'Brokerage Principal',edu:'University Staff ID',con:'Risk Consultant Card',tech:'Insurtech Founder Card'};
@@ -5689,7 +5971,8 @@ function heroSprite(){
   if(o.glass||age>=48)m[4]='..GEGGEG..';
   if(mood<35){m[5]='..SDSSDS..';m[6]='..SMMMMS..'}
   else if(mood>=62){m[6]='..SMSSMS..';m[7]='...SMMS...'}
-  return {m,o,pal:{H:hairAt(age),S:'#f1c7a1',D:'#cf9a78',E:'#2b2b2b',G:'#3a3a3a',M:'#a2533f',T:o.T,A:o.A,W:o.W,P:o.P,B:'#2a2a2a'}};
+  if(age>=75)caneMap(m);
+  return {m,o,pal:{K:'#7a5230',H:hairAt(age),S:'#f1c7a1',D:'#cf9a78',E:'#2b2b2b',G:'#3a3a3a',M:'#a2533f',T:o.T,A:o.A,W:o.W,P:o.P,B:'#2a2a2a'}};
 }
 function wrapLines(c,t,w){
   const sp=/\s/.test(t),parts=sp?t.split(' '):Array.from(t),out=[];let cur='';
@@ -5702,7 +5985,7 @@ function drawCard(){
   const cv=CARDCV||document.createElement('canvas');if(!cv.getContext)return null;CARDCV=cv;
   const SKT=Object.keys(S.skills).map(x=>SK[x].n).concat(Object.keys(S.cert||{}).map(x=>CERT[x].s)),skt=SKT.length?SKT.join(', '):'—';
   const mc=cv.getContext('2d');if(!mc)return null;mc.font="500 13px 'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif";const nsl=Math.min(3,wrapLines(mc,skt,230).length);const ct0=cardTitle(mc,200,"'Noto Serif TC','Songti TC','PMingLiU',serif"),ex=Math.max(0,90+ct0.fs+2+ct0.tl.length*(ct0.fs+3)+74-244);
-  const W=360,H=532+18*(nsl-1)+ex,k=3;cv.width=W*k;cv.height=H*k;
+  const W=360,H=532+18*(nsl-1)+ex+(S.ce?14:0),k=3;cv.width=W*k;cv.height=H*k;
   const c=cv.getContext('2d');if(!c)return null;
   c.setTransform(k,0,0,k,0,0);
   const SANS="'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif",SERIF="'Noto Serif TC','Songti TC','PMingLiU',serif",MONO="'JetBrains Mono',ui-monospace,Menlo,monospace";
@@ -5725,6 +6008,7 @@ function drawCard(){
   if(dead){c.fillStyle='rgba(28,30,36,0.38)';c.fillRect(px,py,pw,ph);c.save();c.beginPath();c.rect(px,py,pw,ph);c.clip();c.translate(px+pw-14,py+14);c.rotate(Math.PI/4);c.fillStyle='#1b1b1b';c.fillRect(-50,-7,100,14);c.restore()}
   c.strokeStyle='#2f5d7c';c.lineWidth=2;c.strokeRect(px,py,pw,ph);
   T('23 → '+S.age+' yrs old',px+pw/2,py+ph+20,'500 12px '+MONO,'#4a5a67','center');
+  if(S.ce)T(fill(S.ce.kind==='retire'?'Retired at {a}':'Changed course at {a}',{a:S.ce.age}),px+pw/2,py+ph+36,'500 11px '+SANS,'#7a8894','center');
   
   const rx=140,rw=W-rx-20;
   T('Career ending',rx,90,'700 11px '+SANS,'#7a8894');
@@ -5734,7 +6018,7 @@ function drawCard(){
   fit(RT().n+(BR()?' · '+BR().n:''),rx,y+30,rw,'500',12,10,SANS,'#4a5a67');
   fit(S.sp.n,rx,y+48,rw,'500',12,10,SANS,'#7a8894');
   
-  const top=Math.max(py+ph+40,y+74);
+  const top=Math.max(py+ph+(S.ce?54:40),y+74);
   c.fillStyle='#d9d2c2';c.fillRect(20,top-14,W-40,1);
   const COL={pro:'#2f5d7c',rep:'#b8860b',net:'#6a4fa3',hp:'#1f8a7a',fam:'#c0507a'};
   c.font='500 13px '+SANS;const lw=Math.max(...KEYS.map(x=>c.measureText(KN[x]).width));c.font='500 12px '+SANS;const vw=Math.max(...KEYS.map(x=>c.measureText(lvl(S[x])).width));
@@ -5764,7 +6048,7 @@ function cardRender(){
   const img=document.getElementById('idcard');if(!img||!img.setAttribute)return;
   const put=()=>{if(P!=='end')return;const cv=drawCard(),im=document.getElementById('idcard');if(cv&&im)try{im.src=cv.toDataURL('image/png')}catch(e){}};
   put();
-  try{if(document.fonts&&document.fonts.load){const txt=END.t+rankName()+RT().n+(BR()?BR().n:'')+S.sp.n+(CARDH[S.track]||'')+KEYS.map(k=>KN[k]+lvl(S[k])).join('')+Object.keys(S.skills).map(x=>SK[x].n).join('')+'SkillsTraitsNet worthScoreCareer endingyrs oldREVOKED'+S.traits.map(x=>TR[x].n).join('');
+  try{if(document.fonts&&document.fonts.load){const txt=END.t+rankName()+RT().n+(BR()?BR().n:'')+S.sp.n+(CARDH[S.track]||'')+KEYS.map(k=>KN[k]+lvl(S[k])).join('')+Object.keys(S.skills).map(x=>SK[x].n).join('')+'SkillsTraitsNet worthScoreCareer endingyrs oldREVOKEDRetiredChanged course'+S.traits.map(x=>TR[x].n).join('');
     Promise.all([document.fonts.load("900 34px 'Noto Serif TC'",txt),document.fonts.load("700 17px 'Noto Sans TC'",txt),document.fonts.load("500 13px 'Noto Sans TC'",txt),document.fonts.load("500 14px 'JetBrains Mono'",'No.0123456789→')]).then(put,put)}}catch(e){}
 }
 function saveCard(){
@@ -5791,7 +6075,7 @@ function endView(){
    +'<img class="idcard" id="idcard" alt="'+END.t+' · '+rankName()+'" width="360" height="512">'
    +'<p class="hint">You can also long-press or right-click to save the card image</p>'
    +'<p class="sum">'+lifeSummary()+'</p>'
-   +'<div class="story"><span class="kt">Life story</span><p>'+lifeStory()+'</p></div>'+worksHTML()+goalsHTML()+familyHTML()+assetsHTML()+spendHTML()
+   +'<div class="story"><span class="kt">Life story</span><p>'+lifeStory()+'</p></div>'+worksHTML()+goalsHTML()+familyHTML()+assetsHTML()+estateHTML()+spendHTML()
    +'<div class="endbtns"><button class="btn" data-a="savecard">Download card</button><button class="btn sec" data-a="again">Live again</button></div>'
    +'<p class="hint">'+(S.nc?'New cards this life: '+S.nc+' · ':'')+'<button class="linkbtn inl" data-a="dex">Claims 101 collection</button></p>'
    +'</div></div>';
