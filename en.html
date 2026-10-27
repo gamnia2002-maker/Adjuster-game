@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="A loss adjuster life-sim: from 23 to retirement at 65, make choices at every crossroads and learn real insurance along the way.">
+<meta name="description" content="A loss adjuster life-sim: from 23 through career moves and retirement to the end of life, make choices at every crossroads and learn real insurance along the way.">
 <style>html{-webkit-text-size-adjust:100%}body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>The Adjuster's Survival Guide: Another Day, Another Claim</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -365,6 +365,11 @@ const ROUTES={
  own:{n:'Own adjusting practice',r:['Studio Owner','Studio Owner','Practice Owner','Practice Owner','Regional Practice Owner','Adjusting Group Chair'],m:1.3,d:1.6,off:{net:5},x:'Highest income, highest risk'},
  edu:{n:'Teaching and academia',r:['Adjunct Lecturer','Adjunct Lecturer','Full-time Lecturer','Assistant Professor','Associate Professor','Professor'],m:.75,d:.4,off:{net:-10},x:'Lower income, best balance'}
 };
+Object.assign(ROUTES,{
+ cor:{n:'Enterprise risk management',r:['Risk Management Officer','Risk Manager','Senior Risk Manager','Head of Risk Management','Director of Risk Management','Chief Risk Officer'],m:1.1,d:.9,off:{net:3},x:'On the company’s side, running both insurance and business continuity'},
+ lcp:{n:'Risk engineering',r:['Loss Prevention Engineer','Risk Engineer','Senior Risk Engineer','Risk Engineering Manager','Loss Prevention Associate Director','Chief Risk Engineer'],m:1,d:1.1,off:{pro:5,net:-10},x:'On site before the loss happens; expertise comes first'},
+ reg:{n:'Insurance regulator',r:['Officer','Senior Officer','Section Chief','Deputy Division Director','Division Director','Deputy Director-General'],m:.75,d:.5,off:{rep:5,net:-10},x:'Civil servant: stable, low wear on health, lower pay'}
+});
 const BG=[
  {n:'Engineering background',w:30,fx:{pro:8,net:-2},d:'Reads drawings and equipment with ease'},
  {n:'Law and business background',w:22,fx:{rep:5,pro:3},d:'Policy wording and procedure are your native language'},
@@ -1893,6 +1898,20 @@ const BRN={
   {id:'tech_ai',n:'AI Damage Assessment',d:'Using image recognition to estimate motor and property damage',cp:1.05,cv:1.25},
   {id:'tech_emb',n:'Embedded Insurance',d:'Adding insurance at checkout on e-commerce and travel platforms',cp:1.05,cv:1.1}]}
 };
+Object.assign(BRN,{
+ cor:{q:'The risk management department needs people in three areas. The director asks where you want to grow.',o:[
+  {id:'cor_ins',n:'Insurance Programs',d:'Global programs, renewal negotiations and capacity',r:['Insurance Program Officer','Insurance Program Manager','Senior Insurance Program Manager','Head of Insurance','Director of Insurance','Chief Risk Officer']},
+  {id:'cor_clm',n:'Claims & Recovery',d:'Leading claims, business interruption and subrogation after a loss',r:['Claims Management Officer','Claims Manager','Senior Claims Manager','Head of Claims Management','Director of Claims & Recovery','Chief Risk Officer'],dd:.2},
+  {id:'cor_bcm',n:'Business Continuity',d:'Emergency response, supply-chain resilience and recovery',r:['Business Continuity Officer','Business Continuity Manager','Senior Business Continuity Manager','Head of Business Continuity','Director of Resilience','Chief Risk Officer'],m:1.03}]},
+ lcp:{q:'The risk engineering department is organized by industry. You need to pick one to go deep in.',o:[
+  {id:'lcp_semi',n:'Semiconductors & Electronics',d:'Cleanrooms, specialty gases and fab business interruption',r:['High-Tech Loss Prevention Engineer','High-Tech Risk Engineer','Senior High-Tech Risk Engineer','High-Tech Risk Engineering Manager','High-Tech Loss Prevention Associate Director','Chief Risk Engineer'],m:1.05},
+  {id:'lcp_pet',n:'Petrochemicals & Energy',d:'Petrochemical plants, power plants, energy storage and renewables sites',r:['Petrochemical Loss Prevention Engineer','Energy Risk Engineer','Senior Energy Risk Engineer','Energy Risk Engineering Manager','Energy Loss Prevention Associate Director','Chief Risk Engineer'],m:1.05,dd:.2},
+  {id:'lcp_log',n:'Warehousing & Logistics',d:'High-bay warehouses, lithium batteries and logistics centers',r:['Warehouse Loss Prevention Engineer','Warehouse Risk Engineer','Senior Warehouse Risk Engineer','Warehouse Risk Engineering Manager','Warehouse Loss Prevention Associate Director','Chief Risk Engineer'],dd:-.2}]},
+ reg:{q:'You have rotated through several units at the bureau. Your section chief asks which field you want to build a career in.',o:[
+  {id:'reg_exam',n:'Examinations',d:'On-site examinations of insurers’ reserves, controls and claims',r:['Assistant Examiner','Examiner','Auditor','Lead Auditor','Head of Insurance Examinations','Deputy Director-General, Examination Bureau'],dd:.2},
+  {id:'reg_rule',n:'Rules & Policy',d:'Solvency, catastrophe capital and insurance law'},
+  {id:'reg_con',n:'Consumer Protection',d:'Product review, complaints and fair treatment of customers',r:['Officer','Senior Officer','Consumer Protection Section Chief','Deputy Division Director','Division Director','Deputy Director-General'],dd:-.1}]}
+});
 const BRX={};Object.values(BRN).forEach(b=>b.o.forEach(o=>BRX[o.id]=o));
 const BR=()=>S&&S.br&&S.br[S.track]?BRX[S.br[S.track]]:null;
 Object.keys(BRN).forEach(r=>{
@@ -2785,9 +2804,20 @@ const BREND={
  tech_ai:['AI loss estimation pioneer','You proved AI can estimate losses fairly and accurately. Your model governance report became the industry template.'],
  tech_emb:['Embedded insurance trailblazer','Much of the cover added when people buy flights, phones or hotel stays was designed by you. You made insurance as natural as breathing.']
 };
+Object.assign(BREND,{
+ cor_ins:['Architect of the global program','Every factory the group has, in every country, sits under the insurance program you designed. At renewal, insurers say: “With you at the table, we’re at ease.”'],
+ cor_clm:['The corporate claims strategist','Every recovery you won for the company was backed by complete evidence. Insurers and adjusters all know this company’s claims come prepared.'],
+ cor_bcm:['Champion of a resilient company','Typhoons, earthquakes, lockdowns: none of them stopped the company for long. Customers say their orders are safest with you.'],
+ lcp_semi:['Guardian of high-tech plants','The fabs you walked through have almost never had a major fire. Many engineers don’t know that part of their plant’s fire protection came from recommendations you wrote years ago.'],
+ lcp_pet:['Veteran of petrochemical safety','You spent a lifetime among heat, pressure, oil and gas. The explosions that never happened are your best work.'],
+ lcp_log:['The authority on warehouse fire protection','From high-bay warehouses to lithium-battery logistics centers, whenever the industry meets a new kind of storage, you are the first name it thinks of.'],
+ reg_exam:['The iron-faced examiner','When insurers hear you’re leading the examination, they recalculate their reserves first. You brought the numbers on the books closer to the truth.'],
+ reg_rule:['Architect of the insurance system','The new solvency regime and the catastrophe capital rules carry clauses you wrote word by word. Thanks to you, insurers can still pay after a great disaster.'],
+ reg_con:['Guardian of policyholders','The complaints you handled changed how several insurers sell. Many people have never heard of you, yet they got the claims they were owed because of you.']
+});
 function brEnd(){
   const b=BR(),r=S.rank,tr=S.track;if(!b||!BREND[b.id])return null;
-  if(['ins','brk','rei','edu'].includes(tr)&&r<4)return null;
+  if(['ins','brk','rei','edu','cor','lcp','reg'].includes(tr)&&r<4)return null;
   if(tr==='own'&&!(S.co&&(r>=5||S.co.V>=800)))return null;
   if(tr==='bro'&&!(S.co&&S.co.V>=800))return null;
   if(tr==='con'&&!(S.co&&S.co.V>=500))return null;
@@ -3576,7 +3606,57 @@ const BIGR={
       ['Suspend automated AI approvals yourself','You lose efficiency but win trust.']],
   h3:['net','Invite academics and consumer groups to review the model','The outside review reassures the regulator and makes the product better.']}
 };
-const BGRW={ins:{c:40,r:0},brk:{c:40,r:0},rei:{c:40,r:0},edu:{c:20,r:0},con:{c:15,r:25},bro:{c:15,r:25},tech:{c:10,r:30}};
+Object.assign(BIGR,{
+ cor:{n:'The overseas plant’s insurance program',st:[' (1) Construction',' (2) An accident in commissioning',' (3) Renewal in operation'],
+  s1:'The group is building a new plant overseas, a total investment of over NT$100 billion. You need to arrange insurance for the construction period and think about lost revenue if the project runs late.',
+  c1:[['Have the owner buy one policy that covers civil works, MEP and equipment installation',{w:{pro:.6,net:.4},b:45,s:1},'Every contractor is under the same policy, so no one passes the blame when something goes wrong.','The contractors already had their own policies; bringing them together takes three months of talks.'],
+      ['Let each contractor buy its own insurance',null,'Easy, but coverage is uneven and headquarters can’t see the whole picture.'],
+      ['Add delay in start-up (DSU) cover',{k:'pro',b:50,s:.8},'If the project runs late, lost revenue is covered too.','The insurer wants piles of progress data, and underwriting drags on.']],
+  h1:['pro','Put local hazard data, transport routes and lead times for key equipment into one complete underwriting submission','The insurers say it’s the most complete construction risk file they’ve seen, and offer very good terms.'],
+  s2:'During commissioning, a key machine burns out in testing. The maker’s lead time is five months, and the start of production slips with it.',
+  c2:[['Notify the insurer right away, push the maker for a rush order or an alternative, and record every delay',{k:'pro',w:{pro:.6,net:.4},b:45,s:1},'The maker cuts the lead time to three months. Every delay is documented, and the claim goes smoothly.','The maker has no capacity to spare. All you can do is wait.'],
+      ['Find out whether the equipment maker is liable before reporting the claim',null,'Sorting out liability takes a month, and the insurer says notice came too late.'],
+      ['Ask the insurer for an interim payment',{k:'net',b:40,s:.8},'The insurer agrees to pay part up front, easing the project’s cash pressure.','The insurer wants to see the loss analysis first.']],
+  h2:['net','Get the maker’s headquarters to step in and ship an identical machine from another plant','Within a week the replacement is installed, and the delay shrinks to a month.'],
+  s3:'The new plant starts mass production. At renewal, insurers say the region has had too many natural catastrophe losses; there isn’t enough capacity for earthquake and flood.',
+  c3:[['Win the insurers over with complete risk engineering data and proof of improvements','Insurers restore their capacity, on better terms than expected.','Insurers will only cover half the capacity.','Your overseas plant insurance program becomes the template for the group’s other new plants.'],
+      ['Raise the deductible and set up a captive to take part of the risk','The captive fills the gap, and total cost actually goes down.','The captive needs more capital than expected.'],
+      ['Accept less capacity','You save on premium, but the earthquake and flood gap remains.']],
+  h3:['rep','Invite the lead insurers to tour the plant’s disaster-prevention design','After seeing the site, the insurers raise their capacity on their own.']},
+ lcp:{n:'Risk improvement at a new fab',st:[' (1) First survey',' (2) The tug-of-war over improvements',' (3) The real test'],
+  s1:'A new fab wants NT$100 billion-plus of property cover. You lead the first risk survey, and the plant gives you only two days.',
+  c1:[['Plan the visit by loss scenario: cleanrooms, specialty gases, facility systems and storage, one by one',{w:{pro:.7,net:.3},b:45,s:1},'In two days you find five weaknesses that could cause a major loss.','Time is too short; you don’t finish the storage area.'],
+      ['Survey from the standard checklist',null,'The report is thorough, but it lacks any judgment about loss scenarios.'],
+      ['Build a rapport with the facilities manager first and let him show you what matters',{k:'net',b:50,s:.8},'The facilities manager is frank and shows you places outsiders usually don’t see.','The facilities manager only shows you the newest, shiniest areas.']],
+  h1:['pro','Walk through fire cases at similar fabs with the plant, item by item, on the spot','After hearing them, the plant’s engineers send you several documents you never asked for.'],
+  s2:'You make twelve recommendations. The plant says the work needs downtime and will only do three; your sales colleague worries the client will move its insurance elsewhere.',
+  c2:[['Rank the recommendations by potential loss and persuade the plant to do the top five first',{k:'pro',w:{pro:.6,net:.4},b:45,s:1},'The plant agrees to finish the top five over two years.','The plant still will only do three.'],
+      ['Give in and ask for just three',null,'The client is happy, but the two biggest risks are left untouched.'],
+      ['Recommend that the underwriter make the key improvements a condition of cover',{k:'rep',b:40,s:.8},'The improvements become a condition of renewal, and the plant gets moving.','Sales objects strongly, and the underwriter doesn’t take your advice.']],
+  h2:['net','Arrange for the plant’s executives to visit a fab that made the same improvements','Back from the visit, the plant’s leadership announces that all twelve items will go into the improvement plan.'],
+  s3:'In the middle of the night, a wet bench catches fire. This is the real test of the report you wrote two years ago.',
+  c3:[['Pull the incident records and check whether the improvements did their job','The upgraded sprinklers and exhaust system keep the fire to one tool. The insurer and the plant both come to thank you.','The fire spreads into the next area, along the very path of the one item that was never fixed.','The fire is out in three minutes and the line is down for only two days. Your report becomes the company’s training material.'],
+      ['Help the plant and the adjuster work out the loss and business interruption','The loss data is pulled together quickly, and the claim goes smoothly.','The plant and the adjuster see the restoration period very differently.'],
+      ['Wait for the adjuster’s report','You miss the chance to understand the incident first-hand.']],
+  h3:['pro','Rush to the site that night and analyze how the fire started and spread with the plant','Your analysis pushes the design of the next new fab another step forward.']},
+ reg:{n:'A non-life insurer’s solvency crisis',st:[' (1) Warning signs',' (2) Supervisory action',' (3) Exit or rebirth'],
+  s1:'After a major catastrophe, a mid-sized non-life insurer’s capital adequacy ratio falls from 300% to 150%, below the legal 200%, and it is still falling.',
+  c1:[['Launch a targeted examination: reserves, reinsurance recoveries and asset quality',{w:{pro:.6,rep:.4},b:45,s:1},'You confirm the size of the hole and find some reinsurance recoveries may never be collected.','The company never hands over complete data, and the size of the hole keeps changing.'],
+      ['Require the company to submit a capital plan',null,'The company submits a plan, but the major shareholder’s source of funds is unclear.'],
+      ['Wait and see next quarter’s results',{k:'net',b:50,s:.8},'Next quarter improves slightly, and the major shareholder voices support.','Next quarter is worse.']],
+  h1:['pro','Run a stress test simulating another catastrophe','The stress test makes it clear to the bureau and the board alike: without new capital, the company won’t survive the next typhoon season.'],
+  s2:'The capital plan keeps slipping. The media starts reporting, and policyholders call asking whether their policies are still valid.',
+  c2:[['Restrict new business as the law allows, and set a deadline for new capital',{k:'pro',w:{pro:.5,rep:.5},b:45,s:1},'The action stands on firm legal ground and stops the hole from growing.','The company files an administrative appeal, and the action is delayed.'],
+      ['Issue a press release to reassure policyholders',null,'Policyholders calm down for now, but the problem itself isn’t solved.'],
+      ['Sound out other insurers about an acquisition',{k:'net',b:40,s:.8},'Two companies show interest, and the major shareholder softens.','No company is willing to bid.']],
+  h2:['net','Bring the major shareholder, the board and the guaranty fund together and lay out every option','The major shareholder finally signs a commitment to inject capital.'],
+  s3:'The deadline arrives. The bureau must make its final decision: accept new capital, let the company be acquired, or have the guaranty fund take it over.',
+  c3:[['Assess capital and policyholder interests, propose the best option and present it to the commission','The commission adopts your plan. Policyholders are fully protected, and the market quickly regains confidence.','Your plan is questioned at the commission, and the decision is put off a month.','The way you handled the case becomes the standard procedure for troubled insurers that must exit the market.'],
+      ['Broker an acquisition by a large insurer','The deal closes and every policy is transferred.','The price can’t be agreed, and it ends in a takeover after all.'],
+      ['Extend the deadline and give the major shareholder one more chance','The shareholder scrapes the money together in the end, but the market’s faith in the regulator takes a hit.']],
+  h3:['rep','Explain the principles of the resolution to the media and policyholders yourself','Clear explanations reassure policyholders, and there is no rush of surrenders.']}
+});
+const BGRW={ins:{c:40,r:0},brk:{c:40,r:0},rei:{c:40,r:0},edu:{c:20,r:0},con:{c:15,r:25},bro:{c:15,r:25},tech:{c:10,r:30},cor:{c:40,r:0},lcp:{c:30,r:0},reg:{c:10,r:0}};
 Object.keys(BIGR).forEach(r=>{
   const B=BIGR[r],id=i=>'bg_'+r+i,nx=i=>({sched:{id:id(i+1),in:[1,2]}});
   const mk=(c,i)=>{const [l,ck,okT,ngT]=c,o={l};
@@ -3633,7 +3713,13 @@ const CERT={
  msc:{n:'Master’s in risk management',s:'Master’s',r:ALLR},
  phd:{n:'Doctorate',s:'PhD',r:['edu']}
 };
-const EXQ=r=>({adj:'adjl',exp:'adjl',mgr:'adjl',own:'adjl',brk:'brkl',bro:'brkl',ins:R()<.5?'acii':'cpcu',rei:R()<.5?'acii':'cpcu',con:'cpcu',tech:'cpcu',edu:'phd'})[r];
+Object.assign(CERT,{
+ crmp:{n:'RIMS Certified Risk Management Professional (RIMS-CRMP)',s:'RIMS-CRMP',r:['cor','con']},
+ fpe:{n:'Fire safety equipment engineer',s:'Fire safety equipment engineer',r:['lcp']},
+ kao:{n:'Passed the Senior Civil Service Exam (Finance & Insurance)',s:'Civil service exam',r:['reg']}
+});
+CERT.cpcu.r.push('cor','reg');
+const EXQ=r=>({cor:'crmp',lcp:'fpe',reg:'msc',adj:'adjl',exp:'adjl',mgr:'adjl',own:'adjl',brk:'brkl',bro:'brkl',ins:R()<.5?'acii':'cpcu',rei:R()<.5?'acii':'cpcu',con:'cpcu',tech:'cpcu',edu:'phd'})[r];
 function exQueue(r,a){const k=EXQ(r);if(k&&!S.cert[k]&&!S.q.some(x=>x.id==='ex_'+k))S.q.push({id:'ex_'+k,at:a})}
 const certN=()=>Math.min(2,Object.keys(S.cert||{}).filter(x=>CERT[x].r.includes(S.track)).length);
 const EXT={
@@ -3650,6 +3736,13 @@ const EXT={
  phd:{n:'A part-time doctorate',r:['edu'],yrs:[3,30],t:'The department encourages you to pursue a doctorate while teaching. It usually takes four to six years but helps a great deal with promotion and research funding.',
   a:'Write the dissertation while teaching',b:'Apply for study leave and focus on it for two years',ok:'After the defense, the committee stands and says: “Congratulations, Doctor.”',ng:'The dissertation stalls for a long time, and you put it on hold.'}
 };
+Object.assign(EXT,{
+ crmp:{n:'Take on the RIMS-CRMP',r:['cor','con'],yrs:[3,32],t:'RIMS is the international association of corporate risk managers. Candidates for the RIMS-CRMP must meet education and experience requirements; the exam is 120 multiple-choice questions in 2 hours, and the credential must be renewed every two years.',
+  a:'Study the English materials after work',b:'Take an online prep course, paid for by the company',ok:'Your score report says Pass. You add RIMS-CRMP to your business card.',ng:'The English terminology in a few chapters trips you up, and you don’t pass.'},
+ fpe:{n:'Sit the fire safety equipment engineer exam',r:['lcp'],yrs:[1,30],t:'The fire safety equipment engineer license is a senior professional and technical exam; you must first complete the required credits in fire-related subjects. With it, your recommendations carry more weight.',
+  a:'Study fire codes and system design after work',b:'Join a cram course and take leave to study',ok:'Your name is on the list. The plant managers look at your recommendations differently now.',ng:'You miss the water-based systems paper by a few points.'}
+});
+EXT.cpcu.r.push('cor','reg');
 Object.keys(EXT).forEach(k=>{
   const x=EXT[k],cash=k==='msc'?-15:k==='phd'?-10:-6;
   E.push({id:'ex_'+k,n:x.n,exam:1,w:k==='msc'?3:5,yrs:x.yrs,when:s=>!(s.cert&&s.cert[k])&&x.r.includes(s.track)&&((s.cx&&s.cx[k])||0)<3,t:x.t,ch:[
@@ -3698,10 +3791,10 @@ GOALS.push(
  {id:'g_cert',n:'Credentials in hand',d:'Earn 2 or more professional credentials or degrees',ck:s=>Object.keys(s.cert||{}).length>=2}
 );
 
-const ENDS0=['Collapsed from overwork','Died in office','Struck off by the industry','Founder of a listed company','Startup founder','Adjusting Group Chair','Founder of an adjusting firm','Founder of a broking firm','Founder of a consultancy','Forensic Authority','Chief technical expert','Adjusting firm general manager','Manager who came up from the field','Claims director at a broker','Deputy general manager of an insurer','Claims head at an insurer','Global reinsurance claims director','Asia-Pacific reinsurance claims head','Professor with students everywhere','Consultant who stepped back','Chief adjuster for Asia','A full life','Entrepreneur with a successful exit','Fell down and got back up','Adjuster who got rich investing','Financially free adjuster','Successful, and alone','The team’s backbone','An ordinary, reliable professional'];
+const ENDS0=['Collapsed from overwork','Died in office','Struck off by the industry','Founder of a listed company','Startup founder','Adjusting Group Chair','Founder of an adjusting firm','Founder of a broking firm','Founder of a consultancy','Forensic Authority','Chief technical expert','Adjusting firm general manager','Manager who came up from the field','Claims director at a broker','Deputy general manager of an insurer','Claims head at an insurer','Global reinsurance claims director','Asia-Pacific reinsurance claims head','Professor with students everywhere','Consultant who stepped back','Chief adjuster for Asia','A full life','Entrepreneur with a successful exit','Fell down and got back up','Adjuster who got rich investing','Financially free adjuster','Successful, and alone','The team’s backbone','An ordinary, reliable professional','Chief Risk Officer','Director of Risk Management','Chief Risk Engineer','Head of loss prevention','Deputy director-general of the insurance bureau','Division director, insurance supervision'];
 const ENDG={c:'Career endings',b:'Specialty endings',l:'Legends and experts',p:'Turning points',x:'Regrets'};
 const ENDALL=[];
-ENDS0.forEach((t,i)=>ENDALL.push({k:'e'+i,t,g:i<3?'x':i<21||i===27||i===28?'c':'p'}));
+ENDS0.forEach((t,i)=>ENDALL.push({k:'e'+i,t,g:i<3?'x':i<21||i>=27?'c':'p'}));
 Object.keys(BREND).forEach(b=>ENDALL.push({k:'b_'+b,t:BREND[b][0],g:'b'}));
 Object.keys(LEGS).forEach(s=>ENDALL.push({k:'l_'+s,t:LEGS[s][0],g:'l'}));
 Object.keys(EXPS).forEach(s=>ENDALL.push({k:'x_'+s,t:EXPS[s][0],g:'l'}));
@@ -4242,12 +4335,12 @@ function kidCost(){
 function cashFlow(f){
   const hh=S.f.married&&!S.f.divorced,c={a:S.age,co:0};
   c.sal=S.f.retired?0:monthly()*12*(f.inc||1)*(f.id==='field'&&hasT('work')?1.1:1);
-  if(!S.f.retired){S.lsal=c.sal;S.lpa=(S.lpa||0)*1.03+.06*Math.min(monthly(),15)*12;S.liy=(S.liy||0)+1}
+  if(!S.f.retired){S.lsal=c.sal;S.lpa=(S.lpa||0)*1.03+(S.track==='reg'?.15*monthly():.06*Math.min(monthly(),15))*12;S.liy=(S.liy||0)+1}
   c.pen=S.f.retired?penNow():0;
   c.gig=(S.f.retired&&focus==='r_con'&&S.age<80&&S.ce&&S.ce.kind!=='banned')?Math.min(40,(S.lsal||0)*.15):0;
   c.alt=(S.ce&&S.ce.kind!=='retire'&&S.age<(S.ce.kind==='special'?70:65))?(S.lsal||0)*(S.ce.kind==='special'?.5:.4):0;
   const ti=c.sal+c.pen+c.gig+c.alt;
-  c.tax=ti*clamp(.05+ti/2000,.05,.3)*(S.f.retired?.5:1);
+  c.tax=ti*clamp(.05+ti/2000,.05,.3)*(S.f.retired?.5:1)+(S.track==='reg'&&!S.f.retired?c.sal*.0525:0);
   c.live=(S.f.retired?12+.3*(ti-c.tax)+(hh?6:0):8+.38*(ti-c.tax)+(hh?4:0))*(S.fr>0?.8:1);
   c.rent=(S.hs?0:(kidsHome()?30:hh?24:10))*(S.fr>0?.75:1);
   c.sp=hh?24:0;if(S.fr>0)S.fr--;
@@ -4568,7 +4661,7 @@ const incomeY=()=>S.f.retired?((S.cf&&S.cf.inn)||0):monthly()*12;
 function retQ(){
   const a=S.age,cool=S.retAsk&&a-S.retAsk<2;
   if(S.co){if(a>=75)return true;return !cool&&a>=62&&R()<.2}
-  if(a>=70)return true;if(cool)return false;if(a>=65)return R()<.35;if(a>=60)return R()<.2;return false;
+  if(a>=70||(S.track==='reg'&&a>=65))return true;if(cool)return false;if(a>=65)return R()<.35;if(a>=60)return R()<.2;return false;
 }
 function retireNow(kind){
   S.f.retired=true;S.ret=S.age;S.rhp=S.hp;
@@ -4776,6 +4869,387 @@ Object.assign(KNOW,{
 });
 
 
+['credit','scapegoat','media','ai'].forEach(id=>{ROUTE_OK[id]=ROUTE_OK[id].concat(['cor','lcp','reg'])});
+['merger','freeze','hunter'].forEach(id=>{ROUTE_OK[id]=ROUTE_OK[id].concat(['cor','lcp'])});
+Object.assign(FPH,{
+ cor:['You visit a dozen-plus plants this year to take stock of their risks.','Your calendar is packed with renewal meetings.','You find several coverage gaps in the plants’ policies.'],
+ lcp:['You survey forty plants this year.','You climb onto roofs and inspect hundreds of sprinkler heads.','The recommendations you write would stack taller than you.'],
+ reg:['You review over a hundred insurance products this year.','You wait in the corridors of the Legislative Yuan for several nights.','You answer piles of letters from the public.']
+});
+Object.assign(FPHX,{
+ cor:['You put the whole group’s policies into one master table.','You get a late-night call about a loss at an overseas plant.','You write four risk reports for the board this year.'],
+ lcp:['You spend a whole day measuring storage heights in a client’s warehouse.','You spend half of every month in hotels next to industrial parks.','You spend a whole afternoon in a fire pump room listening to the motors.'],
+ reg:['You carry out examinations at three insurers.','You take a draft regulation to its twelfth version.','You sit through a public hearing with twenty insurers’ views.']
+});
+MINOR.push(
+ {t:'You write your name on your hard hat at a client’s plant.',fx:{pro:1},w:5,when:s=>s.track==='lcp'},
+ {t:'A plant dog chases you for a stretch during a survey.',fx:{hp:-1},w:4,when:s=>s.track==='lcp'},
+ {t:'At the monthly meeting, the CFO says: “Good thing we listened to risk management last year.”',fx:{rep:2},w:5,when:s=>s.track==='cor'},
+ {t:'You get pulled onto the group’s sustainability committee.',fx:{net:1,hp:-1},w:4,when:s=>s.track==='cor'},
+ {t:'Your memo comes back from your superior marked “Approved as proposed.”',fx:{rep:1},w:5,when:s=>s.track==='reg'},
+ {t:'You leave on time and make it home for family dinner.',fx:{fam:2},w:5,when:s=>s.track==='reg'}
+);
+
+const SPC20={
+ fire:{cor:'One of the group’s electronics plants caught fire last night. The plant manager calls you, and the first thing he says is: “We’re insured, right?”',lcp:'You’re surveying an electronics plant. The floor is stacked with cartons and solvents, and several sprinkler heads are blocked by goods.',reg:'A big fire at an electronics plant: the media is pressing an insurer about its claim progress, and your superior wants you to find out what’s going on.'},
+ cargo:{cor:'A container of precision modules bound for a customer arrives at port wet. The customer rejects it, and the sales department hands it to you.',lcp:'A logistics company asks you to review its container yard. Boxes are stacked five high, right next to the dangerous goods staging area.',reg:'A container ship has an accident, and cargo policies at several non-life insurers are hit at once. You need to know the industry’s exposure.'},
+ eng:{cor:'At the site of the group’s new plant, a retaining wall collapses and damages the house next door. The contractor says it’s a design problem; the designer says it’s construction.',lcp:'A large building project is in deep excavation, and you’re engaged to review the site’s retaining and dewatering plans.',reg:'A building site collapses, a construction-insurance claim dispute makes the news, and neighbors with damaged homes come to the bureau to petition.'},
+ re:{cor:'A typhoon tears off half of the group’s own rooftop solar plant, and the power revenue stops with it.',lcp:'You’re surveying the onshore substation of an offshore wind farm. Salt in the sea air is starting to rust the equipment housings.',reg:'A typhoon damages several solar plants, and you need to confirm whether the insurers’ reinsurance will hold.'},
+ semi:{cor:'The group’s fab stops after a power fault, and yields will take two weeks to recover. The CFO asks you: how much can we claim?',lcp:'You’re surveying a fab’s facility systems. The emergency generators only have fuel for eight hours.',reg:'A fab goes down, and several non-life insurers’ combined business interruption exposure tops NT$10 billion. You need to assess how concentrated the industry’s risk is.'},
+ motor:{cor:'A customer slips and is hurt at one of the group’s stores. The family posts online and demands huge compensation.',lcp:'A retail chain asks you to review its customer walkways. The entrance mats turn slippery whenever it rains.',reg:'A major traffic accident triggers several liability policies at once, and victims’ families protest that claims are too slow.'}
+};
+Object.keys(SPC20).forEach(k=>Object.assign(SPC[k],SPC20[k]));
+Object.assign(PVK,{
+ pv_cor:['Claims management on the corporate side','After a loss, the risk management department coordinates internal units to limit damage, preserve evidence and compile loss data, and communicates with the broker, insurer and adjuster. The better prepared the company’s data, the faster the claim. '],
+ pv_lcp:['Loss scenarios and priorities','Risk engineers survey sites before anything happens, find weaknesses by likely loss scenario, recommend improvements and give underwriters a basis for judging the risk. A good survey report tells the client what to fix first. '],
+ pv_reg:['The regulator’s role','Insurance supervision looks at the whole market: insurers’ solvency, concentration of risk, and whether claims are paid fairly and on time. Individual disputes can go through complaints and financial ombudsman review, while the regulator oversees how insurers behave overall. ']
+});
+E.push(
+{id:'pv_cor',n:s=>'Group loss: '+SPC[s.sp.id].c,route:['cor'],w:12,t:s=>SPC[s.sp.id].cor,ch:[
+ {l:'Notify the insurer immediately and have every unit preserve the site and records',c:{k:'pro',w:{pro:.5,net:.5},b:55,s:.8},ok:{t:'Notice, damage control and evidence are all in place, and the claim runs much more smoothly.',fx:{pro:3,rep:3}},ng:{t:'The site has already been cleaned up, and some evidence is lost.',fx:{hp:-2,pro:1}}},
+ {l:'Hand it to the broker and handle internal coordination yourself',ok:{t:'The broker is very professional, but internal units keep failing to hand over data.',fx:{net:2}}},
+ {l:'Work out who is responsible before deciding whether to report it',ok:{t:'Two weeks of internal arguing later, the notice deadline has passed.',fx:{rep:-3}}}
+]},
+{id:'pv_lcp',n:s=>'Risk survey: '+SPC[s.sp.id].c,route:['lcp'],w:12,t:s=>SPC[s.sp.id].lcp,ch:[
+ {l:'Do a full survey and rank improvements by loss scenario',c:{k:'pro',b:55,s:.8},ok:{t:'You find three weaknesses that could cause a major loss, and the client starts fixing them that month.',fx:{pro:3,rep:3}},ng:{t:'Too many items; the client doesn’t know where to start.',fx:{pro:1,hp:-2}}},
+ {l:'Tick through the standard checklist',ok:{t:'The report is thorough but misses problems you can only see on site.',fx:{pro:1}}},
+ {l:'Only look where the client takes you',ok:{t:'The survey is over quickly. The back of the warehouse you never saw is where the risk is highest.',fx:{rep:-2}}}
+]},
+{id:'pv_reg',n:s=>'Regulator’s view: '+SPC[s.sp.id].c,route:['reg'],w:12,t:s=>SPC[s.sp.id].reg,ch:[
+ {l:'Require insurers to report losses, reserves and reinsurance recoveries',c:{k:'pro',b:55,s:.8},ok:{t:'You quickly get a handle on the industry’s losses, and your briefing to your superior is crystal clear.',fx:{pro:3,rep:3}},ng:{t:'Every insurer reports in a different format, and compiling it all takes two weeks.',fx:{hp:-2,pro:1}}},
+ {l:'Call insurers together and coordinate claim progress',c:{k:'net',b:50,s:.8},ok:{t:'The insurers promise to speed up claims, and the media questions die down.',fx:{net:3,rep:2}},ng:{t:'The meeting turns into insurers blaming each other.',fx:{net:-1,hp:-1}}},
+ {l:'It’s a dispute over an individual contract; let the parties handle it',ok:{t:'The public says the regulator is standing by doing nothing.',fx:{rep:-2}}}
+]},
+
+{id:'j_cor',n:'A tech group’s invitation',job:1,w:4,when:s=>s.track!=='cor'&&s.pro>=55&&s.age>=28&&s.age<=55,t:'The CFO of a listed tech group asks to meet: “We have plants in several countries and pay hundreds of millions a year in premium, but nobody here really understands insurance. Will you come and build our risk management department?”',ch:[
+ {l:'Join, starting with the group’s policies',c:{k:'pro',w:{pro:.5,net:.5},b:50,s:.8},ok:{t:'You move to the corporate side. In the first month, you find three coverage gaps in the plants’ policies.',fx:{route:'cor',raise:.08,net:2}},ng:{t:'You join, but spend the first year chasing data from the plants.',fx:{route:'cor',hp:-3}}},
+ {l:'Negotiate: report directly to the CFO',c:{k:'rep',b:45,s:.9},ok:{t:'The CFO agrees. Your risk reports can go straight to the board.',fx:{route:'cor',raise:.12,rep:2}},ng:{t:'The CFO says the org chart won’t be changed for you.',fx:{net:-2}}},
+ {l:'Decline',ok:{t:'You stay where you are, with one more friend in industry.',fx:{net:2}}},
+ {l:'Bring a health check of the group’s insurance to the interview',hid:{k:'pro',v:75},ok:{t:'After reading it, the CFO asks on the spot when you can start.',fx:{route:'cor',raise:.15,rep:3}}}
+]},
+{id:'j_lcp',n:'The risk engineering department’s invitation',job:1,w:4,when:s=>s.track!=='lcp'&&(s.pro>=55||s.bg.n==='Engineering background')&&s.age>=26&&s.age<=50,t:'The head of an insurance group’s risk engineering department calls: “You’ve seen so many fire scenes, you know how things burn. Want to help clients find the problems before anything happens?”',ch:[
+ {l:'Join the risk engineering department',c:{k:'pro',b:50,s:.8},ok:{t:'You go from seeing sites after the loss to seeing them before it. On your first survey, you find a closed sprinkler main valve.',fx:{route:'lcp',pro:3}},ng:{t:'You join, but have to learn fire protection systems and codes from scratch.',fx:{route:'lcp',hp:-3,pro:1}}},
+ {l:'Go on one survey with them first, then decide',ok:{t:'The survey teaches you a lot, but you decide to stay where you are for now.',fx:{pro:2,net:1}}},
+ {l:'Decline',ok:{t:'You still prefer reasoning backward from a loss.',fx:{fam:1}}},
+ {l:'Bring your own statistics on fire causes to the interview',hid:{k:'pro',v:75},ok:{t:'The head says: “These statistics are more complete than our training material.” You join straight away, at better pay than the original offer.',fx:{route:'lcp',raise:.1,rep:3}}}
+]},
+{id:'j_reg',n:'The insurance bureau is hiring',job:1,exam:1,w:3,when:s=>s.track!=='reg'&&s.age>=25&&s.age<=40&&!(s.cert&&s.cert.kao),t:'This year’s Senior Civil Service Exam has several insurance bureau openings in the Finance & Insurance category. A friend says: “You know the practice. Pass, and you’re a regulator. But you have to pass the national exam first, and the pay is a bit less than now.”',ch:[
+ {l:'Study after work and sit the exam',a:.7,c:{k:'pro',b:30,s:1},ok:{t:'On results day, you find your name on the list. After training, you’re assigned to the insurance bureau.',fx:{cert:'kao',route:'reg',hp:-3,fam:-2}},ng:{t:'You miss by a few points. You put the past papers away in a drawer.',fx:{hp:-3,fam:-2,pro:1,sched:{id:'kao_re',in:[1,2]}}}},
+ {l:'Take long leave and study full-time',a:.7,c:{k:'pro',b:45,s:1},ok:{t:'On results day, you find your name on the list. After training, you’re assigned to the insurance bureau.',fx:{cert:'kao',route:'reg',hp:-2,fam:-3,cash:-30}},ng:{t:'The time and money are spent, and you still miss by a few points.',fx:{hp:-2,fam:-3,cash:-30,sched:{id:'kao_re',in:[1,2]}}}},
+ {l:'Decline; your current job is good',ok:{t:'You keep going in the industry.',fx:{fam:1}}}
+]},
+{id:'kao_re',n:'Another try at the civil service exam',exam:1,w:0,when:s=>s.track!=='reg'&&s.age<=42&&!(s.cert&&s.cert.kao)&&!s.co,t:'Exam registration season is back. Last year’s past papers are still in the drawer.',ch:[
+ {l:'Try once more',c:{k:'pro',b:35,s:1},ok:{t:'This time your name is on the list. After training, you’re assigned to the insurance bureau.',fx:{cert:'kao',route:'reg',hp:-3,fam:-2}},ng:{t:'Another few points short. You decide to let this dream go.',fx:{hp:-3,fam:-2,pro:1}}},
+ {l:'Give up and focus on your current job',ok:{t:'You give the past papers to a fresh graduate.',fx:{fam:1,net:1}}}
+]},
+
+{id:'cr1',n:'Renewal season quotes',route:['cor'],w:10,t:'The group’s property program is up for renewal in a hardening market. The lead insurer’s quote is up 30%, and it wants to raise the earthquake deductible from 3% to 5%.',ch:[
+ {l:'Compile each plant’s improvements and loss records and renegotiate',c:{k:'pro',w:{pro:.6,net:.4},b:50,s:.8},ok:{t:'With improvement photos and disaster-prevention spending on the table, the insurer cuts the increase to 15%.',fx:{pro:3,rep:3}},ng:{t:'The data is rushed, and the insurer trims the price only as a gesture.',fx:{hp:-3,pro:1}}},
+ {l:'Raise the deductible to keep the premium flat',ok:{t:'The premium holds, but the company will absorb more of the next small fire itself.',fx:{rep:1}}},
+ {l:'Accept the quote; renewal comes first',ok:{t:'The renewal goes through, and the CFO asks why you didn’t negotiate.',fx:{rep:-2,net:1}}},
+ {l:'Split the limit into layers placed with different insurers',hid:{k:'pro',v:75},ok:{t:'The original insurer keeps the primary layer and two new insurers take the excess. Total premium comes in 20% below the quote.',fx:{pro:4,rep:4}}}
+]},
+{id:'cr2',n:'The unreported small fire',route:['cor'],w:9,t:'During an audit you discover that an overseas plant had a small fire three months ago, a loss of about NT$2 million. The plant thought it was too small to mention and told neither headquarters nor the insurer.',ch:[
+ {l:'Notify the insurer now and explain the delay',c:{k:'rep',b:50,s:.8},ok:{t:'The insurer accepts the explanation and pays the claim as usual.',fx:{rep:3,pro:1}},ng:{t:'The insurer cites the late notice and the fact that the loss can no longer be verified, and will only pay part of it.',fx:{rep:-1,hp:-2}}},
+ {l:'Set up a group-wide loss reporting procedure: every incident reported within 24 hours',c:{k:'net',b:50,s:.8},ok:{t:'Every plant contact is trained, and from then on every incident is reported the same day.',fx:{net:3,pro:2}},ng:{t:'The plants think headquarters is just making trouble, and reporting stays patchy.',fx:{net:-2}}},
+ {l:'It’s small; let it go',ok:{t:'The company absorbs the NT$2 million. You know the next one may not be NT$2 million.',fx:{rep:-2}}}
+]},
+{id:'cr3',n:'A one-page report for the board',route:['cor'],w:9,t:'The chairman wants you to present the group’s risks at next month’s board meeting. You get one page and five minutes.',ch:[
+ {l:'List the top five risks, current measures and the insurance gaps',c:{k:'pro',w:{pro:.5,rep:.5},b:50,s:.8},ok:{t:'For the first time, the directors understand what the company truly fears, and they add to the disaster-prevention budget.',fx:{rep:4,pro:2}},ng:{t:'Five minutes isn’t enough, and the chairman cuts you off.',fx:{rep:-1,hp:-1}}},
+ {l:'List all sixty risks',ok:{t:'A dense table; the directors turn the page and never look back.',fx:{pro:1}}},
+ {l:'Report only this year’s premium spend',ok:{t:'The report is over fast, but nobody knows what risks sit behind the premium.',fx:{rep:-1}}}
+]},
+{id:'cr4',n:'Procurement’s lowest bid',route:['cor'],w:8,t:'The new head of procurement wants insurance bought like anything else: three quotes, lowest price wins.',ch:[
+ {l:'Propose a scorecard: price, terms, claims capability and ratings compared together',c:{k:'net',w:{net:.6,pro:.4},b:50,s:.8},ok:{t:'The procurement head accepts the scorecard, and the insurer with the best terms wins.',fx:{net:3,rep:2}},ng:{t:'The procurement head thinks you’re favoring a particular insurer.',fx:{net:-3}}},
+ {l:'Award it to the lowest bid',ok:{t:'Premium drops 10%. Two years later, after a loss, you find the policy’s business interruption indemnity period is only six months.',fx:{rep:-3,pro:1}}},
+ {l:'Have the broker prepare a terms comparison for procurement',ok:{t:'The comparison shows procurement the differences, but it takes an extra month.',fx:{pro:1,net:1}}}
+]},
+{id:'cr5',n:'Shortlisted sites for the new plant',route:['cor'],w:8,t:'The group is building a plant overseas and has three candidate sites. The cheapest one is inside a government-published flood-risk zone.',ch:[
+ {l:'Translate the flood risk into flood defenses, premium and downtime losses, and put it into the site evaluation',c:{k:'pro',b:55,s:.8},ok:{t:'Once it’s all counted, the cheapest site is the most expensive. The board picks the second site.',fx:{pro:4,rep:3}},ng:{t:'Too many assumptions in the numbers; the CFO isn’t convinced.',fx:{pro:1,hp:-2}}},
+ {l:'Add a line at the end of the report: “Recommend attention to flood risk”',ok:{t:'Nobody notices that line.',fx:{rep:-1}}},
+ {l:'Back the cheapest site and buy more insurance later',ok:{t:'When insurers quote, the flood deductible is frighteningly high.',fx:{rep:-2}}}
+]},
+{id:'cr6',n:'Insured at book value',route:['cor'],w:9,t:'Checking the policies, you find finance has always used net book value as the sum insured for buildings and equipment. Many machines are depreciated down to a tenth of their cost.',ch:[
+ {l:'Commission a valuation and insure at replacement cost',c:{k:'pro',b:50,s:.8},ok:{t:'The sum insured triples and the premium rises a little. After hearing the underinsurance numbers, the chairman signs off on the spot.',fx:{pro:4,rep:3}},ng:{t:'The valuation drags on for six months, and finance complains about the fee.',fx:{hp:-2,pro:2}}},
+ {l:'Keep things as they are and save on premium',ok:{t:'You save on premium. You know that after a total loss, insurance will pay only that sliver on the books.',fx:{rep:-2}}},
+ {l:'Switch the newest, most expensive machines to replacement cost first',ok:{t:'The biggest risks are covered. The rest can wait until next year.',fx:{pro:2}}}
+]},
+{id:'cri1',n:'One global policy',route:['cor'],brn:['cor_ins'],w:9,t:'The group has plants in eight countries, each insured locally on all kinds of terms. You want to move to a structure of a global master policy plus local policies.',ch:[
+ {l:'Check local rules country by country and design how the master and local policies split the work',c:{k:'pro',w:{pro:.6,net:.4},b:50,s:.8},ok:{t:'The global program goes live with uniform terms, and total premium is 10% lower.',fx:{pro:4,net:2}},ng:{t:'Two countries require cover from local insurers, so the program has to be redesigned.',fx:{hp:-3,pro:2}}},
+ {l:'Let each plant keep buying its own',ok:{t:'Easy, but protection varies plant to plant and headquarters can’t see the whole picture.',fx:{rep:-1}}},
+ {l:'Start by bringing in the three largest plants',ok:{t:'The three plants go first; the rest join next year.',fx:{pro:2,net:1}}}
+]},
+{id:'cri2',n:'Parametric earthquake cover',route:['cor'],brn:['cor_ins'],w:9,t:'Traditional earthquake capacity is short. The broker suggests parametric earthquake cover: if magnitude and distance to the epicenter meet the trigger, a fixed amount is paid at once, with no loss adjustment.',ch:[
+ {l:'Design triggers and payouts around each plant’s location and downtime losses',c:{k:'pro',b:55,s:.8},ok:{t:'The parametric cover fills the gap in the traditional program, and the board is pleased with the design.',fx:{pro:4,rep:2}},ng:{t:'The triggers are too strict; run against the past ten years of earthquakes, it would never have paid once.',fx:{pro:1,hp:-2}}},
+ {l:'Switch everything to parametric',ok:{t:'Payouts would be fast. But you worry: in a real event, the actual loss and the payout could be far apart.',fx:{pro:1,rep:-1}}},
+ {l:'Don’t buy it; stay with traditional cover',ok:{t:'The gap remains, so you spell it out in the risk report.',fx:{pro:1}}}
+]},
+{id:'crc1',n:'Only one month of business interruption',route:['cor'],brn:['cor_clm'],w:9,t:'A plant fire stops production for two months. The insurer’s adjuster estimates only one month of business interruption, saying “repaired with reasonable speed, a month is enough.”',ch:[
+ {l:'Compile equipment lead times, commissioning and yield ramp-up records to prove two months is reasonable',c:{k:'pro',b:55,s:.8},ok:{t:'After seeing the maker’s lead-time evidence, the adjuster extends the loss period to two months.',fx:{pro:4,rep:3}},ng:{t:'Some records weren’t kept at the time, so you win only two more weeks.',fx:{pro:2,hp:-2}}},
+ {l:'Accept one month and close the claim early',ok:{t:'The claim closes quickly. The CFO does the math: a big sum left on the table.',fx:{rep:-2}}},
+ {l:'Have your own adjuster issue a second report',c:{k:'net',b:50,s:.8},ok:{t:'After comparing the two reports, both sides settle on six weeks.',fx:{net:2,pro:2}},ng:{t:'The two reports are too far apart, and the claim stalls.',fx:{hp:-3}}}
+]},
+{id:'crc2',n:'Recovering from a supplier',route:['cor'],brn:['cor_clm'],w:9,t:'The fire was caused by a wiring defect in a new machine. Having paid, the insurer plans a subrogation claim against the equipment maker, which is also your most important supplier.',ch:[
+ {l:'Work with the insurer so both technical teams establish liability together first',c:{k:'net',w:{net:.6,pro:.4},b:50,s:.8},ok:{t:'The maker admits the defect and its liability insurer settles with your insurer. The relationship stays intact.',fx:{net:4,rep:2}},ng:{t:'The maker feels betrayed, and its next delivery is pushed back.',fx:{net:-3,hp:-2}}},
+ {l:'Ask the insurer to drop the recovery',ok:{t:'The insurer refuses and reminds you that the insured can’t prejudice the insurer’s subrogation rights.',fx:{pro:1}}},
+ {l:'Stay out of it and let the insurer handle it',ok:{t:'The recovery goes to court, and the maker’s sales manager stops taking your calls.',fx:{net:-2}}}
+]},
+{id:'crb1',n:'Command center on typhoon night',route:['cor'],brn:['cor_bcm'],w:9,t:'A strong typhoon is bearing down, and you chair the group’s emergency response team. At 10 p.m., word comes of power cuts and flooding at the southern plants.',ch:[
+ {l:'Follow the response plan: staff safety, equipment rescue and notifying insurers all at once',c:{k:'net',w:{net:.5,pro:.5},b:50,s:.8},ok:{t:'By dawn, everyone is safe and key equipment has been moved to higher ground. The insurer sends an adjuster the next day.',fx:{net:3,pro:3,rep:2}},ng:{t:'Communications are down for two hours, and all you can do is wait.',fx:{hp:-4,pro:1}}},
+ {l:'Drive down to the southern plants yourself',ok:{t:'You get stuck in floodwater on the way, and the response team is left without a leader.',fx:{hp:-4,net:1}}},
+ {l:'Wait until daylight',ok:{t:'In the morning you find the basement substation has been underwater all night.',fx:{rep:-3}}}
+]},
+{id:'crb2',n:'A city in lockdown',route:['cor'],brn:['cor_bcm'],w:9,t:'The city where one of your overseas plants sits suddenly goes into lockdown. The plant is forced to stop, and a customer’s order ships next week.',ch:[
+ {l:'Activate the business continuity plan and move the order to other plants',c:{k:'pro',w:{pro:.5,net:.5},b:50,s:.8},ok:{t:'The Taiwan plants run overtime and the shipment is only three days late. The customer later gives you more orders.',fx:{pro:3,net:3,rep:2}},ng:{t:'The molds needed to switch production are still inside the locked-down plant.',fx:{hp:-3,pro:1}}},
+ {l:'Wait for the lockdown to lift',ok:{t:'The lockdown lasts three weeks, and the customer starts looking for a second supplier.',fx:{rep:-2,net:-2}}},
+ {l:'File a business interruption claim',ok:{t:'The insurer replies: no physical damage, so business interruption cover doesn’t respond.',fx:{pro:2}}}
+]},
+
+{id:'lc1',n:'The closed main valve',route:['lcp'],w:10,t:'On a survey, you find the sprinkler main control valve in the warehouse area shut. Facilities says: “We rerouted pipes last month and forgot to open it.”',ch:[
+ {l:'Have it restored on the spot and help set up an impairment procedure for fire systems',c:{k:'pro',w:{pro:.6,net:.4},b:50,s:.8},ok:{t:'The valve is opened that day. From then on, every job starts with an impairment permit and patrols.',fx:{pro:3,rep:3}},ng:{t:'The valve is opened, but the procedure never gets set up.',fx:{pro:1,hp:-1}}},
+ {l:'Put it in the report as the top-priority item',ok:{t:'By the time the report goes out, the valve has been closed again for a month.',fx:{pro:1}}},
+ {l:'Open the valve yourself',ok:{t:'The valve is open, but the new piping downstream isn’t connected yet. The leak soaks a batch of goods.',fx:{rep:-3,hp:-1}}}
+]},
+{id:'lc2',n:'Welding next to the cartons',route:['lcp'],w:9,t:'In the plant you see a contractor welding pipes, sparks falling on cartons stacked beside him. There’s no hot work permit and no one on watch.',ch:[
+ {l:'Have them stop now and explain hot work permits and fire watch on the spot',c:{k:'net',w:{net:.5,rep:.5},b:50,s:.8},ok:{t:'The contractor clears the combustibles, sets out extinguishers and leaves someone on watch after the job.',fx:{rep:3,net:2}},ng:{t:'The contractor is annoyed, and the plant manager thinks you’re meddling.',fx:{net:-2,rep:1}}},
+ {l:'Take photos and put it in the report',ok:{t:'The report is thorough, but the welding goes ahead that day.',fx:{pro:1}}},
+ {l:'Not your job; leave it',ok:{t:'A month later, there’s a small fire in that part of the plant.',fx:{rep:-3}}}
+]},
+{id:'lc3',n:'Go easy in the report',route:['lcp'],w:9,t:'A sales colleague begs you: “This is our biggest client this year. Could you write fewer recommendations? The client doesn’t like being nitpicked.”',ch:[
+ {l:'Write what you found, but split recommendations into “required” and “advised”',c:{k:'rep',b:50,s:.8},ok:{t:'Seeing the grading, the client agrees to deal with the three required items first. Your sales colleague is relieved too.',fx:{rep:4,pro:2}},ng:{t:'The sales manager sends the report back and tells you to rewrite it.',fx:{net:-2,hp:-2}}},
+ {l:'Do as sales asks and cut a few items',ok:{t:'The client is happy. Two years later, the fire starts exactly where one of the deleted items was.',fx:{rep:-6,net:2}}},
+ {l:'Refuse to change it and send the report as is',ok:{t:'The report goes out, and the sales colleague barely speaks to you again.',fx:{rep:2,net:-3}}}
+]},
+{id:'lc4',n:'Holes in the fire wall',route:['lcp'],w:9,t:'You need to estimate a plant’s probable maximum loss (PML). The plant says a fire wall between the two buildings will stop any fire.',ch:[
+ {l:'Walk the fire wall section by section, checking penetrations and fire doors',c:{k:'pro',b:55,s:.8},ok:{t:'You find three pipe penetrations with no firestopping and a fire door wedged open with a block of wood. Once fixed, the fire compartment really works.',fx:{pro:4,rep:3}},ng:{t:'The ceiling is too high to see some spots, so you estimate conservatively.',fx:{pro:1,hp:-2}}},
+ {l:'Use the plant’s own figures',ok:{t:'The report is done quickly. The underwriter, going by your numbers, buys only half the reinsurance.',fx:{rep:-2}}},
+ {l:'Assume a total loss',ok:{t:'The figure is conservative, but the client’s premium goes up sharply and sales has a headache.',fx:{net:-2,pro:1}}}
+]},
+{id:'lc5',n:'Three days before the typhoon',route:['lcp'],w:9,t:'A typhoon may make landfall in three days. The client asks you: “What should we prepare?”',ch:[
+ {l:'Go through the typhoon checklist: roofs, drainage, flood barriers and spare parts',c:{k:'pro',w:{pro:.5,net:.5},b:50,s:.8},ok:{t:'After the typhoon, nearby plants flood; your client loses only a few roof panels.',fx:{pro:3,rep:3,net:2}},ng:{t:'Parts for the flood barriers can’t be found, so it’s sandbags.',fx:{hp:-2,pro:1}}},
+ {l:'Send a generic typhoon checklist',ok:{t:'The client says the list is useful, but nobody follows it.',fx:{net:1}}},
+ {l:'Tell the client to be careful',ok:{t:'After the typhoon, the client’s basement floods and the switchboards are soaked.',fx:{rep:-2}}}
+]},
+{id:'lc6',n:'Three years without action',route:['lcp'],w:8,t:'You dig out the recommendations you wrote for the same client three years ago. Of twelve items, not one is done.',ch:[
+ {l:'Take fire cases from similar plants straight to the plant manager',c:{k:'net',w:{net:.6,rep:.4},b:50,s:.8},ok:{t:'After seeing photos of fires at similar plants, the plant manager assigns someone to follow up on the spot. Eight items are done within six months.',fx:{net:3,rep:3}},ng:{t:'The plant manager is busy and gives you ten minutes.',fx:{net:-1,hp:-1}}},
+ {l:'Recommend that the underwriter raise the deductible or the premium',c:{k:'rep',b:50,s:.8},ok:{t:'Once the premium goes up, the client gets moving.',fx:{rep:3,pro:1}},ng:{t:'Sales worries the client will leave, and the underwriter doesn’t take your advice.',fx:{rep:-1}}},
+ {l:'Write it all again',ok:{t:'The fourth year’s report reads almost exactly like the first.',fx:{pro:-1}}}
+]},
+{id:'lcs1',n:'Cleanroom materials',route:['lcp'],brn:['lcp_semi'],w:9,t:'A new cleanroom is under construction. You find the wall panels and exhaust ducts are ordinary plastics, not fire-tested materials.',ch:[
+ {l:'Set out the material specs and fire-test basis and recommend replacing them',c:{k:'pro',b:55,s:.8},ok:{t:'The plant switches to fire-tested materials and adds sprinklers inside the exhaust ducts.',fx:{pro:4,rep:3}},ng:{t:'The schedule is too tight; the plant replaces only half.',fx:{pro:2,hp:-2}}},
+ {l:'Put it in the report and let the underwriter decide',ok:{t:'The underwriter adds a restrictive condition to the policy, and the client is unhappy.',fx:{pro:1,net:-1}}},
+ {l:'Materials aren’t your business',ok:{t:'Six months later, a small fire spreads along the ducts and the whole cleanroom is contaminated by smoke.',fx:{rep:-4}}}
+]},
+{id:'lcs2',n:'Pyrophoric gas',route:['lcp'],brn:['lcp_semi'],w:9,t:'Checking a fab’s specialty gas area, you find the leak detectors on the silane cabinets set to alarm far above the industry standard.',ch:[
+ {l:'Reset them to the industry standard and test the automatic shutoff',c:{k:'pro',b:55,s:.8},ok:{t:'Testing reveals a shutoff valve that sticks, and it’s replaced in time.',fx:{pro:4,rep:2}},ng:{t:'Facilities says the change needs downtime and schedules it for next quarter.',fx:{pro:1}}},
+ {l:'Note it as a recommendation',ok:{t:'It sits at item fifteen, and nobody notices.',fx:{pro:1}}},
+ {l:'The detectors false-alarm a lot; looser settings make sense',ok:{t:'You talk yourself into it. The decision keeps you up at night for a long time.',fx:{rep:-3,hp:-2}}}
+]},
+{id:'lcpt1',n:'The postponed turnaround',route:['lcp'],brn:['lcp_pet'],w:9,t:'With orders full, a petrochemical plant plans to push this year’s turnaround back two years. The corrosion inspection records show several pipe sections near minimum wall thickness.',ch:[
+ {l:'Estimate remaining life from the inspection data and recommend fixing the high-risk sections first',c:{k:'pro',b:55,s:.8},ok:{t:'The plant replaces three sections during a short shutdown, and the postponement now has a sound basis.',fx:{pro:4,rep:3}},ng:{t:'There’s too little inspection data for a reliable remaining-life estimate.',fx:{pro:1,hp:-2}}},
+ {l:'Recommend a premium increase at renewal',ok:{t:'The premium goes up, but the pipes are the same pipes.',fx:{pro:1}}},
+ {l:'Respect the plant’s decision',ok:{t:'A year later one of the sections leaks. Luckily, it doesn’t ignite.',fx:{rep:-2}}}
+]},
+{id:'lcpt2',n:'Spacing of the battery containers',route:['lcp'],brn:['lcp_pet'],w:9,t:'A solar plant adds an energy storage system: a dozen-plus battery containers packed side by side, less than a meter apart.',ch:[
+ {l:'Recommend more spacing or fire barriers, and check thermal runaway detection and venting',c:{k:'pro',b:55,s:.8},ok:{t:'The owner changes the layout. Later one container goes into thermal runaway, and the fire doesn’t spread to its neighbors.',fx:{pro:4,rep:3}},ng:{t:'Land is limited, so the owner agrees only to add detection.',fx:{pro:2}}},
+ {l:'Require an independent suppression system in every container',ok:{t:'Suppression can knock down an early fire, but thermal runaway can still spread.',fx:{pro:1}}},
+ {l:'Energy storage is new technology; watch and wait',ok:{t:'You see news of a whole row of storage containers burning down overseas and think of those dozen-plus containers.',fx:{rep:-1,hp:-1}}}
+]},
+{id:'lcl1',n:'Stacked to nine meters',route:['lcp'],brn:['lcp_log'],w:9,t:'To fit more goods, a logistics center raises its racks to nine meters. But the roof sprinklers were designed for six-meter storage.',ch:[
+ {l:'Recalculate the sprinkler demand and recommend in-rack sprinklers or lower storage',c:{k:'pro',b:55,s:.8},ok:{t:'The owner adds in-rack sprinklers. The cost is far less than a warehouse fire.',fx:{pro:4,rep:3}},ng:{t:'The owner thinks it’s too expensive and only lowers some of the racks.',fx:{pro:2}}},
+ {l:'Write “storage height exceeds design” in the report',ok:{t:'The owner doesn’t understand that line and keeps building higher.',fx:{pro:1}}},
+ {l:'That’s just how warehouse risk is',ok:{t:'That winter, a similar logistics center burns for three days and nights.',fx:{rep:-2}}}
+]},
+{id:'lcl2',n:'A warehouse full of lithium batteries',route:['lcp'],brn:['lcp_log'],w:9,t:'A logistics center starts storing large numbers of e-scooter batteries and power banks for online sellers, in the same area as general goods.',ch:[
+ {l:'Recommend a separate battery storage area and limits on quantity and state of charge',c:{k:'pro',w:{pro:.6,net:.4},b:50,s:.8},ok:{t:'The batteries move to a fire-separated area, and thermal cameras go up at the entrances.',fx:{pro:4,rep:2}},ng:{t:'The online seller doesn’t want to pay more for storage, and the work is delayed.',fx:{pro:2,net:-1}}},
+ {l:'Ask for more insurance and let the insurer carry it',ok:{t:'After reading the file, the insurer declines the battery area outright.',fx:{net:-1,pro:1}}},
+ {l:'The batteries are packaged; it should be fine',ok:{t:'Three months later, a carton of damaged batteries starts smoking in the middle of the night.',fx:{rep:-3}}}
+]},
+
+{id:'rg1',n:'Dinner with an insurer',route:['reg'],w:9,t:'An insurer’s PR person calls to invite you to “a simple dinner to exchange views on supervision.”',ch:[
+ {l:'Decline and log the invitation as required',ok:{t:'You log the call as the rules require. Colleagues say you’re too strict, but you know the rules are there to protect you.',fx:{rep:3}}},
+ {l:'Make it an open meeting at the office instead',c:{k:'net',b:50,s:.8},ok:{t:'The meeting is minuted, with colleagues present. The insurer’s views turn out to be genuinely useful.',fx:{net:2,rep:2,pro:1}},ng:{t:'At the meeting, the insurer only wants to find out how the examination is going.',fx:{net:-1}}},
+ {l:'Go; it’s just dinner',ok:{t:'Somehow, photos end up with the media.',fx:{rep:-6,st:'media'}}}
+]},
+{id:'rg2',n:'Briefing notes overnight',route:['reg'],w:9,t:'A policy dispute makes the news, and a legislator will question the minister tomorrow. You have tonight to prepare the briefing.',ch:[
+ {l:'Fit the dispute, the policy terms, the insurer’s responsibility and the fixes onto one page',c:{k:'pro',w:{pro:.6,rep:.4},b:50,s:.8},ok:{t:'The minister answers clearly at the podium, then calls you in the next day: “Well written.”',fx:{rep:4,pro:2}},ng:{t:'The notes are too long, and the minister can’t find the key points at the podium.',fx:{rep:-2,hp:-2}}},
+ {l:'Call the insurer and ask for an explanation overnight',c:{k:'net',b:50,s:.8},ok:{t:'The insurer’s material is thorough and fills in details you didn’t know.',fx:{net:2,pro:1,hp:-2}},ng:{t:'The insurer’s explanation is just a defense of itself.',fx:{hp:-3}}},
+ {l:'Reuse the briefing from a similar case last time',ok:{t:'A legislator presses on a new detail, and the minister has no answer.',fx:{rep:-3}}}
+]},
+{id:'rg3',n:'Terms of a new product',route:['reg'],w:9,t:'A non-life insurer files a new typhoon and flood product. The ads say “Every typhoon, covered,” but the policy has a long list of exclusions.',ch:[
+ {l:'Require changes to the terms and the ads so the coverage is clear',c:{k:'pro',b:55,s:.8},ok:{t:'Consumer groups call the revised product “a policy you can actually understand.”',fx:{pro:3,rep:3}},ng:{t:'The insurer revises it three times, the launch slips six months, and its sales team complains you’re being difficult.',fx:{net:-2,hp:-1}}},
+ {l:'Accept the filing as per procedure',ok:{t:'The product launches. After the first typhoon, the complaint lines don’t stop ringing.',fx:{rep:-3}}},
+ {l:'Reject it outright',ok:{t:'The insurer refiles with a different actuarial consultant, but the problems in the terms remain.',fx:{pro:1,net:-1}}}
+]},
+{id:'rg4',n:'Undercutting for market share',route:['reg'],w:8,t:'To grab market share, a non-life insurer is quoting commercial fire rates clearly too low to cover the risk. Other insurers report it to you.',ch:[
+ {l:'Require the insurer to show the actuarial basis for its rates',c:{k:'pro',b:50,s:.8},ok:{t:'The insurer can’t justify them and is told to adjust its rates. The market settles down.',fx:{pro:3,rep:3}},ng:{t:'The insurer produces a plausible-looking report, and you can’t find the flaw right away.',fx:{pro:1,hp:-2}}},
+ {l:'It’s competition; supervisors shouldn’t interfere with price',ok:{t:'Two years later, that insurer’s loss ratio is over 100%.',fx:{rep:-2}}},
+ {l:'Send a letter reminding all insurers that rates must be adequate',ok:{t:'The letter goes out, and everyone keeps undercutting.',fx:{pro:1}}}
+]},
+{id:'rg5',n:'Overseeing claims after a typhoon',route:['reg'],w:9,t:'A strong typhoon floods wide areas, and motor and home fire claims surge. People complain the claims lines are always busy.',ch:[
+ {l:'Require dedicated hotlines, simpler small claims and daily progress reports',c:{k:'net',w:{net:.5,pro:.5},b:50,s:.8},ok:{t:'Within two weeks, 90% of small claims are paid, and the news starts reporting “claims paid fast.”',fx:{net:3,rep:4}},ng:{t:'The insurers’ reported numbers are far from what people actually experience.',fx:{rep:-1,hp:-2}}},
+ {l:'Let the insurers handle it',ok:{t:'Complaints hit a record, and legislators hold a press conference.',fx:{rep:-3}}},
+ {l:'Visit the claims service stations in the disaster area yourself',ok:{t:'You see the insurers really are short-staffed, and once back you get the industry association to send help.',fx:{net:2,hp:-2,pro:1}}}
+]},
+{id:'rg6',n:'Regulatory sandbox',route:['reg'],w:7,t:'An insurtech startup applies to the regulatory sandbox. It wants AI to read photos so small claims are settled in ten minutes.',ch:[
+ {l:'Design the scope of the trial, consumer protections and an exit plan',c:{k:'pro',b:50,s:.8},ok:{t:'The trial ends well, the startup turns it into a regular business, and there are zero consumer complaints.',fx:{pro:3,rep:3}},ng:{t:'The AI misjudges a few claims during the trial, and you spend a lot of time dealing with them.',fx:{hp:-2,pro:1}}},
+ {l:'Too risky; say no',ok:{t:'The startup moves to another country.',fx:{rep:-1}}},
+ {l:'Just approve it and encourage innovation',ok:{t:'The trial has no proper exit plan, and when problems arise nobody knows how to wind it down.',fx:{rep:-2}}}
+]},
+{id:'rg7',n:'The company with negative equity',route:['reg'],once:1,w:7,when:s=>s.rank>=2,t:'A small life insurer’s net worth has gone negative, and its capital plan keeps slipping. The bureau must decide what to do next.',ch:[
+ {l:'Set a legal deadline for new capital; if it’s missed, the guaranty fund takes over',c:{k:'pro',w:{pro:.5,rep:.5},b:50,s:.8},ok:{t:'The company fails to raise capital, the takeover goes smoothly, and policies stay in force.',fx:{rep:4,pro:3}},ng:{t:'News of the takeover leaks early, and policyholders crowd the company’s doors.',fx:{rep:-2,hp:-3}}},
+ {l:'Give the major shareholder one more chance',ok:{t:'A year later the hole is bigger. It ends in a takeover anyway, and the subsidy is double what it would have been.',fx:{rep:-3}}},
+ {l:'Quietly sound out other insurers about an acquisition',c:{k:'net',b:50,s:.8},ok:{t:'A large insurer agrees to take it over, and policyholders aren’t affected.',fx:{net:3,rep:2}},ng:{t:'Nobody is willing to take it on.',fx:{net:-1,hp:-2}}}
+]},
+{id:'rg_door',n:'An offer for after retirement',route:['reg'],once:1,w:8,when:s=>s.rank>=3&&s.age>=55,t:'An insurer’s chairman asks you privately: “When you retire, come be our deputy general manager. You understand supervision; we need that.”',ch:[
+ {l:'Decline: for three years after leaving, you can’t work for an insurer directly tied to your duties',ok:{t:'The chairman smiles and says he understands. You remind your staff too: nobody crosses this line.',fx:{rep:4}}},
+ {l:'After retiring, go to a university or nonprofit research institute first and revisit it in three years',ok:{t:'You agree to teach part-time at a university. Once the cooling-off period ends, the offers will still come.',fx:{rep:2,net:2}}},
+ {l:'Accept; it’s after retirement anyway',ok:{t:'Word gets out, and the media calls you a “revolving door.” The bureau orders you to recuse yourself from every case involving that company.',fx:{rep:-8,st:'media'}}}
+]},
+{id:'rge1',n:'Reserves on the low side',route:['reg'],brn:['reg_exam'],w:9,t:'Examining a non-life insurer, you find its claims reserves clearly too low: several large claims are reserved at only half the adjuster’s initial estimate.',ch:[
+ {l:'Sample the large claims and compare adjusters’ reports with the reserves',c:{k:'pro',b:55,s:.8},ok:{t:'You find twelve under-reserved claims. The company must top them up, and the board is asked to explain.',fx:{pro:4,rep:3}},ng:{t:'There are too many files; by the deadline you’ve reviewed only half.',fx:{pro:1,hp:-3}}},
+ {l:'Ask the company to explain itself',ok:{t:'The explanation is polished, but the numbers are still wrong.',fx:{pro:1}}},
+ {l:'Note it as a recommendation and follow up next time',ok:{t:'By the next examination, the gap is bigger.',fx:{rep:-2}}}
+]},
+{id:'rge2',n:'The same bank accounts',route:['reg'],brn:['reg_exam'],w:9,t:'Examining an insurer’s claims operation, you find that over two years, more than a hundred small claim payments went into the same few bank accounts.',ch:[
+ {l:'Widen the sample and trace the accounts and the staff who handled them',c:{k:'pro',w:{pro:.6,net:.4},b:55,s:.8},ok:{t:'A fraud ring of insiders and auto repair shops comes to light, and the case goes to prosecutors.',fx:{pro:4,rep:4}},ng:{t:'Account records have to be requested through the banks, and progress is slow.',fx:{hp:-3,pro:1}}},
+ {l:'Have the company investigate and report back',ok:{t:'The company reports it was “pure coincidence.” You know better.',fx:{pro:1}}},
+ {l:'They’re small claims; leave it',ok:{t:'Two years later the media exposes the ring, and the fraud has passed NT$100 million.',fx:{rep:-3}}}
+]},
+{id:'rgr1',n:'The new regime goes live',route:['reg'],brn:['reg_rule'],w:9,t:'The new solvency regime (TW-ICS) and IFRS 17 are about to take effect. Several insurers jointly ask for a delay, saying their capital will suddenly fall short.',ch:[
+ {l:'Estimate each insurer’s capital gap and design phased transitional measures',c:{k:'pro',b:55,s:.8},ok:{t:'The transitional measures give insurers time to adjust, and the new regime goes live on schedule.',fx:{pro:4,rep:3}},ng:{t:'The calculation model keeps changing versions, and insurers question the numbers.',fx:{hp:-3,pro:2}}},
+ {l:'Agree to delay',ok:{t:'Insurers breathe easier, but international rating agencies start questioning the pace of supervision.',fx:{net:2,rep:-2}}},
+ {l:'Go live on schedule with no transition',ok:{t:'Two insurers suddenly fall short of capital and must raise money in a hurry.',fx:{rep:-1,pro:1}}}
+]},
+{id:'rgr2',n:'Catastrophe capital',route:['reg'],brn:['reg_rule'],w:9,t:'You’re drafting catastrophe risk capital rules for non-life insurers. The industry says the capital required for earthquake and typhoon is too high and will force them to write less.',ch:[
+ {l:'Use catastrophe models and reinsurance arrangements so capital reflects the risk insurers actually retain',c:{k:'pro',b:55,s:.8},ok:{t:'The new rules count the effect of reinsurance. Insurers buy more reinsurance instead of writing less.',fx:{pro:4,rep:2}},ng:{t:'Model results vary so much between insurers that setting a standard is hard.',fx:{pro:1,hp:-2}}},
+ {l:'Copy foreign rules as they are',ok:{t:'The foreign parameters don’t quite fit Taiwan, and the complaints never stop.',fx:{pro:1,net:-1}}},
+ {l:'Postpone it',ok:{t:'The pressure eases, but when a real catastrophe comes, several insurers can’t cope.',fx:{rep:-2}}}
+]},
+{id:'rgc1',n:'Complaints about flooded cars',route:['reg'],brn:['reg_con'],w:9,t:'After a typhoon, several car owners complain: the agent said “full cover pays for everything,” but when their cars flooded, the insurer refused because they hadn’t added typhoon and flood cover.',ch:[
+ {l:'Pull the sales records and check whether the agents explained properly',c:{k:'pro',w:{pro:.5,rep:.5},b:50,s:.8},ok:{t:'In several cases the explanation really was inadequate; the insurer agrees to pay and is told to fix its sales process.',fx:{pro:3,rep:3}},ng:{t:'The records are incomplete, and it’s hard to tell whose account is right.',fx:{hp:-2,pro:1}}},
+ {l:'Order the insurer to pay every claim',ok:{t:'The car owners are delighted. But people who bought the extra cover ask: so what was my extra premium for?',fx:{rep:-2,net:1}}},
+ {l:'Push for application forms to show the main exclusions prominently',c:{k:'net',b:50,s:.8},ok:{t:'On the new form, “Typhoon and flood require separate cover” is printed in red.',fx:{net:2,rep:3}},ng:{t:'Insurers say the form is long enough already, and the push stalls.',fx:{net:-2}}}
+]},
+{id:'rgc2',n:'Fair treatment ratings',route:['reg'],brn:['reg_con'],w:9,t:'The bureau is rating insurers on fair treatment of customers. One has a very high complaint rate, but its chairman says its sales are number one in the industry.',ch:[
+ {l:'Rate complaints, claim speed and product suitability together',c:{k:'pro',b:50,s:.8},ok:{t:'That company ranks near the bottom, and its chairman comes to the bureau in person to present an improvement plan.',fx:{pro:3,rep:3}},ng:{t:'Too many indicators; insurers question whether it’s fair.',fx:{hp:-2,net:-1}}},
+ {l:'Strong sales mean satisfied customers',ok:{t:'Complaints hit a new record the following year.',fx:{rep:-2}}},
+ {l:'Ask the industry association to self-regulate',ok:{t:'The association holds a few meetings and issues a press release.',fx:{net:1}}}
+]}
+);
+JUST.add('lc3:0');JUST.add('lc3:2');JUST.add('rg1:0');JUST.add('rg_door:0');JUST.add('cr2:0');
+['lc1','lc2','lc4','lc5','lcs1','lcs2','lcpt1','lcpt2','lcl1','lcl2','pv_lcp','j_lcp'].forEach(id=>TAG.tech.add(id));
+['cr6','crc1','crc2','rg3','rg7','rge1','rgr1','rgc1'].forEach(id=>TAG.law.add(id));
+['cr1','cr4','cri1','rg4','rgr2','pv_reg'].forEach(id=>TAG.ins.add(id));
+
+const HV20={
+ hthai:{R:{n:'Floodwater in the industrial parks',t:'Thailand’s floods have swamped several industrial parks. You have no plants in Thailand, but all three of your key component suppliers are in the flood zone.',ch:[
+  {l:'Check inventory right away, find alternative sources and confirm your contingent business interruption cover',c:{k:'pro',w:{pro:.5,net:.5},b:55,s:.7},ok:{t:'Within a week you find two alternative suppliers and confirm which suppliers the policy names.',fx:{pro:4,net:3}},ng:{t:'Alternative parts need requalifying, and the line still stops for two weeks.',fx:{hp:-3,pro:2}}},
+  {l:'Wait for the suppliers to say when they’ll restart',ok:{t:'The suppliers’ plants are underwater for weeks, and your line stops for over a month.',fx:{rep:-3}}},
+  {l:'Warn customers about possible late deliveries first',ok:{t:'The customers appreciate your candor and adjust shipping plans with you.',fx:{net:2}}}]}},
+ hever:{R:{n:'Cargo stuck in the canal',t:'An ultra-large container ship runs aground in the canal with three of your containers bound for Europe on board. Days later, the owner declares general average.',ch:[
+  {l:'Have the cargo insurer issue a general average guarantee and arrange replacement shipments',c:{k:'pro',b:55,s:.7},ok:{t:'The insurer issues the guarantee and the containers are released; the replacement shipments keep your customer supplied.',fx:{pro:4,net:2}},ng:{t:'The guarantee paperwork goes back and forth for weeks.',fx:{hp:-2,pro:2}}},
+  {l:'Wait until the ship is freed',ok:{t:'The ship is freed, but without a guarantee the containers can’t be collected.',fx:{rep:-2}}},
+  {l:'First check whether the shipment was insured',ok:{t:'Thankfully it was. You decide to put the whole group’s cargo insurance into one table.',fx:{pro:2}}}]}},
+ hhl:{R:{n:'The quake at dawn',t:'A strong earthquake hits at dawn, and the group’s fab is at the edge of the shaking zone. Messages flood the facilities chat one after another.',ch:[
+  {l:'Follow the response plan: check on people, count tools and work in progress, and notify the insurer',c:{k:'pro',w:{pro:.5,net:.5},b:55,s:.7},ok:{t:'Everyone is safe and most tools are back within ten hours. Scrapped work in progress is fully documented.',fx:{pro:4,rep:3}},ng:{t:'The records of scrapped work in progress are incomplete, and the claim takes a long time to fill in.',fx:{hp:-2,pro:2}}},
+  {l:'Check media and customer reactions first',ok:{t:'The press release goes out quickly, but notice to the insurer is two days late.',fx:{net:1,rep:-1}}},
+  {l:'Wait for the facilities report',ok:{t:'The facilities report comes out three days later.',fx:{pro:1}}}]}},
+ hcs:{R:{n:'Blue screens overnight',t:'A faulty security software update crashes over a thousand of the group’s computers at once, and the shipping system is down for a day and a half.',ch:[
+  {l:'Activate the IT continuity plan and check whether the cyber policy covers system failure',c:{k:'pro',b:55,s:.7},ok:{t:'The backup system keeps shipments going, and the policy happens to cover non-malicious system failure.',fx:{pro:4,rep:2}},ng:{t:'The policy covers only malicious attacks, so this loss is yours to absorb.',fx:{pro:2,hp:-2}}},
+  {l:'Claim against the software vendor',ok:{t:'The license terms cap damages at the license fee.',fx:{pro:1}}},
+  {l:'Let IT handle it',ok:{t:'IT works two days and nights straight, and no one notifies the insurer.',fx:{rep:-2}}}]}},
+ h921:{E:{n:'The plant after the quake',t:'After the great earthquake, you return to a plant you surveyed two years ago. You had recommended better anchoring for machines and racks; the plant did only half.',ch:[
+  {l:'Compare anchored and unanchored equipment and write it up as a loss case',c:{k:'pro',b:55,s:.7},ok:{t:'The anchored machines are almost untouched; the unanchored ones all fell. This case becomes your most persuasive teaching material.',fx:{pro:5,rep:3}},ng:{t:'The site has already been cleared, and much of the evidence is gone.',fx:{pro:2,hp:-2}}},
+  {l:'Help the plant set recovery priorities',ok:{t:'The plant manager says you know better than they do which machines matter most.',fx:{net:3,pro:1}}},
+  {l:'It’s not your survey this time',ok:{t:'You miss the best learning opportunity you’ll ever get.',fx:{pro:-1}}}]},
+  G:{n:'Homes without earthquake cover',t:'After the great earthquake, most of the collapsed homes had no earthquake insurance, and survivors still owe their mortgages. You’re assigned to work out how to make residential earthquake insurance widespread.',ch:[
+  {l:'Draft a policy-backed residential earthquake scheme for basic cover, attached to home fire policies',c:{k:'pro',w:{pro:.6,net:.4},b:55,s:.7},ok:{t:'The plan is adopted. A few years later, basic residential earthquake insurance takes effect.',fx:{pro:4,rep:4}},ng:{t:'Who pays the premium and how the risk is layered take a long time to settle.',fx:{pro:2,hp:-2}}},
+  {l:'Ask insurers to make goodwill payments',ok:{t:'Insurers say no premium means no cover; goodwill payments would be unfair to those who did buy it.',fx:{net:-2}}},
+  {l:'Step up public awareness and encourage people to buy cover',ok:{t:'The campaign runs, but take-up rises only a little.',fx:{pro:1}}}]}},
+ hnari:{E:{n:'Switchboards in the basement',t:'Typhoon rains flood Taipei. An office tower you once surveyed has its switchboards and generators in the basement.',ch:[
+  {l:'Help the owner assess whether the flooded equipment can be cleaned and restored, and recommend relocating it',c:{k:'pro',b:55,s:.7},ok:{t:'Professional cleaning saves half the equipment. The owner decides to move the electrical gear to the second floor.',fx:{pro:4,rep:3}},ng:{t:'The equipment was underwater too long; most of it must be replaced.',fx:{pro:2,hp:-2}}},
+  {l:'Dig out your old report to prove you recommended it',ok:{t:'You did recommend it, but the owner only remembers that you didn’t insist.',fx:{rep:-1}}},
+  {l:'Help pump out the water',ok:{t:'You spend the whole night in the flooded basement.',fx:{hp:-3,net:2}}}]}},
+ hkhh:{E:{n:'Pipelines underground',t:'A petrochemical pipeline under the city leaks and sets off a chain of gas explosions. Several of your petrochemical clients have pipelines buried under city streets.',ch:[
+  {l:'Help clients map their underground pipelines, inspection records and liability limits',c:{k:'pro',b:55,s:.7},ok:{t:'One client’s pipeline map is twenty years old. You help them resurvey it and recommend raising their liability limits.',fx:{pro:4,rep:3}},ng:{t:'Pipeline data is scattered across several departments, and progress is slow.',fx:{hp:-2,pro:2}}},
+  {l:'Wait for the authorities’ investigation',ok:{t:'The investigation takes a long time, and you can’t answer any of your clients’ questions.',fx:{rep:-2}}},
+  {l:'Write a pipeline risk alert for all clients',ok:{t:'The clients all read it, but only one or two take action.',fx:{pro:1,net:1}}}]}},
+ hbx:{E:{n:'Dust and a stage',t:'A color powder party ends in a dust explosion with mass casualties. Several of your clients, food and chemical plants, also produce combustible dust.',ch:[
+  {l:'Inspect clients’ dust collection, cleanup and explosion protection',c:{k:'pro',b:55,s:.7},ok:{t:'At a flour mill you find a dust collector with no explosion venting, and the plant fixes it right away.',fx:{pro:5,rep:3}},ng:{t:'The client thinks its plant has nothing in common with a party.',fx:{net:-1,pro:2}}},
+  {l:'Alert underwriters to dust risk',ok:{t:'The underwriters add a question about dust to their questionnaire.',fx:{pro:1}}},
+  {l:'That’s event safety; it has nothing to do with plants',ok:{t:'Six months later, a client’s dust collector has a small explosion.',fx:{rep:-2}}}]}},
+ haig:{G:{n:'Policyholders queue to surrender',t:'In the global financial crisis, a foreign insurance group is in trouble, and policyholders of its Taiwan subsidiary start queuing to surrender their policies.',ch:[
+  {l:'Publicly explain the subsidiary’s assets and solvency, and tighten monitoring of fund flows',c:{k:'pro',w:{pro:.5,rep:.5},b:55,s:.7},ok:{t:'Seeing clear numbers, policyholders calm down and the rush ends within a week.',fx:{rep:4,pro:3}},ng:{t:'The explanation is too technical, and the headlines stay frightening.',fx:{rep:-1,hp:-2}}},
+  {l:'Restrict surrenders',ok:{t:'Policyholders panic even more.',fx:{rep:-4}}},
+  {l:'Wait for news from the parent company',ok:{t:'New rumors every day, and the bureau’s phones never stop ringing.',fx:{hp:-2}}}]}},
+ hcovid:{G:{n:'The pandemic policy claims storm',t:'Cases surge. The “pay on diagnosis” pandemic policies non-life insurers sold the year before rack up claims of over NT$100 billion, and several insurers’ capital is close to breaking.',ch:[
+  {l:'Require insurers to pay on time while working out flexible capital and reserve measures',c:{k:'pro',w:{pro:.6,rep:.4},b:55,s:.7},ok:{t:'Claims are paid as usual, insurers raise capital by the deadline, and none of them fails.',fx:{pro:4,rep:4}},ng:{t:'The flexible measures are criticized as bailing insurers out.',fx:{rep:-1,hp:-3}}},
+  {l:'Let insurers suspend payments while they check for fraud',ok:{t:'Policyholders and legislators protest en masse.',fx:{rep:-4}}},
+  {l:'Review how the products were approved in the first place',ok:{t:'The review matters, but the claims in front of you are still waiting.',fx:{pro:2}}}]}}
+};
+const HG20={R:['cor'],E:['lcp'],G:['reg']};
+Object.keys(HV20).forEach(k=>{const h=HIST.find(x=>x.k===k);Object.keys(HV20[k]).forEach(g=>{const v=HV20[k][g];E.push({id:k+'_'+g,n:v.n,w:0,route:HG20[g],hy:h.y,kk:k,src:h.src,t:v.t,ch:v.ch})})});
+Object.assign(KNOW,{
+ brp_cor:['The corporate risk management department','A company’s risk management department often splits into insurance programs, claims management and business continuity: one handles risk transfer, one protects the company’s rights after a loss, and one gets operations running again after a disaster.'],
+ brp_lcp:['How risk engineering is organized','Risk engineers often specialize by industry. High-tech, petrochemicals and energy, and warehousing and logistics differ greatly in how losses happen and in protection standards, and take years of industry knowledge.'],
+ brp_reg:['How insurance supervision is organized','Insurance supervision covers rules and policy, examinations and consumer protection. In Taiwan it is the job of the Financial Supervisory Commission: its Insurance Bureau supervises insurers, and its Financial Examination Bureau carries out examinations.'],
+ j_cor:['Enterprise risk management','Corporate risk managers sit on the policyholder’s side, handling risk identification, insurance programs, claims after a loss and business continuity. People who know claims practice are in demand on the corporate side.'],
+ j_lcp:['Loss prevention and risk engineering','Risk engineers survey sites before anything happens, assess fire, natural catastrophe and machinery risks and recommend improvements. Their work is also a key basis for underwriters’ pricing and terms.'],
+ j_reg:['Insurance regulators and the civil service exam','Insurance supervisors are civil servants and generally must pass a national exam. The Finance & Insurance category of the Senior Civil Service Exam (Level 3) sits under the finance and taxation series, with papers including insurance, money and banking, and financial management and investment.'],
+ kao_re:['Try once more','National exams are held every year, and many people pass only on their second or third try. Preparing while working takes time management as much as stamina.'],
+ ex_crmp:['RIMS-CRMP','RIMS is the international association of corporate risk managers. The RIMS-CRMP is accredited by ANSI under ISO/IEC 17024; the exam is 120 multiple-choice questions in 2 hours, candidates must meet education and experience requirements, and holders recertify every two years with continuing education.'],
+ ex_fpe:['Fire safety equipment engineer','The fire safety equipment engineer license is a senior professional and technical exam, and candidates must complete the required credits in fire-related subjects. Licensed engineers can design and supervise the installation of fire safety equipment, which carries real weight in loss prevention work.'],
+ cr1:['Renewing in a hard market','Insurance markets move in soft and hard cycles: when catastrophes are frequent or insurers’ capital is tight, rates rise and terms tighten. A company’s bargaining chips are complete risk engineering data, records of improvements, its loss history, and designs such as higher deductibles or layered placements.'],
+ cr2:['The duty to give notice of a loss','Article 58 of Taiwan’s Insurance Act requires the policyholder or insured to notify the insurer within five days of learning of an insured event, unless the contract says otherwise; under Article 63, failing to do so makes them liable for the insurer’s resulting loss. The most common gap in corporate groups is overseas plants or subsidiaries not reporting to headquarters.'],
+ cr3:['Risk reports for the board','A listed company’s board has ultimate responsibility for risk management. A good risk report focuses on a few major risks and explains their possible financial impact, current measures and residual risk, so the board can decide.'],
+ cr4:['Insurance isn’t just about price','The value of corporate insurance lies in terms and claims: scope of cover, exclusions, deductibles, the business interruption indemnity period, the insurer’s financial rating and claims service. Comparing premium alone often costs far more when a loss happens.'],
+ cr5:['Site selection and natural hazards','Building flood, earthquake, typhoon and power-supply risks into site selection is the cheapest point to deal with them. Once a site is chosen, the only remedies are flood defenses and insurance, and natural catastrophe cover at high-risk sites is often expensive, carries high deductibles, or can’t be bought at all.'],
+ cr6:['Sums insured and underinsurance','The sum insured for property should reflect replacement cost or actual value, as the policy specifies. Insuring at net book value often leaves the sum insured far too low; if the policy has an average clause, even a partial loss is paid only in proportion to the sum insured over the value that should have been insured.'],
+ cri1:['Global insurance programs','Multinationals often use a master policy plus local policies: local policies satisfy each country’s rules, while the master policy fills differences in conditions and limits (DIC/DIL). Protection is consistent across the group, and buying in volume gives more leverage.'],
+ cri2:['Parametric insurance and basis risk','Parametric insurance pays when an objective index (earthquake magnitude, wind speed, rainfall) hits a trigger, quickly and without loss adjustment. The drawback is basis risk: the index triggers but the actual loss is small, or the loss is large but the index misses. It is often used to fill gaps in traditional cover.'],
+ crc1:['The business interruption loss period','Business interruption insurance pays lost gross profit over the indemnity period set in the policy. A common dispute is how long damaged property takes to repair with reasonable speed and get the business running again. Equipment lead times, commissioning and yield ramp-up records are the strongest evidence.'],
+ crc2:['Subrogation and supplier relationships','Once an insurer pays, it may exercise the insured’s rights against a third party up to the amount paid (Insurance Act, Article 53). If the insured gives up its rights against the third party, the claim may be affected. A key supplier’s liability is often handled through its own liability insurance or a settlement.'],
+ crb1:['Emergency response and business continuity','Emergency response deals with the disaster itself: people’s safety, damage control and notification. Business continuity deals with what follows: restoring key products and services within an acceptable time. Both need roles assigned and drills in advance, so the night of the disaster doesn’t depend on improvisation.'],
+ crb2:['Downtime without physical damage','Traditional business interruption cover usually requires insured physical damage. Most policies don’t pay for shutdowns caused by pandemics, lockdowns or government orders. What really protects a company is a business continuity plan made in advance: alternative capacity, safety stock and diversified supply.'],
+ lc1:['Impairment management for fire systems','A common cause of major fires is sprinklers shut off for construction or maintenance with nobody keeping track. Impairment management requires a permit in advance, a time limit for restoring the system, extra patrols and notice to the insurer; day to day, valves are locked or supervised.'],
+ lc2:['Managing hot work','Welding, cutting and other hot work are among the main causes of industrial fires. A hot work permit system requires removing or covering combustibles, having extinguishers ready, a dedicated fire watch, and continued monitoring after the job, because embers can smolder a long time before flaring up.'],
+ lc3:['The independence of risk engineering reports','A risk engineering report is what underwriters rely on to judge a risk. Playing down deficiencies for the sake of the relationship means the insurer takes on risk without knowing it. Grading recommendations as required or advised is a common way to balance professionalism and client relations.'],
+ lc4:['PML and fire compartments','PML (probable maximum loss) is the loss a single event could cause under adverse conditions such as a main protection system failing. Whether a fire wall keeps the loss inside one compartment depends on whether penetrations are firestopped and fire doors close on their own. One small gap can defeat the whole compartment.'],
+ lc5:['Getting ready for a typhoon','Before a typhoon: secure roof and cladding, clear gutters and roof drains, test pumps and generators, ready flood barriers and sandbags, and move key equipment and stock to higher ground. Much typhoon damage can be greatly reduced in the days before landfall.'],
+ lc6:['Following up on recommendations','Risk engineering is only worth something if recommendations get carried out. Common practice is to grade them, set deadlines and follow up regularly; for risks left unfixed for years, insurers can adjust rates, deductibles or terms to give improvements an economic incentive.'],
+ lcs1:['Fire risk in cleanrooms','Most of the loss in a cleanroom fire comes from smoke and corrosive gases contaminating precision equipment, not the flames themselves. Fire-tested wall panels and duct materials, and sprinklers inside exhaust ducts, are key to loss prevention in semiconductor plants.'],
+ lcs2:['The risks of specialty gases','Silane and other semiconductor process gases ignite on contact with air, and some are toxic or corrosive. Gas cabinets need leak detection, automatic shutoff, exhaust and fire suppression, and alarm settings and shutoffs must be tested regularly.'],
+ lcpt1:['Mechanical integrity in petrochemical plants','Major petrochemical accidents often come from corrosion and fatigue in piping and equipment, and from delayed maintenance. Mechanical integrity programs estimate remaining life from inspection data and schedule work by risk, which controls risk better than fixed-interval turnarounds alone.'],
+ lcpt2:['Fires in energy storage systems','Lithium battery storage can catch fire through thermal runaway, which can spread from cell to cell, release flammable gases and even explode. The keys to loss prevention are enough spacing or fire separation, early detection, venting and explosion relief, and a response plan for firefighters.'],
+ lcl1:['Sprinkler design for high-bay storage','Warehouse sprinkler design depends on the commodity, its packaging and the storage height. Higher storage means a much bigger fire and heat release, which roof sprinklers may not control in time; the fix is higher design density, fast-response sprinklers, or in-rack sprinklers.'],
+ lcl2:['Storing lithium batteries','Damaged or overcharged lithium batteries can go into thermal runaway, which ordinary sprinklers struggle to control and which spreads from battery to battery. Common measures are separate storage areas, limits on height and quantity, controlling state of charge, and better early detection.'],
+ rg1:['Integrity rules for civil servants','Under Taiwan’s Ethics Guidelines for Civil Servants, invitations to meals, gifts or requests for favors from parties with an interest in one’s duties should in principle be refused and reported or logged. Regulators in particular must avoid any contact that could look like a conflict of interest.'],
+ rg2:['Legislative oversight','Heads of government agencies answer questions before the Legislative Yuan. The briefing prepared by the responsible unit must lay out the facts, legal basis, responsibilities and next steps in a few minutes.'],
+ rg3:['Insurance product review','Before launch, insurance products are reviewed by approval or by filing under the rules governing pre-sale procedures for insurance products. Reviews check whether terms are clear, rates are adequate, and ads and explanations are exaggerated, to prevent misleading sales.'],
+ rg4:['Rate adequacy','Rates must be enough to cover expected claims and expenses, without being excessive or unfairly discriminatory. After commercial fire rates were liberalized, supervision shifted from setting rates to checking the actuarial basis and solvency, so that price wars don’t sink insurers.'],
+ rg5:['Overseeing claims after a disaster','After a major natural disaster, regulators often require insurers to set up hotlines, simplify claims, make advance payments and track claim progress, so people who suffered losses are paid as soon as possible.'],
+ rg6:['The financial regulatory sandbox','Since 2018, Taiwan has run a regulatory sandbox under the Financial Technology Development and Innovative Experimentation Act, letting firms test innovative services within a set scope and period with consumer protections; some regulations can be waived during the trial.'],
+ rg7:['How troubled insurers exit','When an insurer’s capital is severely short, regulators can order it to raise capital or improve by a deadline, and take it over if needed. In August 2014, Kuo Bao Life and Singfor Life were taken over; in March 2015 Cathay Life won them at auction, with the Taiwan Insurance Guaranty Fund paying a NT$30.3 billion subsidy. Policyholders’ rights were not affected.'],
+ rg_door:['The revolving-door rule for civil servants','Article 16 of Taiwan’s Civil Servant Work Act bars civil servants, for three years after leaving office, from serving as director, supervisor, manager, executive partner or adviser of a for-profit business directly related to their duties in the five years before leaving. Under Article 24, violations carry up to two years in prison and a fine of up to NT$1 million.'],
+ rge1:['Examining claims reserves','Claims reserves are the liability an insurer sets aside for what it will still pay on claims that have already happened. Under-reserving makes profit and capital look better than they are. Examinations often sample large claims and compare adjusters’ reports, claim records and reserves.'],
+ rge2:['Claims controls and insurance fraud','Small claims get lighter review, so they attract fraud, sometimes with insiders involved. Linking payee accounts, handling staff and partner repair shops is an effective way to find anomalies. Insurance fraud can be prosecuted as fraud under the Criminal Code.'],
+ rgr1:['IFRS 17 and TW-ICS','From 2026, Taiwan’s insurers adopt IFRS 17 and the new solvency regime, TW-ICS. Liabilities are measured at current estimates and capital requirements reflect risk more closely, with transitional measures so insurers can adjust in stages.'],
+ rgr2:['Catastrophe risk capital','Insurers’ risk-based capital (RBC) requirements include catastrophe risk, so they can still pay after a major earthquake or typhoon; the calculation takes reinsurance into account. After the pandemic policy storm, regulators pushed back the capital charges for terrorism, pandemic and credit guarantee catastrophe risks to the end of 2024.'],
+ rgc1:['Motor own-damage and typhoon floods','Motor own-damage cover usually excludes typhoon and flood damage; you need an add-on for typhoon, earthquake, tsunami, hail, flood and rain-water damage. “Full cover” isn’t a formal insurance term, and selling it as “pays for everything” invites disputes.'],
+ rgc2:['Fair treatment of customers','The fair treatment principles for financial services include fairness and good faith in contracts, duty of care and loyalty, truthful advertising, suitability, disclosure, balancing pay and performance, and complaint protection. The regulator rates how well firms put them into practice.'],
+ bg_cor1:['Construction insurance for a new plant','For large plant projects, the owner often buys one contractors’ or erection all risks policy so every contractor is under the same cover and no one passes the blame after a loss. Delay in start-up (DSU) cover protects lost revenue when an insured event delays the project.'],
+ bg_cor2:['Accidents in commissioning','Commissioning is one of the riskiest phases of a project: equipment runs under real conditions for the first time. When key equipment is damaged, its lead time often decides how long the delay is; prompt notice to insurers and records of delay causes and mitigation are key to a DSU claim.'],
+ bg_cor3:['Capacity and captives','Capacity is the total amount the insurance market is willing to take on. When capacity runs short in high-hazard areas, companies can raise deductibles, layer the placement, or set up a captive to retain part of the risk and buy reinsurance behind it.'],
+ bg_lcp1:['Surveying a fab','Major fab losses often come from wet bench fires, specialty gases, facility system failures and smoke contamination. Ranking by loss scenario during a survey finds the real weaknesses better than ticking a checklist.'],
+ bg_lcp2:['Recommendations and conditions of cover','When a client won’t make improvements, insurers can make key items a condition of cover or renewal, or adjust rates and deductibles. Recommendations need clear priorities to have a chance of being carried out.'],
+ bg_lcp3:['Wet bench fires','Wet benches in semiconductor plants are largely made of plastic and sit inside cleanrooms; a fire releases heavy smoke and corrosive gases that can contaminate a whole area. In-tool suppression, sprinklers in exhaust ducts and fire-safe materials are key to limiting the loss.'],
+ bg_reg1:['Capital adequacy ratio','An insurer’s capital adequacy ratio (RBC) compares its own capital to its risk capital; Taiwan’s Insurance Act requires at least 200%. Below that, the regulator can require new capital, restrict business or even take over, depending on severity. After a catastrophe, whether reinsurance recoveries can be collected is key to sizing the gap.'],
+ bg_reg2:['Supervisory action','An insurer short of capital may be required to raise capital by a deadline, restrict new business, limit dividends or replace management. Actions need a legal basis and must weigh the confidence of policyholders and the market.'],
+ bg_reg3:['Resolving a troubled insurer','A troubled insurer can raise capital, be acquired, transfer its policies, or be taken over by the guaranty fund and auctioned. At the core is keeping policies in force and policyholders unharmed.']
+});
+
+
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const app=document.getElementById('app');
 let P='start',S=null,R=null,EV=null,RES=null,END=null,auto=false,paused=false,speed='slow',T=null,startSeed='',fresh=0,focus='bal';
@@ -4851,7 +5325,7 @@ const tx=e=>typeof e.t==='function'?e.t(S):e.t;
 const kn=e=>e.id==='big2'?KNOW['big2_'+S.sp.id]:PVK[e.id]?[PVK[e.id][0],PVK[e.id][1]+SPC[S.sp.id].tip]:KNOW[e.kk||e.id];
 const evW=e=>typeof e.w==='function'?e.w(S):e.w;
 const lbl=c=>typeof c.l==='function'?c.l(S):c.l;
-const shown=c=>!c.show||c.show(S);
+const shown=c=>c.show?c.show(S):c.hid?S[c.hid.k]>=c.hid.v:true;
 const open=c=>!c.req||c.req(S);
 const RT=()=>ROUTES[S.track];
 const rankName=()=>((BR()&&BR().r)||RT().r)[S.rank];
@@ -4891,7 +5365,7 @@ function fixCash(){if(S.cash<0&&S.inv>0){const x=Math.min(S.inv,-S.cash);S.inv-=
 function found(t,fcap){
   const cap=fcap||CO[t].cap,rf=t==='tech'?.4:.2;
   S.cash-=cap;fixCash();
-  S.prevTrack=CO[S.track]?'adj':S.track;
+  S.prevTrack=CO[S.track]||S.track==='reg'?'adj':S.track;
   S.co={t,V:cap*(1-rf),res:cap*rf,sz:1,gov:70,pol:'steady',y:0,lp:0};
   setRoute(t);
 }
@@ -4951,13 +5425,14 @@ function companyStep(){
   if(c.res<0&&!S.q.some(x=>x.id==='c_crunch')){c.cr=(c.cr||[]).filter(a=>S.age+1-a<=3);c.cr.push(S.age+1)}
   if(c.res<0&&!S.q.some(x=>x.id==='c_crunch'))S.q.unshift({id:'c_crunch',at:S.age+1});
 }
-function monthly(){return (1+.03*certN())*(BR()&&BR().m||1)*RANK[S.rank].m*RT().m*(inFirm()?S.fm.m:1)*(1+S.raise)*(1+(S.pro-50)/250)*(S.f.semi?0.5:1)*MKT[S.mkt].inc*(['ins','rei','edu','tech'].includes(S.track)?1:1+clamp(S.npc.wang,-50,100)/1000)*(1+Math.max(0,S.rep-60)*0.005)*(hasSt('halo')?1.1:1)}
+function monthly(){return (1+.03*certN())*(BR()&&BR().m||1)*RANK[S.rank].m*RT().m*(inFirm()?S.fm.m:1)*(1+S.raise)*(1+(S.pro-50)/250)*(S.f.semi?0.5:1)*MKT[S.mkt].inc*(['ins','rei','edu','tech','cor','lcp','reg'].includes(S.track)?1:1+clamp(S.npc.wang,-50,100)/1000)*(1+Math.max(0,S.rep-60)*0.005)*(hasSt('halo')?1.1:1)}
 function drain(){if(S.f.retired)return 0;return Math.max(0,((RT().d===null?S.fm.d:RT().d)+(BR()&&BR().dd||0))*(S.f.semi?0.3:1)-(hasT('opt')?0.5:0))}
 function saveRate(){return Math.max(0.05,0.3-(S.mort>0?0.08:0)-0.04*S.kids-(S.fbg==='loan'&&S.age<28?0.1:0)-(S.fbg==='pillar'&&S.age<40?0.1:0))}
 function setRoute(r){
   if(CO[r])S.rank=1;
   else if(r==='edu')S.rank=S.rank>=3?2:1;
-  else if(['brk','ins','rei'].includes(r))S.rank=clamp(S.rank,1,3);
+  else if(['brk','ins','rei','cor','lcp'].includes(r))S.rank=clamp(S.rank,1,3);
+  else if(r==='reg'){S.rank=Math.min(S.rank,1);S.raise=0}
   S.track=r;S.ms.push({k:'route',a:S.age,r});
   if(BRN[r]&&!S.br[r]&&!S.q.some(x=>x.id==='brp_'+r))S.q.unshift({id:'brp_'+r,at:S.age+1});
   exQueue(r,S.age+1+rint(2));
@@ -5032,7 +5507,7 @@ function eligible(e){
     &&(!e.brn||e.brn.includes(S.br[S.track]))
     &&(!ROUTE_OK[e.id]||ROUTE_OK[e.id].includes(S.track))
     &&(!e.yrs||(yrs>=e.yrs[0]&&yrs<=e.yrs[1]))
-    &&(!e.job||(S.age-S.lj>=3&&(!S.co||e.id==='co_found')))
+    &&(!e.job||(S.age-S.lj>=3&&(!S.co||e.id==='co_found')&&!(S.track==='reg'&&S.rank>=2&&e.id!=='j_edu')))
     &&(!e.when||e.when(S))
     &&(S.f.retired?(!!e.old||OLDOK.has(e.id)):!e.old);
 }
@@ -5188,6 +5663,9 @@ function careerTitle(kind,sp){
   else if(r>=4&&tr==='brk'){t='Claims director at a broker';d='You went from inspecting sites to designing whole claims strategies for clients. The big cases you handled became case studies in your firm’s pitches.'}
   else if(r>=4&&tr==='ins'){t=r>=5?'Deputy general manager of an insurer':'Claims head at an insurer';d='You spent thirty years on the insurer’s side, knowing every payment stands for a family or a factory.'}
   else if(r>=4&&tr==='rei'){t=r>=5?'Global reinsurance claims director':'Asia-Pacific reinsurance claims head';d='Your passport is full of stamps. Colleagues in London, Zurich and Singapore all know your name.'}
+  else if(r>=4&&tr==='cor'){t=r>=5?'Chief Risk Officer':'Director of Risk Management';d='You walked from the claims scene into the boardroom and got the company ready before anything went wrong.'}
+  else if(r>=4&&tr==='lcp'){t=r>=5?'Chief Risk Engineer':'Head of loss prevention';d='You spent a lifetime dealing with losses that never happened. Your best reports are the plants where nothing ever happened afterward.'}
+  else if(r>=4&&tr==='reg'){t=r>=5?'Deputy director-general of the insurance bureau':'Division director, insurance supervision';d='On the day you retired, colleagues gave you a booklet of the regulations and rulings you had worked on.'}
   else if(r>=4&&tr==='edu'){t='Professor with students everywhere';d='Half the young adjusters in property and casualty took your classes.'}
   else if(S.f.semi&&S.fam<82){t='Consultant who stepped back';d='For your last fifteen years, you slowed down. When young people hit a hard problem, they knock on your door; you brew a pot of tea and talk it through.'}
   else if(r>=5&&S.rep>=80){t=LEGS[S.sp.id][0];d=LEGS[S.sp.id][1]}
@@ -5265,6 +5743,9 @@ function outfit(){
   if(tr==='bro')return {T:'#2b2f3a',A:'#d9a521',W:'#ffffff',P:'#2b2f3a',bag:1};
   if(tr==='con')return {T:'#4a5c6e',A:'#e0a030',W:'#ffffff',P:'#3b4a5a',glass:1,bag:1};
   if(tr==='tech')return {T:'#333a44',A:'#333a44',W:'#333a44',P:'#4a6fa5'};
+  if(tr==='cor')return {T:'#4b5e70',A:'#c0392b',W:'#ffffff',P:'#2e3a46',glass:1,bag:1};
+  if(tr==='lcp')return {T:'#e8762c',A:'#f2d64b',W:'#ffffff',P:'#3b4a5a',helm:'#ffffff',bag:1};
+  if(tr==='reg')return {T:'#2f3b4c',A:'#3d6f9e',W:'#ffffff',P:'#2f3b4c',book:1};
   if(tr==='exp'&&r>=3)return {T:'#eef0f2',A:'#5a8fbf',W:'#5a8fbf',P:'#4a5562',glass:1,bag:1};
   if((tr==='mgr'||tr==='adj')&&r>=3)return {T:'#3a3f48',A:'#b8322a',W:'#ffffff',P:'#3a3f48',bag:1};
   if(r>=2)return {T:'#9cc3e6',A:'#22395a',W:'#ffffff',P:'#3b4a5a',helm:'#f4f4f4',bag:1};
@@ -5579,7 +6060,7 @@ function probHTML(){
    +'<div class="tbl"><table><tr><th>Promotion</th><th class="r">Years</th><th class="r">Expertise</th><th class="r">Reputation</th><th class="r">Network</th><th class="r">Monthly pay</th></tr>'+rk+'</table></div>'
    +'<table>'
    +'<tr><td>Time</td><td>Age advances automatically. The yellow bar shows progress through “this year”; the dark bar below is life progress from 23 to 65, with diamonds for career moves and yellow dots for promotions. Time pauses at events.</td></tr>'
-   +'<tr><td>Career offers</td><td>Fully random, with no fixed age and no guarantee. Each kind of offer (technical team, management, insurer, broker, reinsurer, university, startup, former firm) can appear depending on your stats, age and current path; at least 3 years pass between offers.</td></tr>'
+   +'<tr><td>Career offers</td><td>Fully random, with no fixed age and no guarantee. Each kind of offer (technical team, management, insurer, broker, reinsurer, a tech group’s risk department, a risk engineering department, the insurance bureau exam, university, startup, former firm) can appear depending on your stats, age and current path; at least 3 years pass between offers.</td></tr>'
    +'<tr><td>Stats and bonuses</td><td>Some options are judged on several stats combined (e.g. Expertise 60% + Network 40%). Your background gives +8% on matching cases (engineering: technical cases; law/business: wording disputes; shipping: cargo and marine; ex-insurer: dealing with insurers), a matching specialty +5%, path-specific events +5%, Expertise checks on the technical path and Network checks on the management path +5% each, and an international qualification +3% on Expertise checks.</td></tr>'
    +'<tr><td>Hidden options</td><td>Expert options that appear only when a stat is high enough (e.g. Expertise ≥ 75).</td></tr>'
    +'<tr><td>Stats and outcomes</td><td>On a good outcome, if your main stat is ≥ 75, positive effects ×1.3; on a bad one, if your main stat is < 35, negative effects ×1.3, with matching narration.</td></tr>'
@@ -5593,20 +6074,21 @@ function probHTML(){
    +'<tr><td>Life goals</td><td>Three hidden goals are drawn at the start and revealed at the end. Each one achieved adds +3 to your score and a medal to your card.</td></tr>'
    +'<tr><td>Glossary</td><td>Technical terms with a dotted underline in event text can be tapped for an explanation.</td></tr>'
    +'<tr><td>Adjusting math</td><td>Only appears on adjusting and claims routes. Judged on Expertise: the right answer +25%, a wrong one −15%. The result card always shows the answer and the working.</td></tr>'
-   +'<tr><td>Credentials</td><td>Adjuster and broker licenses, ACII, CPCU, a master’s and a doctorate. Credentials that fit your current route (up to 2 count) each lower promotion thresholds by 2, add 3% to promotion chances and 3% to pay, and unlock special events. You can still be promoted without them. The more years your life focus has been on “Keep learning,” the easier the exams.</td></tr>'
+   +'<tr><td>Credentials</td><td>Adjuster and broker licenses, ACII, CPCU, RIMS-CRMP, fire safety equipment engineer, the civil service exam, a master’s and a doctorate. Credentials that fit your current route (up to 2 count) each lower promotion thresholds by 2, add 3% to promotion chances and 3% to pay, and unlock special events. You can still be promoted without them. The more years your life focus has been on “Keep learning,” the easier the exams.</td></tr>'
    +'<tr><td>Achievements</td><td>The “Achievements” tab in the collection tracks the endings you’ve seen, life goals you’ve met and your best score across lives, saved in this device’s browser.</td></tr>'
-   +'<tr><td>Big cases for every career</td><td>Insurers, broking, reinsurance, academia, consulting, broker firms and startups each have their own three-stage big case.</td></tr>'
+   +'<tr><td>Big cases for every career</td><td>Insurers, broking, reinsurance, academia, consulting, broker firms, startups, corporate risk management, risk engineering and insurance supervision each have their own three-stage big case.</td></tr>'
    +'<tr><td>Performance review</td><td>Appears at random while you’re employed (ages 28 to 60), at most once in a life. Graded A/B/C on how the work events of the last five years went, plus your Expertise and Reputation; the higher the grade, the easier a raise or promotion is to win. You can also apply to switch to the technical or management track, choose a new specialty, or keep things as they are.</td></tr>'
    +'<tr><td>Early years</td><td>Events come up more often from 23 to 30, and there are events just for newcomers, such as your first paycheck, renting, student loans, testifying for the first time, and being headhunted. The opening exam, Mr. Lin and romance events are spread out.</td></tr>'
    +'<tr><td>Purchases</td><td>Below Life focus you can buy a home (three types each in Taipei, New Taipei and Taoyuan), a car, a phone and a watch, and sell or trade them in; the game pauses while the panel is open. A home takes 20% down with a mortgage for the rest; your age plus the loan term can’t exceed 75, and annual mortgage payments can’t exceed half your income. What you own appears in the picture.</td></tr>'
    +'<tr><td>Money in and out</td><td>Each year your salary, minus tax and insurance contributions, living costs, rent or mortgage, home upkeep, the car, the children’s upbringing and school fees, and any loan, plus company dividends and rental income, is that year’s balance. The details are under “More.”</td></tr>'
    +'<tr><td>Cash shortfall</td><td>When cash runs short, investments are sold first; if that’s not enough, a “Cash shortfall” event lets you sell assets, close your company or take a personal loan (4% a year, repaid over 5 years). Borrowing to get by two years in a row costs Reputation and Health.</td></tr>'
    +'<tr><td>School choice</td><td>When each child starts elementary school, junior high, high school and university, you choose public, private or abroad (an international school for elementary and junior high). Whether the choice suits the child’s personality shapes what they think of you; the ending lists each child’s path and a line from them.</td></tr>'
-   +'<tr><td>Retirement</td><td>Employees may be asked each year from 60 whether to retire, and must retire by 70; if you run your own company, you can sell or hand it over from 62, by 75 at the latest. Your career ending is decided at the moment you retire, and then retired life goes on. Being struck off or changing course also ends your career, but life continues.</td></tr>'
-   +'<tr><td>Pension</td><td>The Labor Insurance old-age pension is years of coverage × 1.55% × insured salary, 4% less for each year claimed before 65; the Labor Pension account builds up at 6% of wages and can be drawn monthly or as a lump sum from 60. After retiring there’s also consulting income, rent and reverse mortgages, along with medical and long-term care costs.</td></tr>'
+   +'<tr><td>Retirement</td><td>Employees may be asked each year from 60 whether to retire, and must retire by 70; if you run your own company, you can sell or hand it over from 62, by 75 at the latest; insurance regulators retire at the statutory age of 65. Your career ending is decided at the moment you retire, and then retired life goes on. Being struck off or changing course also ends your career, but life continues.</td></tr>'
+   +'<tr><td>Pension</td><td>The Labor Insurance old-age pension is years of coverage × 1.55% × insured salary, 4% less for each year claimed before 65; the Labor Pension account builds up at 6% of wages and can be drawn monthly or as a lump sum from 60. Insurance regulators follow the individual account system for civil servants hired from July 2023: 15% of pay goes in each year (65% from the government, 35% from you), and Civil Servant Insurance years are simplified to the Labor Insurance formula. After retiring there’s also consulting income, rent and reverse mortgages, along with medical and long-term care costs.</td></tr>'
    +'<tr><td>Lifespan</td><td>Each year, the chance of dying depends on age and health, with Taiwan’s average life expectancy (80.77 in 2024) as the reference; the healthier you are, the longer you live, up to 99. The closing report appears only at death, along with the estate and estate tax.</td></tr>'
    +'<tr><td>Late career</td><td>After 45, events of their own appear: an independent director seat, arbitration, early retirement, children studying abroad and settling down, and how to take your pension.</td></tr>'
-   +'<tr><td>Specialization</td><td>The year after joining an insurer, a broker, a reinsurer, academia, a consultancy, an adjusting firm, a brokerage or a startup, you choose a specialty (3 options each). Your specialty changes your title, pay or health cost, and unlocks its own events (weight ×2, checks +5%).</td></tr>'
+   +'<tr><td>Specialization</td><td>The year after joining an insurer, a broker, a reinsurer, academia, a consultancy, an adjusting firm, a brokerage, a startup, corporate risk management, risk engineering or insurance supervision, you choose a specialty (3 options each). Your specialty changes your title, pay or health cost, and unlocks its own events (weight ×2, checks +5%).</td></tr>'
+   +'<tr><td>New careers</td><td>Mid-career, three new offers can appear: a tech group’s risk management department (expertise ≥ 55), an insurance group’s risk engineering department (expertise ≥ 55 or an engineering background), and the insurance bureau (you must first pass the Finance & Insurance category of the Senior Civil Service Exam, by age 40). From section chief upward, insurance regulators get no offers from for-profit businesses (Civil Servant Work Act, Article 16: for three years after leaving, no post as director, manager or adviser of a for-profit business directly related to your duties).</td></tr>'
    +'<tr><td>Clause readings</td><td>Judged on Expertise: the right reading +25%, a wrong one −15%. The result card always shows the correct answer and why. The Policy & Law skill applies.</td></tr>'
    +'<tr><td>Real events</td><td>Based on real events, not tied to calendar years. Each year has about a 9% chance of one; within a life they happen in real chronological order, shown from your current job’s perspective.</td></tr>'
    +'<tr><td>Claims 101 collection</td><td>Knowledge cards from result cards are collected across lives and stored in this device’s browser.</td></tr>'
@@ -5635,7 +6117,7 @@ let DEX=null,dexFrom='start',DEXL=null;
 function dexLoad(){if(DEX)return DEX;DEX={};try{JSON.parse(localStorage.getItem(DEXK)||'[]').forEach(k=>{DEX[k]=1})}catch(e){}return DEX}
 function dexAdd(k){dexLoad();if(DEX[k])return false;DEX[k]=1;try{localStorage.setItem(DEXK,JSON.stringify(Object.keys(DEX)))}catch(e){}return true}
 const knKey=e=>e.id==='big2'?'big2_'+S.sp.id:(e.kk||e.id);
-const DEXCAT=[['fire','Property & Fire'],['cargo','Cargo & Marine'],['eng','Engineering & Renewables'],['semi','High-Tech & Business Interruption'],['motor','Liability & Motor'],['claim','Claims Practice & Ethics'],['career','Career Development'],['ins','Insurers & Reinsurance'],['brk','Brokers, Consultants & Academia'],['biz','Startups & Insurtech'],['clause','Clause Readings'],['calc','Adjusting math'],['hist','Real Events'],['life','Life & Money']];
+const DEXCAT=[['fire','Property & Fire'],['cargo','Cargo & Marine'],['eng','Engineering & Renewables'],['semi','High-Tech & Business Interruption'],['motor','Liability & Motor'],['claim','Claims Practice & Ethics'],['career','Career Development'],['ins','Insurers & Reinsurance'],['brk','Brokers, Consultants & Academia'],['biz','Startups & Insurtech'],['clause','Clause Readings'],['calc','Adjusting math'],['rm','Corporate Risk & Loss Prevention'],['reg','Insurance Supervision'],['hist','Real Events'],['life','Life & Money']];
 function dexCat(e){
   if(e.rv)return 'career';
   if(e.ca)return 'calc';
@@ -5646,6 +6128,8 @@ function dexCat(e){
   if(e.br||e.job)return 'career';
   if(e.brn){const m={own_mar:'cargo',own_cat:'claim',own_vol:'motor',brk_mar:'cargo',brk_pro:'fire',brk_enr:'eng'};if(m[e.brn[0]])return m[e.brn[0]]}
   const r=e.route||[];
+  if(r.some(x=>['cor','lcp'].includes(x)))return 'rm';
+  if(r.includes('reg'))return 'reg';
   if(r.some(x=>['own','tech'].includes(x))||/^c_|^co_/.test(e.id))return 'biz';
   if(r.some(x=>['ins','rei'].includes(x)))return 'ins';
   if(r.some(x=>['brk','bro','con','edu'].includes(x)))return 'brk';
@@ -5918,8 +6402,8 @@ const STY={
  buy:'At {a}, bought a first home: {x}.',
  close:'At {a}, closed the company to stay afloat.'
 };
-const PERS={adj:'Adjuster',exp:'technical forensic expert',mgr:'claims team leader',ins:'insurer claims professional',brk:'broker on the client’s side',rei:'globe-trotting reinsurer',edu:'insurance professor',own:'adjusting firm owner',bro:'Brokerage owner',con:'risk consultant',tech:'claims-tech founder'};
-const PERB={ins_cl:'insurer claims specialist',ins_uw:'insurer underwriting expert',ins_ri:'insurer reinsurance strategist',brk_mar:'marine broker',brk_pro:'property & engineering broker',brk_enr:'energy & high-tech broker',rei_tr:'treaty reinsurer',rei_fac:'facultative underwriter',rei_cat:'catastrophe modeller',edu_res:'insurance researcher',edu_tch:'claims practice teacher',edu_pol:'insurance policy scholar',con_bcp:'business continuity consultant',con_erm:'enterprise risk consultant',con_esg:'climate risk consultant',own_mar:'marine adjusting firm owner',own_cat:'catastrophe adjusting firm owner',own_vol:'volume claims firm owner',bro_sme:'SME brokerage owner',bro_mnc:'multinational brokerage owner',bro_spe:'specialty brokerage owner',tech_b2b:'insurtech platform founder',tech_ai:'AI damage-assessment founder',tech_emb:'embedded insurance founder'};
+const PERS={adj:'Adjuster',exp:'technical forensic expert',mgr:'claims team leader',ins:'insurer claims professional',brk:'broker on the client’s side',rei:'globe-trotting reinsurer',edu:'insurance professor',own:'adjusting firm owner',bro:'Brokerage owner',con:'risk consultant',tech:'claims-tech founder',cor:'corporate risk manager',lcp:'Risk Engineer',reg:'Insurance regulator'};
+const PERB={ins_cl:'insurer claims specialist',ins_uw:'insurer underwriting expert',ins_ri:'insurer reinsurance strategist',brk_mar:'marine broker',brk_pro:'property & engineering broker',brk_enr:'energy & high-tech broker',rei_tr:'treaty reinsurer',rei_fac:'facultative underwriter',rei_cat:'catastrophe modeller',edu_res:'insurance researcher',edu_tch:'claims practice teacher',edu_pol:'insurance policy scholar',con_bcp:'business continuity consultant',con_erm:'enterprise risk consultant',con_esg:'climate risk consultant',own_mar:'marine adjusting firm owner',own_cat:'catastrophe adjusting firm owner',own_vol:'volume claims firm owner',bro_sme:'SME brokerage owner',bro_mnc:'multinational brokerage owner',bro_spe:'specialty brokerage owner',tech_b2b:'insurtech platform founder',tech_ai:'AI damage-assessment founder',tech_emb:'embedded insurance founder',cor_ins:'corporate insurance program manager',cor_clm:'corporate claims manager',cor_bcm:'Business Continuity Manager',lcp_semi:'High-Tech Risk Engineer',lcp_pet:'petrochemical and energy risk engineer',lcp_log:'warehousing and logistics risk engineer',reg_exam:'financial examiner',reg_rule:'insurance rules officer',reg_con:'consumer protection officer'};
 const ORG={fire:'started out at fire scenes',cargo:'started out on the docks',eng:'started out on construction sites',re:'started out at power plants and wind farms',semi:'started out in cleanrooms',motor:'started out at accident scenes'};
 const TRT={pro:'top-tier expertise',rep:'an outstanding reputation',net:'a wide network',fam:'a deep devotion to family'};
 const SUMT='A {z} with {y} who {x}, {w}, {v}.';
@@ -5963,7 +6447,7 @@ function lifeStory(){
   const k=END.kind;v.push(fill(STY[k==='retire'?'retire':k==='special'?'special':k],{a:END.age||S.age,x:END.t}));v.push(...lateStory());
   return v.join(LANG==='en'?' ':'');
 }
-const CARDH={adj:'Loss Adjuster License',exp:'Loss Adjuster License',mgr:'Loss Adjuster License',own:'Adjusting Firm Principal',ins:'Insurer Staff ID',rei:'Reinsurer Staff ID',brk:'Insurance Broker License',bro:'Brokerage Principal',edu:'University Staff ID',con:'Risk Consultant Card',tech:'Insurtech Founder Card'};
+const CARDH={adj:'Loss Adjuster License',exp:'Loss Adjuster License',mgr:'Loss Adjuster License',own:'Adjusting Firm Principal',ins:'Insurer Staff ID',rei:'Reinsurer Staff ID',brk:'Insurance Broker License',bro:'Brokerage Principal',edu:'University Staff ID',con:'Risk Consultant Card',tech:'Insurtech Founder Card',cor:'Tech Group Employee ID',lcp:'Risk Engineering Staff ID',reg:'Financial Regulator Staff ID'};
 let CARDCV=null,DL=null;
 try{if(typeof window!=='undefined'&&window.claude&&window.claude.use)window.claude.use('downloads').then(x=>{DL=x},()=>{})}catch(e){}
 function heroSprite(){
