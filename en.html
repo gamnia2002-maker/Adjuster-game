@@ -295,6 +295,45 @@ details.more{border:none;border-top:1px dashed var(--line);border-radius:0;backg
 .mast .code{white-space:nowrap}
 @media (max-width:460px){.mast{flex-wrap:wrap;row-gap:2px}.mast b{flex:1;min-width:0}.mast .code{order:3;flex-basis:100%;margin-left:0}}
 .kvc{display:block;width:100%;height:auto;aspect-ratio:16/9;image-rendering:pixelated;image-rendering:crisp-edges;border-radius:6px;background:#3f6b84;box-shadow:0 6px 18px rgba(20,33,44,.18)}
+.buyr button{display:flex;flex-direction:column;gap:2px;padding:7px 4px}
+.buyr button b{font-size:14px}
+.buyr button small{font-size:11px;line-height:1.3;color:var(--mute)}
+.buyr button.on small{color:var(--bg)}
+.shop{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.shop .sh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.shop .sh b{font:700 16px var(--f-body)}
+.shop .own{font-size:13px;line-height:1.6;background:var(--bg);border:1px dashed var(--line);border-radius:6px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+.bi{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:4px}
+.bi .bh{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.bi .bh b{font-size:15px}
+.bi .bh span{font:700 14px var(--f-mono)}
+.bi p{font-size:13px;line-height:1.55;color:var(--mute);margin:0}
+.bi p.bc{color:var(--ink)}
+.bi .bb{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.bnote{font-size:12px;line-height:1.55;color:var(--mute);margin:0}
+.sbtn{all:unset;box-sizing:border-box;cursor:pointer;font:600 13px var(--f-body);padding:7px 10px;border:1px solid var(--ink);border-radius:5px;background:var(--ink);color:var(--bg);text-align:center}
+.sbtn.sec{background:transparent;color:var(--ink)}
+.sbtn[disabled]{opacity:.4;cursor:not-allowed}
+.why{font-size:12px;color:var(--bad)}
+.cf{display:flex;flex-direction:column;gap:4px;margin-top:6px}
+.cf .kt{font:700 11px var(--f-mono);letter-spacing:.1em;color:var(--mute)}
+.cf table{width:100%;font-size:12px;border-collapse:collapse}
+.cf td{padding:3px 0}
+.cf td:last-child{text-align:right;font-family:var(--f-mono)}
+.cf tr.tot td{font-weight:700;border-bottom:none}
+.assets,.kids,.spend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.assets li{display:grid;grid-template-columns:1fr auto;gap:2px 10px;border-top:1px dashed var(--line);padding-top:8px;font-size:15px}
+.assets li span{font:700 14px var(--f-mono)}
+.assets li em{grid-column:1/-1;font-style:normal;font-size:12px;color:var(--mute)}
+.kids li{display:flex;flex-direction:column;gap:3px;border-top:1px dashed var(--line);padding-top:8px}
+.kids .kh{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.kids .kh span{font-size:12px;color:var(--mute)}
+.kids em{font-style:normal;font-size:13px;color:var(--mute);line-height:1.6}
+.story .kids p,.story p.fq{font-size:15px;line-height:1.75}
+.spend li{display:grid;grid-template-columns:minmax(6em,40%) 1fr auto;gap:8px;align-items:center;font-size:13px;line-height:1.4}
+.spend i{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.spend u{display:block;height:100%;background:var(--accent)}
+.spend b{font-size:12px}
 </style>
 
 <main class="wrap" id="app"></main>
@@ -754,7 +793,7 @@ const E=[
  {l:'Pause new cases for the birth and early months',ok:{t:'You barely sleep for months, and barely regret it.',fx:{kid:1,fam:12,hp:-2,cash:-20,rep:-1}}},
  {l:'Keep your pace and ask family to help',c:{k:'fam',b:55,s:.8},ok:{t:'Your family holds things together, and you don’t slow down at work.',fx:{kid:1,fam:4,cash:10,hp:-3}},ng:{t:'You miss several important moments.',fx:{kid:1,fam:-7,hp:-3,cash:10}}}
 ]},
-{id:'house',n:'Buying a home',w:8,once:1,when:s=>s.age>=28&&s.age<=45&&s.cash>=150,t:'You find a home 40 minutes from work. The down payment is about US$94K.',ch:[
+{id:'house',n:'Buying a home',w:0,once:1,when:s=>s.age>=28&&s.age<=45&&s.cash>=150,t:'You find a home 40 minutes from work. The down payment is about US$94K.',ch:[
  {l:'Buy it with a 30-year mortgage',ok:{t:'The day you get the keys, you walk circles in the empty rooms. The mortgage makes you more careful about which cases you take.',fx:{cash:-300,flag:'house',fam:5,hp:-1}}},
  {l:'Keep renting and invest the money',c:{k:'pro',b:50,s:0},ok:{t:'The market is good and your assets grow.',fx:{cash:80,fam:-1}},ng:{t:'A crash hits and your portfolio shrinks.',fx:{cash:-60,hp:-2}}},
  {l:'Keep renting and save',ok:{t:'You save a lot, but it is a bit cramped.',fx:{cash:20,fam:1}}}
@@ -1101,7 +1140,7 @@ E.push(
  {l:'Wait a bit longer',ok:{t:'You decide to save more and build more strength first.',fx:{hp:1}}}
 ]},
 {id:'c_crunch',n:'Cash crunch',w:0,t:'The company has only enough money for one more month of payroll.',ch:[
- {l:'Put your own money in',req:s=>liq(s)>=150,lk:'Cash plus investments ≥ US$47K',ok:{t:'You transfer your savings into the company account. Your family asks: “How many more times?”',fx:{cash:-150,res:150,fam:-4,hp:-2}}},
+ {l:'Put your own money in',ok:{t:'You transfer your savings into the company account. Your family asks: “How many more times?”',fx:{cash:-150,res:150,fam:-4,hp:-2}}},
  {l:'Lay people off and scale down',ok:{t:'You talk to every person being let go yourself.',fx:{sz:-.4,res:60,net:-4,rep:-2,hp:-3}}},
  {l:'Take a bank loan',req:s=>!s.co||(s.co.cr||[]).length<2,lk:'Second cash crunch within 3 years: the bank won’t lend again',c:{k:'rep',b:45,s:.8},ok:{t:'The bank lends on the strength of your credit.',fx:{res:120,gov:-3}},ng:{t:'The bank says no. You have to close the business.',fx:{bust:1}}},
  {l:'Close the business',ok:{t:'You shut the company and hand the keys back to the landlord.',fx:{bust:1}}}
@@ -1290,8 +1329,8 @@ E.push(
  {l:'First check the fees and surrender terms',c:{k:'pro',b:55,s:.6},ok:{t:'You find early surrender loses money and decide to buy only a small amount.',fx:{pro:1,hp:1}},ng:{t:'The terms are too complicated, so you skip it.',fx:{hp:-1}}},
  {l:'Skip it and set up a monthly ETF plan',ok:{t:'You set up a monthly automatic investment.',fx:{strat:'mid'}}}
 ]},
-{id:'s_property',n:'A second property',w:5,once:1,when:s=>s.f.house&&liq(s)>=600&&s.age>=35&&s.age<=58,t:'An agent calls: a small studio next to a metro station would rent well. The down payment is about US$94K.',ch:[
- {l:'Buy it to rent out',ok:{t:'Rent comes in every month, along with the hassle of managing it.',fx:{cash:-300,home:900,mort:600,rent:1}}},
+{id:'s_property',n:'A second property',w:5,once:1,when:s=>!!s.hs&&!s.rp&&liq(s)>=600&&s.age>=35&&s.age<=58,t:'An agent calls: a small studio next to a metro station would rent well. The down payment is about US$94K.',ch:[
+ {l:'Buy it to rent out',ok:{t:'Rent comes in every month, along with the hassle of managing it.',fx:{rp:1}}},
  {l:'Don’t buy, keep investing in stocks',ok:{t:'You think property returns can’t match the stock market.',fx:{strat:'mid'}}},
  {l:'Don’t buy, keep the cash',ok:{t:'You feel the timing isn’t right.',fx:{hp:1}}}
 ]}
@@ -4042,6 +4081,438 @@ Object.assign(KNOW,{
 function spreadQ(list){const used=[];list.forEach(([id,a,b])=>{let y=a+rint(b-a+1);for(let t=0;t<30&&used.some(u=>Math.abs(u-y)<2);t++)y=a+rint(b-a+1);used.push(y);S.q.push({id,at:y})})}
 
 
+
+const HREG={
+ tp:{n:'Taipei',dr:.01,cm:0},
+ nt:{n:'New Taipei',dr:.012,cm:-.3},
+ ty:{n:'Taoyuan',dr:.015,cm:-.6}
+};
+const HTYP={
+ new:{n:'New development tower',dr:.005,fam:5,x:'Newly built, with management and shared facilities; values hold up best'},
+ mid:{n:'Mid-rise with elevator',dr:0,fam:4,x:'Has an elevator; management fees lower than a tower'},
+ old:{n:'Old walk-up apartment',dr:-.01,fam:3,x:'Lowest price, no elevator; the stairs get harder with age'}
+};
+const HPRICE={tp:{new:3600,mid:2600,old:2000},nt:{new:2200,mid:1300,old:1000},ty:{new:1400,mid:850,old:650}};
+const HFEE={tp:{new:9,mid:4,old:2},nt:{new:6,mid:3,old:1.5},ty:{new:5,mid:2.5,old:1}};
+const HCM={tp:'Close to the office; the easiest commute',nt:'A medium commute',ty:'The longest commute; a car makes it easier'};
+const MRATE=.023,CLR=.035,CLN=5;
+const HNM='{t} in {r}';
+
+const CARS={
+ ev:{n:'Electric car',p:150,c:4,dp:.15,x:'License tax currently exempt (until the end of 2030); charging costs less than fuel'},
+ gas:{n:'Gasoline car',p:90,c:8,dp:.12,x:'Annual license tax and fuel fee; easy to service'},
+ used:{n:'Used car',p:35,c:9,dp:.08,x:'Cheap, but repairs cost more and it breaks down now and then'}
+};
+const PHN={
+ top:{n:'Flagship phone',p:4.5,x:'Best camera and performance; slows down after about four years'},
+ mid:{n:'Mid-range phone',p:1.5,x:'Good enough'}
+};
+const WCH={
+ lux:{n:'Luxury watch',p:45,ap:.03,x:'Holds its value, may appreciate, and carries weight with clients',rep:2},
+ fash:{n:'Designer watch',p:10,ap:-.1,x:'Looks good, but loses value when resold',rep:1},
+ smart:{n:'Smartwatch',p:1.2,ap:-1,x:'Nudges you to exercise and sleep; slight health boost for five years',rep:0}
+};
+const BUYN={house:'Home',car:'Car',phone:'Phone',watch:'Watch'};
+const LG={
+ buyHL:'Bought a home ({x}) for {y}, paying {z} in down payment and fees, with a {n}-year mortgage.',
+ buyHF:'Paid in full for a home ({x}) at {y}.',
+ sellH:'Sold the home ({x}); after the mortgage and fees, got back {y}.',
+ buyC:'Bought a car ({x}) for {y}.',
+ buyCL:'Bought a car ({x}) with {y} down and a five-year car loan for the rest.',
+ sellC:'Sold: {x}. Got back {y}.',
+ buyP:'Switched to a new phone ({x}).',
+ buyW:'Bought a watch ({x}) for {y}.',
+ sellW:'Sold: {x}. Got back {y}.',
+ sellR:'Sold the rental studio and got back {y}.',
+ mortOff:'The mortgage is paid off.',
+ debtOff:'The personal loan is paid off.',
+ brk:'The used car broke down on the road; the repair cost about US$900.',
+ loan:'Took out a personal loan of {x}.',
+ twice:'Two years in a row of borrowing to get by; word is starting to get around the industry.',
+ close:'You closed the company, got back {x}, and returned to “{y}.”',
+ frugal:'For the next three years, living costs and rent have to come down.'
+};
+const annu=(L,r,n)=>L>0?L*r/(1-Math.pow(1+r,-n)):0;
+const cur1=v=>(LANG!=='en'&&Math.abs(v)<10&&Math.round(v*10)%10)?(Math.round(v*10)/10)+' K':cur(v);
+const hPrice=(r,t)=>HPRICE[r][t]*(S.hx?S.hx[r]:1);
+const lnN=()=>clamp(75-S.age,10,30);
+function exAdd(k,v){if(!S.ex)S.ex={};if(v>0)S.ex[k]=(S.ex[k]||0)+v}
+function syncH(){S.home=(S.hs?S.hs.v:0)+(S.rp?S.rp.v:0);S.mort=(S.hs?S.hs.ln:0)+(S.rp?S.rp.ln:0)}
+function homeName(){return S.hs?fill(HNM,{r:HREG[S.hs.r].n,t:HTYP[S.hs.t].n}):'Renting'}
+function carName(){return S.vh?CARS[S.vh.t].n:'No car'}
+const hNet=()=>S.hs?S.hs.v*.96-S.hs.ln:0;
+const cNet=()=>S.vh?S.vh.v-S.vh.ln:0;
+
+function hOpt(r,t,mode){
+  const price=hPrice(r,t),fee=price*.02,n=lnN(),down=mode==='full'?price:price*.2,ln=price-down,pay=annu(ln,MRATE,n),ti=S.hs?hNet():0,need=down+fee;
+  const o={price,fee,n,down,ln,pay,need,ok:true,why:''};
+  if(S.hs&&S.hs.r===r&&S.hs.t===t){o.ok=false;o.why='You already live in this kind of home'}
+  else if(need>liq(S)+ti){o.ok=false;o.why='Not enough cash'}
+  else if(ln>0&&pay>monthly()*12*.5){o.ok=false;o.why='The mortgage would be over half your income; the bank won’t approve it'}
+  return o;
+}
+function cOpt(t,mode){
+  const c=CARS[t],down=mode==='full'?c.p:c.p*.3,ln=c.p-down,pay=annu(ln,CLR,CLN),ti=S.vh?cNet():0;
+  const o={down,ln,pay,ok:true,why:''};
+  if(S.vh&&S.vh.t===t){o.ok=false;o.why='You already have this kind of car'}
+  else if(down>liq(S)+ti){o.ok=false;o.why='Not enough cash'}
+  return o;
+}
+function pOpt(t){
+  const o={ok:true,why:''};
+  if(S.ph&&S.ph.t===t&&S.age-S.ph.a<4){o.ok=false;o.why='Your phone is still new'}
+  else if(PHN[t].p>liq(S)){o.ok=false;o.why='Not enough cash'}
+  return o;
+}
+function wOpt(t){
+  const o={ok:true,why:''},ti=S.wt?S.wt.v:0;
+  if(S.wt&&S.wt.t===t){o.ok=false;o.why='You already have this kind of watch'}
+  else if(WCH[t].p>liq(S)+ti){o.ok=false;o.why='Not enough cash'}
+  return o;
+}
+function sellHouse(quiet){
+  const h=S.hs;if(!h)return 0;const got=hNet(),nm0=homeName();S.cash+=got;S.hs=null;syncH();fixCash();
+  if(!quiet)S.log.push({age:S.age,t:fill(LG.sellH,{x:nm0,y:cur(got)}),k:'bad',m:1});return got;
+}
+function sellCar(quiet){
+  const v=S.vh;if(!v)return 0;const got=cNet(),nm0=carName();S.cash+=got;S.vh=null;fixCash();
+  if(!quiet)S.log.push({age:S.age,t:fill(LG.sellC,{x:nm0,y:cur(got)}),k:'bad'});return got;
+}
+function sellWatch(quiet){
+  const w=S.wt;if(!w)return 0;const got=w.v,nm0=WCH[w.t].n;S.cash+=got;S.wt=null;
+  if(!quiet&&got>=1)S.log.push({age:S.age,t:fill(LG.sellW,{x:nm0,y:cur(got)}),k:'bad'});return got;
+}
+function sellRP(){
+  const p=S.rp;if(!p)return 0;const got=p.v*.96-p.ln;S.cash+=got;S.rp=null;syncH();fixCash();
+  S.log.push({age:S.age,t:fill(LG.sellR,{y:cur(got)}),k:'bad'});return got;
+}
+function buy(cat,id,mode){
+  if(cat==='house'){
+    const [r,t]=id.split('_'),o=hOpt(r,t,mode);if(!o.ok)return false;
+    if(S.hs)sellHouse(true);
+    S.cash-=o.need;fixCash();exAdd('house',o.need);
+    S.hs={r,t,v:o.price,ln:o.ln,pay:o.pay,n:o.n,a:S.age};syncH();
+    S.fam=clamp(S.fam+HTYP[t].fam,0,100);
+    const nm0=homeName();
+    if(!S.ms.some(x=>x.k==='buy'))S.ms.push({k:'buy',a:S.age,x:nm0});
+    S.log.push({age:S.age,t:fill(o.ln>0?LG.buyHL:LG.buyHF,{x:nm0,y:cur(o.price),z:cur(o.need),n:o.n}),k:'up',m:1});
+  }else if(cat==='car'){
+    const o=cOpt(id,mode);if(!o.ok)return false;
+    if(S.vh)sellCar(true);
+    S.cash-=o.down;fixCash();exAdd('car',o.down);
+    S.vh={t:id,v:CARS[id].p,ln:o.ln,pay:o.pay,a:S.age};
+    S.fam=clamp(S.fam+2,0,100);
+    S.log.push({age:S.age,t:fill(o.ln>0?LG.buyCL:LG.buyC,{x:CARS[id].n,y:cur(o.down)}),k:'up'});
+  }else if(cat==='phone'){
+    const o=pOpt(id);if(!o.ok)return false;
+    S.cash-=PHN[id].p;fixCash();exAdd('gad',PHN[id].p);
+    S.ph={t:id,a:S.age};if(id==='top')S.net=clamp(S.net+1,0,100);
+    S.log.push({age:S.age,t:fill(LG.buyP,{x:PHN[id].n}),k:'yr'});
+  }else if(cat==='watch'){
+    const o=wOpt(id);if(!o.ok)return false;
+    if(S.wt)sellWatch(true);
+    S.cash-=WCH[id].p;fixCash();exAdd('gad',WCH[id].p);
+    S.wt={t:id,v:WCH[id].p*.85,a:S.age};S.rep=clamp(S.rep+WCH[id].rep,0,100);
+    S.log.push({age:S.age,t:fill(LG.buyW,{x:WCH[id].n,y:cur1(WCH[id].p)}),k:'up'});
+  }
+  fresh=S.log.length;
+  return true;
+}
+function buyRP(){
+  if(S.rp)return;const v=900*(S.hx?S.hx.nt:1),ln=600;
+  S.cash-=v-ln;exAdd('house',v-ln);S.rp={v,ln,pay:annu(ln,MRATE,20)};syncH();
+}
+
+function kidCost(){
+  let up=0,ed=0;
+  (S.kd||[]).forEach(k=>{
+    const a=S.age-k.b;if(a<0||a>21)return;
+    const st=a<6?null:a<12?'ps':a<15?'js':a<18?'hs':'uni',c=st?(k.p[st]||'pub'):null;
+    const away=(st==='hs'||st==='uni')&&c==='abr';
+    if(!away)up+=a<6?15:a<18?10:8;
+    if(st)ed+=EDU[st][c];
+  });
+  return [up,ed];
+}
+function cashFlow(f){
+  const hh=S.f.married&&!S.f.divorced,c={a:S.age,co:0};
+  c.sal=monthly()*12*(f.inc||1)*(f.id==='field'&&hasT('work')?1.1:1);
+  c.tax=c.sal*clamp(.05+c.sal/2000,.05,.3);
+  c.live=(8+.38*(c.sal-c.tax)+(hh?4:0))*(S.fr>0?.8:1);
+  c.rent=(S.hs?0:(S.kids?30:hh?24:10))*(S.fr>0?.75:1);
+  c.sp=hh?24:0;if(S.fr>0)S.fr--;
+  c.mort=0;c.hfee=0;c.rpin=0;
+  if(S.hs){const h=S.hs;c.hfee=HFEE[h.r][h.t];if(h.ln>0){const it=h.ln*MRATE,m=Math.min(h.pay,h.ln+it);c.mort=m;h.ln=Math.max(0,h.ln+it-m);if(h.ln<.5){h.ln=0;S.log.push({age:S.age+1,t:LG.mortOff,k:'up',m:1})}}}
+  if(S.rp){const p=S.rp;c.rpin=24;c.hfee+=1.5;if(p.ln>0){const it=p.ln*MRATE,m=Math.min(p.pay,p.ln+it);c.mort+=m;p.ln=Math.max(0,p.ln+it-m);if(p.ln<.5)p.ln=0}}
+  c.car=0;
+  if(S.vh){const v=S.vh;c.car=CARS[v.t].c;if(v.ln>0){const it=v.ln*CLR,m=Math.min(v.pay,v.ln+it);c.car+=m;v.ln=Math.max(0,v.ln+it-m);if(v.ln<.5)v.ln=0}}
+  const ke=kidCost();c.kid=ke[0];c.edu=ke[1];
+  c.debt=0;
+  if(S.debt>0){const it=S.debt*.04,pr=Math.min(S.debt,S.dpay||S.debt/5);c.debt=it+pr;S.debt-=pr;exAdd('int',it);if(S.debt<.5){S.debt=0;S.dpay=0;S.log.push({age:S.age+1,t:LG.debtOff,k:'up'})}}
+  c.sl=0;if(S.sl>0){c.sl=Math.min(S.sl,8);S.sl-=c.sl}
+  c.fam=(S.fbg==='pillar'&&S.age<40)?c.sal*.08:0;
+  c.inn=c.sal+c.rpin+c.sp;
+  c.out=c.tax+c.live+c.rent+c.mort+c.hfee+c.car+c.kid+c.edu+c.debt+c.sl+c.fam;
+  S.cash+=c.inn-c.out;
+  exAdd('inc',c.inn);exAdd('tax',c.tax);exAdd('live',c.live+c.fam);exAdd('rent',c.rent);exAdd('house',c.mort+c.hfee);exAdd('car',c.car);exAdd('kid',c.kid);exAdd('edu',c.edu);
+  S.cf=c;
+}
+function assetStep(){
+  const z=(R()*2-1)*.03,fr={};
+  Object.keys(HREG).forEach(r=>{fr[r]=1+HREG[r].dr+z+(R()*2-1)*.015;S.hx[r]*=fr[r]});
+  if(S.hs){const h=S.hs;h.v*=fr[h.r]*(1+HTYP[h.t].dr);S.hp=clamp(S.hp+HREG[h.r].cm*(S.vh?.5:1)-(h.t==='old'&&S.age>=60?.3:0),0,100)}
+  if(S.rp)S.rp.v*=fr.nt;
+  if(S.vh){const v=S.vh;v.v=Math.max(CARS[v.t].p*.05,v.v*(1-CARS[v.t].dp));S.hp=clamp(S.hp+.3,0,100);
+    if(v.t==='used'&&R()<.2){S.cash-=3;exAdd('car',3);S.hp=clamp(S.hp-1,0,100);S.log.push({age:S.age+1,t:LG.brk,k:'bad'})}}
+  if(S.wt){const w=S.wt;w.v=Math.max(0,w.v*(1+WCH[w.t].ap));if(w.t==='smart'&&S.age-w.a<5)S.hp=clamp(S.hp+.3,0,100)}
+  syncH();
+}
+
+function borrow(x){
+  if(S.lnY===S.age-1){S.rep=clamp(S.rep-1,0,100);S.hp=clamp(S.hp-2,0,100);S.fam=clamp(S.fam-2,0,100);S.log.push({age:S.age,t:LG.twice,k:'bad'})}
+  S.lnY=S.age;S.debt=(S.debt||0)+x;S.dpay=S.debt/5;S.cash+=x;
+  S.log.push({age:S.age,t:fill(LG.loan,{x:cur(x)}),k:'bad'});
+}
+function closeCo(){
+  const c=S.co;if(!c)return;const got=Math.max(0,c.res)+c.V*.2;S.cash+=got;S.co=null;S.f.closed=true;S.ms.push({k:'close',a:S.age});
+  const back=S.prevTrack||'adj';S.track=back;S.rank=clamp(S.rank,1,3);
+  S.log.push({age:S.age,t:fill(LG.close,{x:cur(got),y:ROUTES[back].n}),k:'bad',m:1});
+}
+function gapFix(k){
+  S.gapN++;S.gapY=S.age;
+  (S.kd||[]).forEach(x=>{if(S.age-x.b<=21)x.gp=(x.gp||0)+1});
+  if(k==='w')sellWatch();
+  else if(k==='c')sellCar();
+  else if(k==='rp')sellRP();
+  else if(k==='h')sellHouse();
+  else if(k==='co')closeCo();
+  else if(k==='fr'){S.fr=3;S.log.push({age:S.age,t:LG.frugal,k:'bad'})}
+  else if(k==='seq'){if(S.cash<0)sellWatch();if(S.cash<0)sellCar();if(S.cash<0)sellRP();if(S.cash<0)sellHouse()}
+  fixCash();
+  if(k==='loan')borrow(Math.ceil(Math.max(0,-S.cash)+10));
+  else if(S.cash<0)borrow(Math.ceil(-S.cash+5));
+}
+E.push({id:'gap',n:'Cash shortfall',w:0,dt:1,tg:'Cash shortfall',kk:'gap',t:s=>fill('This year’s spending ran past your income, and your account is short {x}. Payment notices keep arriving from the bank.',{x:cur(Math.max(0,-s.cash))}),ch:[
+ {l:'Sell the watch',show:s=>!!s.wt&&s.wt.v>=1,ok:{t:'You took the watch to a secondhand shop; the clerk studied it a long time before making an offer.',fx:{gap:'w'}}},
+ {l:'Sell the car',show:s=>!!s.vh,ok:{t:'The car is sold; from now on you take public transport.',fx:{gap:'c',hp:-1}}},
+ {l:'Sell the rental studio',show:s=>!!s.rp,ok:{t:'The studio is sold, and its mortgage is paid off with it.',fx:{gap:'rp'}}},
+ {l:'Sell the home and go back to renting',a:.5,show:s=>!!s.hs,ok:{t:'On moving day, you stood in the empty living room for a long time.',fx:{gap:'h',fam:-4}}},
+ {l:'Sell things in order: the watch first, then the car, the home last',a:.5,show:s=>!!(s.wt||s.vh||s.hs||s.rp),ok:{t:'You made a list and started with what you could part with most easily.',fx:{gap:'seq',hp:-1}}},
+ {l:'Close the company',a:.4,show:s=>!!s.co,ok:{t:'You paid the staff’s final wages and the office rent, and closed the company.',fx:{gap:'co',rep:-3}}},
+ {l:'Cut back: move somewhere cheaper, eat out less, borrow the rest',a:1,ok:{t:'You canceled every subscription and started cooking at home on weekends.',fx:{gap:'fr',fam:-2,hp:-1}}},
+ {l:'Take out a personal loan, repaid over five years',a:.6,ok:{t:'The bank approved the loan; for the next five years there’s a payment every month.',fx:{gap:'loan',hp:-1}}}
+]});
+
+const EDS=['ps','js','hs','uni'];
+const EDA={ps:6,js:12,hs:15,uni:18};
+const EDU={ps:{pub:3,pri:20,abr:70},js:{pub:4,pri:22,abr:75},hs:{pub:3,pri:8,abr:180},uni:{pub:10,pri:18,abr:220}};
+const EDC={ps:{pub:'Public elementary school',pri:'Private elementary school',abr:'International school'},js:{pub:'Public junior high',pri:'Private junior high',abr:'International school'},hs:{pub:'Public high school',pri:'Private high school',abr:'High school abroad'},uni:{pub:'Public university',pri:'Private university',abr:'University abroad'}};
+const EDN={ps:'{k} starts elementary school',js:'{k} starts junior high',hs:'{k} starts high school',uni:'{k} starts university'};
+const EDT={ps:'{k} is about to start elementary school. {x}',js:'{k} is about to start junior high. {x}',hs:'{k} has finished the junior high exam and has to choose a high school. {x}',uni:'{k} is about to start university. {x}'};
+const EDLB='{x} (about {y} a year)';
+const EDR={
+ ps:{pub:'You enrolled your child at the local public elementary school, a ten-minute walk away.',pri:'You enrolled your child at a private elementary school; the school bus picks them up every morning.',abr:'You enrolled your child at an international school, taught entirely in English.'},
+ js:{pub:'Your child entered the local public junior high.',pri:'Your child got into a private junior high; the workload is heavier than expected.',abr:'Your child stayed at the international school, with classmates from a dozen countries.'},
+ hs:{pub:'Your child got into a public high school.',pri:'Your child chose a private high school. Tuition is free, but the fees and cram school add up.',abr:'Your child went abroad alone for high school, living in the school dorm.'},
+ uni:{pub:'Your child got into a public university.',pri:'Your child entered a private university.',abr:'Your child went abroad for university; the whole family saw them off at the airport.'}
+};
+const KTR={book:'{p} loves books and asks one question after another.',free:'{p} has endless energy, can’t sit still, and loves being outdoors.',art:'{p} draws all day; the walls are covered in artwork.',shy:'{p} is shy and sticks close to home.'};
+const KTRN={book:'Loves books',free:'Energetic',art:'Loves drawing',shy:'Shy, a homebody'};
+const KFIT={book:{pub:0,pri:4,abr:3},free:{pub:4,pri:-3,abr:1},art:{pub:1,pri:3,abr:2},shy:{pub:3,pri:1,abr:-6}};
+const KNM={n:{d:'Your daughter',s:'Your son'},o:{d:'Your elder daughter',s:'Your elder son'},y:{d:'Your younger daughter',s:'Your younger son'}};
+const KPR={d:'She',s:'He'};
+function kidName(i){const k=S.kd[i];if(!k)return '';return (S.kd.length>1?(i?KNM.y:KNM.o):KNM.n)[k.g]}
+function kidAdd(){
+  if(!S.kd)S.kd=[];const i=S.kd.length;if(i>1)return;
+  S.kd.push({b:S.age,g:R()<.5?'d':'s',tr:['book','free','art','shy'][rint(4)],p:{},sc:50,gp:0});
+  EDS.forEach(st=>S.q.push({id:'ks_'+st+'_'+i,at:S.age+EDA[st]}));
+}
+function eduSet(v){
+  const [st,c,i]=v.split(':'),k=S.kd&&S.kd[+i];if(!k)return;
+  k.p[st]=c;let d=KFIT[k.tr][c];if(c==='abr'&&st==='hs')d-=3;
+  k.sc=clamp(k.sc+d,0,100);
+}
+EDS.forEach(st=>[0,1].forEach(i=>{
+  E.push({id:'ks_'+st+'_'+i,n:s=>fill(EDN[st],{k:kidName(i)}),w:0,once:1,dt:1,tg:'School choice',kk:'ks_'+st,when:s=>!!(s.kd&&s.kd[i]),
+    t:s=>fill(EDT[st],{k:kidName(i),x:fill(KTR[s.kd[i].tr],{p:KPR[s.kd[i].g]})}),
+    ch:['pub','pri','abr'].map(c=>({l:s=>fill(EDLB,{x:EDC[st][c],y:cur(EDU[st][c])}),a:s=>({pub:1,pri:.6,abr:.25}[c])*(EDU[st][c]>monthly()*12*.2?.05:1),
+      ok:{t:EDR[st][c],fx:Object.assign({edu:st+':'+c+':'+i},c==='abr'&&st==='hs'?{fam:-3}:c==='abr'&&st==='uni'?{fam:-2}:{})}}))});
+}));
+
+const KAGE='Age {a}';
+const KYOUNG='{p} is still little: no big speeches, just a story every night at bedtime.';
+const KQ={
+ 4:{U:'“You didn’t send me to the most expensive schools, but you came to every one of my games.”',P:'“Thank you for giving me the best of everything. I know those fees weren’t easy.”',A:'“I was homesick those years abroad, but I know it was the biggest gift you gave me.”'},
+ 3:{U:'“We weren’t rich, but I grew up free to be myself.”',P:'“Private school was a lot of work, but I made lifelong friends there.”',A:'“I learned to be independent abroad; I just missed a lot of what happened at home.”'},
+ 2:{U:'“I often felt all your time went to work.”',P:'“I went to great schools, but I’d rather have had you home for dinner.”',A:'“You sent me abroad, but I often felt it was what you wanted, not what I wanted.”'},
+ 1:{U:'“We rarely talk. I know you’re busy.”',P:'“You were generous with tuition, but we don’t really seem to know each other.”',A:'“I’ve been abroad ever since and rarely come home.”'}
+};
+const FEQ={
+ 4:'Your partner says: “All these years, we built a steady life together.”',
+ 3:'Your partner says: “You were busy, but whenever the family needed you, you were there.”',
+ 2:'Your partner says: “You handled the money well; we just rarely really talked.”',
+ 1:'Your partner says: “Most of the time, I held this family together on my own.”',
+ div:'The marriage didn’t last.',
+ gap:'“We fought a lot about money in those years.”'
+};
+function kidQuote(k){
+  const sc=clamp(k.sc+(S.fam-50)*.5-5*(k.gp||0),0,100),tier=sc>=72?4:sc>=55?3:sc>=38?2:1;
+  const pr=EDS.filter(st=>k.p[st]==='pri'||(k.p[st]==='abr'&&(st==='ps'||st==='js'))).length;
+  const fl=(k.p.hs==='abr'||k.p.uni==='abr')?'A':pr>=2?'P':'U';
+  return KQ[tier][fl];
+}
+function familyHTML(){
+  if(!S.f.married&&!(S.kd&&S.kd.length))return '';
+  let h='<div class="story"><span class="kt">What your family says</span>';
+  if(S.kd&&S.kd.length)h+='<ul class="kids">'+S.kd.map((k,i)=>{
+    const path=EDS.filter(st=>k.p[st]).map(st=>EDC[st][k.p[st]]),age=S.age-k.b;
+    const q=age>=12?kidQuote(k):fill(KYOUNG,{p:KPR[k.g]});
+    return '<li><div class="kh"><b>'+kidName(i)+'</b><span>'+fill(KAGE,{a:age})+' · '+KTRN[k.tr]+'</span></div>'+(path.length?'<em>'+path.join(' → ')+'</em>':'')+'<p>'+q+'</p></li>';
+  }).join('')+'</ul>';
+  if(S.f.married){
+    const sc=S.fam+(S.hs?5:0)-6*(S.gapN||0);
+    let q=S.f.divorced?FEQ.div:FEQ[sc>=75?4:sc>=55?3:sc>=35?2:1];
+    if((S.gapN||0)>=2&&!S.f.divorced)q+=FEQ.gap;
+    h+='<p class="fq">'+q+'</p>';
+  }
+  return h+'</div>';
+}
+
+const EXN={house:'Home (down payment, mortgage, upkeep)',rent:'Rent',car:'Car',kid:'Raising the children',edu:'School fees',gad:'Phones and watches',int:'Loan interest',live:'Living costs',tax:'Tax and insurance contributions'};
+function assetsHTML(){
+  const L=[];
+  if(S.hs)L.push([homeName(),S.hs.v,S.hs.ln>0?fill('Mortgage left: {x}',{x:cur(S.hs.ln)}):'Mortgage paid off']);
+  if(S.rp)L.push(['Rental studio',S.rp.v,S.rp.ln>0?fill('Mortgage left: {x}',{x:cur(S.rp.ln)}):'']);
+  if(S.vh)L.push([carName(),S.vh.v,S.vh.ln>0?fill('Car loan left: {x}',{x:cur(S.vh.ln)}):'']);
+  if(S.wt&&S.wt.v>=1)L.push([WCH[S.wt.t].n,S.wt.v,'']);
+  if(S.inv>0)L.push(['investments',S.inv,STRAT[S.strat].n]);
+  L.push(['Cash ',S.cash,'']);
+  if(S.co)L.push([CO[S.co.t].n,S.co.V+Math.max(0,S.co.res),'']);
+  if(S.debt>0)L.push(['Personal loan',-S.debt,'']);
+  if(S.sl>0)L.push(['Student loan',-S.sl,'']);
+  return '<div class="story"><span class="kt">'+fill('Final assets · Net worth {x}',{x:cur(NW())})+'</span><ul class="assets">'+L.map(x=>'<li><b>'+x[0]+'</b><span class="mono">'+cur(x[1])+'</span>'+(x[2]?'<em>'+x[2]+'</em>':'')+'</li>').join('')+'</ul></div>';
+}
+function spendHTML(){
+  const e=S.ex||{},ks=['house','rent','car','kid','edu','gad','int','live','tax'].filter(k=>(e[k]||0)>=1);
+  if(!ks.length)return '';const mx=Math.max(...ks.map(k=>e[k]));
+  return '<div class="story"><span class="kt">'+fill('Lifetime spending · Lifetime income {x}',{x:cur(e.inc||0)})+'</span><ul class="spend">'+ks.map(k=>'<li><span>'+EXN[k]+'</span><i><u style="width:'+(e[k]/mx*100).toFixed(1)+'%"></u></i><b class="mono">'+cur(e[k])+'</b></li>').join('')+'</ul></div>';
+}
+
+const CFN={sal:'Salary ',sp:'Spouse’s share of household costs',co:'Company dividend',rpin:'Rental income',tax:'Tax and insurance contributions',live:'Living costs',rent:'Rent',mort:'Mortgage',hfee:'Home upkeep',car:'Car',kid:'Raising the children',edu:'School fees',debt:'Personal loan',sl:'Student loan',fam:'Family support'};
+function cfTable(){
+  const c=S.cf;if(!c||c.sal===undefined)return '';
+  const row=(k,v,s)=>'<tr><td>'+CFN[k]+'</td><td>'+s+cur1(v)+'</td></tr>';
+  const inn=['sal','sp','co','rpin'].filter(k=>c[k]>=.05).map(k=>row(k,c[k],'+')).join('');
+  const out=['tax','live','rent','mort','hfee','car','kid','edu','debt','sl','fam'].filter(k=>c[k]>=.05).map(k=>row(k,c[k],'−')).join('');
+  const net=c.inn-c.out;
+  return '<div class="cf"><span class="kt">'+fill('Money in and out at age {a}',{a:c.a})+'</span><table>'+inn+out+'<tr class="tot"><td>Balance</td><td>'+(net>=0?'+':'−')+cur1(Math.abs(net))+'</td></tr></table></div>';
+}
+
+let shopCat=null,shopReg='nt',shopPz=false;
+const hAny=r=>Object.keys(HTYP).some(t=>hOpt(r,t,'loan').ok);
+function pickReg(){if(!hAny(shopReg)){const r=['nt','ty','tp'].find(hAny);if(r)shopReg=r}}
+function ownShort(k){
+  if(k==='house')return homeName();
+  if(k==='car')return carName();
+  if(k==='phone')return S.ph?PHN[S.ph.t].n+(S.age-S.ph.a>=4?' (old)':''):'Old phone';
+  return S.wt?WCH[S.wt.t].n:'None';
+}
+function sBtn(v,txt,o,sec){return '<button class="sbtn'+(sec?' sec':'')+'" data-a="buy" data-v="'+v+'"'+(o.ok?'':' disabled')+'>'+txt+'</button>'}
+function shopPanel(){
+  const k=shopCat;let h='<div class="shop"><div class="sh"><b>'+BUYN[k]+'</b><button class="sbtn sec" data-a="shopx">Done</button></div>';
+  if(k==='house'){
+    if(S.hs){const hs=S.hs;h+='<div class="own"><span>'+fill('Your home: {x} · worth {y}',{x:homeName(),y:cur(hs.v)})+(hs.ln>0?' · '+fill('Mortgage left: {x} ({y} a year)',{x:cur(hs.ln),y:cur(hs.pay)}):'')+'</span><div><button class="sbtn sec" data-a="sell" data-v="house">'+fill('Sell and go back to renting (about {x} back)',{x:cur(hNet())})+'</button></div></div>'}
+    h+='<div class="dtabs">'+Object.keys(HREG).map(r=>'<button class="'+(shopReg===r?'on':'')+'" data-a="sreg" data-v="'+r+'">'+HREG[r].n+'</button>').join('')+'</div>';
+    h+='<p class="bnote">'+HCM[shopReg]+'</p>';
+    Object.keys(HTYP).forEach(t=>{
+      const id=shopReg+'_'+t,oL=hOpt(shopReg,t,'loan'),oF=hOpt(shopReg,t,'full');
+      h+='<div class="bi"><div class="bh"><b>'+HTYP[t].n+'</b><span>'+cur(oL.price)+'</span></div><p>'+HTYP[t].x+'</p>'
+        +'<p class="bc">'+fill('Down payment and fees {x} · Mortgage {y} a year ({n} years) · Upkeep {z} a year',{x:cur(oL.need),y:cur(oL.pay),n:oL.n,z:cur1(HFEE[shopReg][t])})+'</p>'
+        +'<div class="bb">'+sBtn('house:'+id+':loan',S.hs?'Move: 20% down + mortgage':'20% down + mortgage',oL)+sBtn('house:'+id+':full','Pay in full',oF,1)+'</div>'
+        +(!oL.ok?'<span class="why">'+oL.why+'</span>':'')+'</div>';
+    });
+    h+='<p class="bnote">'+fill('Mortgage rate set at {x}%. Most banks require your age plus the loan term to be no more than 75. When you move, the old mortgage is paid off from the sale first.',{x:(MRATE*100).toFixed(1)})+'</p>';
+  }else if(k==='car'){
+    if(S.vh)h+='<div class="own"><span>'+fill('Your car: {x} · worth {y}',{x:carName(),y:cur(S.vh.v)})+(S.vh.ln>0?' · '+fill('Car loan left: {x}',{x:cur(S.vh.ln)}):'')+'</span><div><button class="sbtn sec" data-a="sell" data-v="car">'+fill('Sell (about {x} back)',{x:cur(cNet())})+'</button></div></div>';
+    Object.keys(CARS).forEach(t=>{const c=CARS[t],oF=cOpt(t,'full'),oL=cOpt(t,'loan');
+      h+='<div class="bi"><div class="bh"><b>'+c.n+'</b><span>'+cur(c.p)+'</span></div><p>'+c.x+'</p><p class="bc">'+fill('Running costs about {x} a year · Car loan: {y} down, {z} a year (5 years)',{x:cur1(c.c),y:cur(oL.down),z:cur1(oL.pay)})+'</p>'
+        +'<div class="bb">'+sBtn('car:'+t+':full',S.vh?'Trade in: pay in full':'Pay in full',oF)+sBtn('car:'+t+':loan','30% down + car loan',oL,1)+'</div>'+(!oL.ok?'<span class="why">'+oL.why+'</span>':'')+'</div>'});
+  }else if(k==='phone'){
+    Object.keys(PHN).forEach(t=>{const p=PHN[t],o=pOpt(t);
+      h+='<div class="bi"><div class="bh"><b>'+p.n+'</b><span>'+cur1(p.p)+'</span></div><p>'+p.x+'</p><div class="bb">'+sBtn('phone:'+t+':full','Buy',o)+'</div>'+(!o.ok?'<span class="why">'+o.why+'</span>':'')+'</div>'});
+  }else{
+    if(S.wt&&S.wt.v>=1)h+='<div class="own"><span>'+fill('Your watch: {x} · worth {y}',{x:WCH[S.wt.t].n,y:cur1(S.wt.v)})+'</span><div><button class="sbtn sec" data-a="sell" data-v="watch">Sell</button></div></div>';
+    Object.keys(WCH).forEach(t=>{const w=WCH[t],o=wOpt(t);
+      h+='<div class="bi"><div class="bh"><b>'+w.n+'</b><span>'+cur1(w.p)+'</span></div><p>'+w.x+'</p><div class="bb">'+sBtn('watch:'+t+':full',S.wt?'Trade in':'Buy',o)+'</div>'+(!o.ok?'<span class="why">'+o.why+'</span>':'')+'</div>'});
+  }
+  return h+'</div>';
+}
+
+function aiBuy(){
+  if(!S)return;const L=liq(S),g=monthly()*12;
+  if(!S.vh&&S.age>=27&&R()<.2){const ok=Object.keys(CARS).filter(t=>cOpt(t,'loan').ok&&L>=CARS[t].p*.3+40&&CARS[t].p<=g*1.2);if(ok.length){const t=ok[rint(ok.length)];buy('car',t,L>=CARS[t].p+60?'full':'loan')}}
+  if(!S.hs&&S.age>=28&&S.age<=55&&R()<.25){const ok=[];Object.keys(HREG).forEach(r=>Object.keys(HTYP).forEach(t=>{const o=hOpt(r,t,'loan');if(o.ok&&o.pay+HFEE[r][t]<=g*.3&&L-o.need>=50)ok.push(r+'_'+t)}));if(ok.length)buy('house',ok[rint(ok.length)],'loan')}
+  if((!S.ph||S.age-S.ph.a>=4)&&R()<.25){const t=R()<.5?'top':'mid';if(pOpt(t).ok)buy('phone',t,'full')}
+  if(!S.wt&&R()<.04){const t=L>=400?'lux':L>=60?'fash':'smart';if(wOpt(t).ok)buy('watch',t,'full')}
+}
+
+const CAREV=['....CCCCCC.....','..CGGGGGGGC....','.CCCCCCCCCCCCC.','CCCCCCCCCCCCCCL','CCCCCCCCCCCCCCC','.KKK.......KKK.'];
+function drawHome(px,kind,night,lit){
+  const win=(x,y,w,h,on)=>px(x,y,w,h,night&&on?'#ffe6a0':'#6a7c8c');
+  if(S.hs){
+    const r=S.hs.r;
+    if(r==='tp'){const c=night?'#2a3150':'#93a2b3';px(25,30,9,14,c);px(26,22,7,8,c);px(27,15,5,7,c);px(28,9,3,6,c);px(29,4,1,5,c)}
+    else if(r==='nt'){const c=night?'#22323a':'#86ad8f';for(let x=0;x<86;x++){const h=Math.round(4+2*Math.sin(x/6)+1.5*Math.sin(x/2.7));px(x,44-h,1,h,c)}}
+    else{const c=night?'#2b3a2a':'#c9d18c';px(0,42,86,2,c);if(!S.f.abroad&&S.track!=='rei')px(30,8,8,1,night?'#c9cbe0':'#ffffff'),px(32,7,1,3,night?'#c9cbe0':'#ffffff')}
+  }
+  if(kind==='old'){
+    px(88,18,28,26,'#cdb79b');px(88,18,28,1,'#a8937a');
+    for(let f=0;f<4;f++){const y=21+f*6;[91,104].forEach((x,j)=>{win(x,y,9,3,(f+j)%2);for(let i=x;i<x+9;i+=2)px(i,y,1,3,'#3b3b3b')});px(88,y+4,28,1,'#b9a386')}
+    px(99,39,5,5,'#5d4636');px(106,13,6,5,'#dcdcdc');px(107,12,4,1,'#bdbdbd');px(107,18,1,0,'#999999');
+    return 18;
+  }
+  if(kind==='mid'){
+    px(87,10,30,34,'#e6d9c3');px(87,10,30,2,'#c9b89c');
+    for(let f=0;f<7;f++){const y=13+f*4;for(let k=0;k<4;k++)win(90+k*7,y,4,2,(f*3+k)%4===0);px(87,y+3,30,1,'#cdbda2')}
+    px(98,39,8,5,'#7a5a43');
+    return 12;
+  }
+  if(kind==='new'){
+    px(89,4,26,34,'#6f97b8');for(let x=90;x<115;x+=4)px(x,4,1,34,'#9cc0db');for(let y=6;y<38;y+=3)px(89,y,26,1,'#5b80a0');
+    if(night)for(let i=0;i<16;i++)px(90+((i*7+S.seed)%24),6+((i*11)%30),1,1,'#ffe6a0');
+    px(87,36,30,8,'#d9d4c8');px(87,36,30,1,'#bfb8a8');px(99,39,6,5,'#4d5b66');px(91,2,22,2,'#c9d3db');
+    return 9;
+  }
+  px(90,24,24,22,'#b8afa3');px(90,24,24,2,'#9c9388');
+  for(let r=0;r<3;r++)for(let k=0;k<2;k++)px(94+k*10,28+r*6,5,3,lit);
+  px(101,41,3,2,'#e6e6e6');px(106,40,4,6,'#6b4a35');
+  return 24;
+}
+function drawCar(spr,px){
+  if(!S.vh)return;const t=S.vh.t;
+  if(t==='ev')spr(CAREV,4,43,{C:'#eef1f4',G:'#7fb6d9',K:'#1d1d1d',L:'#5fd3ff'});
+  else if(t==='gas')spr(CAR2,2,43,{C:'#2b3240',G:'#a8d4ee',K:'#111111'});
+  else{spr(CAR1,4,43,{C:'#b9a07a',G:'#a8d4ee',K:'#1d1d1d'});px(13,46,3,2,'#8d8d8d')}
+}
+function drawGear(px,X,Y){
+  if(S.ph){const o=S.age-S.ph.a>=4;px(X+9,Y+11,1,2,o?'#3c4148':S.ph.t==='top'?'#8fe1ff':'#5a6470')}
+  if(S.wt)px(X+1,Y+12,1,1,{lux:'#f2c94c',fash:'#d0d6dd',smart:'#1b1b1b'}[S.wt.t]);
+}
+E.push({id:'buy_hint',n:'A home of our own',w:10,once:1,when:s=>s.f.married&&!s.f.divorced&&!s.hs&&s.age>=29&&s.age<=45&&liq(s)>=180&&Object.keys(HREG).some(hAny),t:'Your partner sends you links to a few housing developments: “Isn’t it time we had a place of our own?”',ch:[
+ {l:'Go house-hunting together',ok:{t:'You visited three developments over the weekend and did mortgage math all the way home.',fx:{shop:'house',fam:2}}},
+ {l:'Wait a few years and save first',ok:{t:'Your partner didn’t say anything more, but saved all the links.',fx:{fam:-1}}}
+]});
+LIFE.add('buy_hint');LIFE.add('gap');EDS.forEach(st=>[0,1].forEach(i=>LIFE.add('ks_'+st+'_'+i)));
+Object.assign(KNOW,{
+ buy_hint:['Before you buy a home','Besides the down payment, set aside money for deed tax, scrivener and agent fees, and renovation. Banks look at income and debts when approving a mortgage; monthly payments are usually advised to stay under a third of household income.'],
+ gap:['Emergency fund','Financial planners usually recommend an emergency fund of three to six months of living costs, so that job loss, illness or a large expense doesn’t force you to sell investments or assets at a low point.'],
+ ks_ps:['Choosing an elementary school','Public elementary school fees are low. Private elementary schools charge about NT$140,000 to NT$210,000 a year, and international schools NT$400,000 or more, before extracurricular activities.'],
+ ks_js:['12-year basic education','Taiwan introduced 12-year basic education in 2014. Elementary and junior high school are compulsory and tuition-free at public schools; after junior high, students take the Comprehensive Assessment Program and move on based on their scores and preferences.'],
+ ks_hs:['Tuition-free high school','Since February 2024, high school and vocational school students in Taiwan pay no tuition, at public and private schools alike, with no application needed. Miscellaneous fees, other school charges and boarding are still paid by families.'],
+ ks_uni:['The cost of studying abroad','Tuition plus living costs for university in the US often run over NT$1.5 million a year; a private university in Taiwan charges about NT$100,000 a year in tuition, and public universities less. Before going, buy overseas medical cover and leave room for exchange-rate swings.']
+});
+
+
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const app=document.getElementById('app');
 let P='start',S=null,R=null,EV=null,RES=null,END=null,auto=false,paused=false,speed='slow',T=null,startSeed='',fresh=0,focus='bal';
@@ -4133,22 +4604,22 @@ function newGame(seed){
   const tp=Object.keys(TR);let t1=tp[rint(tp.length)];
   const t2c=tp.filter(x=>x!==t1&&!TR_X.some(p=>p.includes(t1)&&p.includes(x)));const t2=t2c[rint(t2c.length)];
   const tal=KEYS[rint(5)];const wk=KEYS.filter(x=>x!==tal);const weak=wk[rint(4)];
-  S=Object.assign({seed,age:23,rank:0,cash:0,inv:0,home:0,mort:0,strat:[t1,t2].includes('risk')?'agg':[t1,t2].includes('careful')?'safe':'mid',stk:'flat',lr:0,co:null,coFail:-99,prevTrack:null,raise:0,track:'adj',mkt:'normal',vr:null,kids:0,kb:[],f:{},q:[],lj:-99,big:0,bg,sp,fm,fbg,traits:[t1,t2],tal,weak,skills:{},npc:{lin:0,chen:0,wang:0,apr:0},st:[],log:[],seen:{},hist:[],evc:0,br:{},hy:0,nc:0,ms:[],honest:0,clr:0,cases:[],goals:[],cert:{},cx:{},car:0},st);
-  if(fbg==='rich'){S.cash=300;S.fam=clamp(S.fam+5,0,100)}
-  if(fbg==='loan'){S.cash=-80;S.hp=clamp(S.hp-3,0,100)}
+  S=Object.assign({seed,age:23,rank:0,cash:0,inv:0,home:0,mort:0,strat:[t1,t2].includes('risk')?'agg':[t1,t2].includes('careful')?'safe':'mid',stk:'flat',lr:0,co:null,coFail:-99,prevTrack:null,raise:0,track:'adj',mkt:'normal',vr:null,kids:0,kb:[],f:{},q:[],lj:-99,big:0,bg,sp,fm,fbg,traits:[t1,t2],tal,weak,skills:{},npc:{lin:0,chen:0,wang:0,apr:0},st:[],log:[],seen:{},hist:[],evc:0,br:{},hy:0,nc:0,ms:[],honest:0,clr:0,cases:[],goals:[],cert:{},cx:{},car:0,hs:null,vh:null,ph:null,wt:null,rp:null,debt:0,dpay:0,sl:0,kd:[],cf:{},ex:{},hx:{tp:1,nt:1,ty:1},gapN:0,gapY:-9,lnY:-9,fr:0},st);
+  if(fbg==='rich'){S.cash=300;S.fam=clamp(S.fam+5,0,100)}else S.cash=10;
+  if(fbg==='loan'){S.sl=80;S.hp=clamp(S.hp-3,0,100)}
   if(fbg==='pillar')S.fam=clamp(S.fam+8,0,100);
   if(S.traits.includes('sweet'))S.npc.wang=10;
   spreadQ([['n_lin1',24,27],['ex_adjl',24,28],['love',26,31]]);
   if(R()<.45)S.q.push({id:'ex_msc',at:29+rint(10)});
   {const gp=GOALS.map(x=>x.id);for(let i=0;i<3;i++)S.goals.push(gp.splice(rint(gp.length),1)[0])}
-  focus='bal';snap();
+  focus='bal';shopCat=null;shopPz=false;snap();
   END=null;EV=null;RES=null;paused=false;
   S.log.push({age:23,t:'Joined as an Assistant Adjuster at '+fm.n+', specializing in '+sp.n+'.',k:'up',m:1});
 }
 function snap(){const o={age:S.age};KEYS.forEach(k=>{o[k]=S[k]});S.hist.push(o)}
 const inFirm=()=>['adj','exp','mgr'].includes(S.track);
 const hasT=x=>S.traits.includes(x);
-const NW=()=>S.cash+S.inv+S.home-S.mort+(S.co?S.co.V+Math.max(0,S.co.res):0);
+const NW=()=>S.cash+S.inv+S.home-S.mort+(S.vh?S.vh.v-S.vh.ln:0)+(S.wt?S.wt.v:0)-(S.debt||0)-(S.sl||0)+(S.co?S.co.V+Math.max(0,S.co.res):0);
 function growFx(fx){const o=Object.assign({},fx);KEYS.forEach(k=>{if(o[k]>0)o[k]=Math.max(1,Math.round(o[k]*(k===S.tal?1.4:k===S.weak?0.7:1)))});return o}
 function addSt(id){const e=S.st.find(z=>z.id===id);if(e)e.y=STA[id].y;else S.st.push({id,y:STA[id].y})}
 function hasSt(id){return S.st.some(z=>z.id===id)}
@@ -4190,9 +4661,6 @@ function investStep(){
   if(S.cash>0)S.cash*=1.015;
   const L=S.cash+S.inv;
   if(L>0){const fr={safe:0,mid:.5,agg:.8}[S.strat];S.inv=Math.max(0,(L-30)*fr);S.cash=L-S.inv}
-  if(S.home>0)S.home*=1.02+R()*0.03;
-  if(S.mort>0)S.mort=Math.max(0,S.mort-30);
-  if(S.f.rent)S.cash+=24;
 }
 function companyStep(){
   const c=S.co;if(!c)return;const d=CO[c.t],bx=BR()||{},cp=bx.cp||1,cv=bx.cv||1;
@@ -4208,7 +4676,7 @@ function companyStep(){
   if(c.t==='bro')perf+=Math.min(.3,c.y*.04);
   if(S.mkt==='cat'&&bx.id==='own_cat')perf+=.1;
   const profit=d.P*cp*c.sz*perf;c.lp=profit;
-  if(profit>=0){c.res+=profit*.5;S.cash+=profit*.5}else c.res+=profit;
+  if(profit>=0){c.res+=profit*.5;S.cash+=profit*.5;exAdd('inc',profit*.5);if(S.cf){S.cf.co=profit*.5;S.cf.inn+=profit*.5}}else c.res+=profit;
   c.V=Math.max(0,c.V*(1+perf*(c.t==='tech'?1:.5))+(c.pol==='grow'&&perf>0?c.V*.1:0));
   if(perf>0)c.sz+=c.pol==='grow'?.3:c.pol==='steady'?.1:0;
   if(c.pol==='lean')c.sz-=.05;
@@ -4240,7 +4708,7 @@ function apply(fx){
   if(fx.flag)S.f[fx.flag]=true;
   if(fx.flag==='married'&&!S.ms.some(x=>x.k==='marry')){S.ms.push({k:'marry',a:S.age});if(!S.q.some(x=>x.id==='baby'))S.q.push({id:'baby',at:S.age+1+rint(3)})}
   if(fx.flag==='divorced')S.ms.push({k:'div',a:S.age});
-  if(fx.kid){S.kids++;S.kb.push(S.age);if(S.kids===1&&R()<0.5&&!S.q.some(x=>x.id==='baby'))S.q.push({id:'baby',at:S.age+2+rint(3)})}
+  if(fx.kid){S.kids++;S.kb.push(S.age);kidAdd();if(S.kids===1&&R()<0.5&&!S.q.some(x=>x.id==='baby'))S.q.push({id:'baby',at:S.age+2+rint(3)})}
   if(fx.big)S.big=fx.big<=-9?0:S.big+fx.big;
   ['lin','chen','wang','apr'].forEach(k=>{if(fx[k])S.npc[k]=clamp(S.npc[k]+fx[k],-50,100)});
   if(fx.flag==='linRet'&&S.npc.lin>=20&&!S.q.some(x=>x.id==='n_lin_ref'))S.q.push({id:'n_lin_ref',at:S.age+2+rint(3)});
@@ -4254,6 +4722,10 @@ function apply(fx){
   if(fx.mort)S.mort+=fx.mort;
   if(fx.rent)S.f.rent=true;
   if(fx.flag==='house'&&S.home<=0){S.home=1000;S.mort=700}
+  if(fx.shop)S.oshop=fx.shop;
+  if(fx.edu)eduSet(fx.edu);
+  if(fx.rp)buyRP();
+  if(fx.gap)gapFix(fx.gap);
   if(fx.cert&&!S.cert[fx.cert]){S.cert[fx.cert]=S.age;S.ms.push({k:'cert',a:S.age,c:fx.cert});S.log.push({age:S.age,t:'Earned '+CERT[fx.cert].n,k:'up',m:1})}
   if(fx.certf)S.cx[fx.certf]=(S.cx[fx.certf]||0)+1;
   if(fx.flag==='cert'&&!S.cert.cila)S.cert.cila=S.age;
@@ -4323,6 +4795,7 @@ function marketStep(){
 }
 
 function tick(){
+  if(auto)aiBuy();
   marketStep();stockStep();
   const f=FOCUS.find(x=>x.id===focus);S.fy=S.fy||{};S.fy[f.id]=(S.fy[f.id]||0)+1;
   let ffx=Object.assign({},f.fx);
@@ -4334,7 +4807,7 @@ function tick(){
   S.hp=clamp(S.hp-drain()-Math.max(0,S.age-40)*0.06-(S.fam<30?2:0)+(S.hp<40?1:0),0,100);
   S.fam=clamp(S.fam-(hasSt('honey')?0:1.5)-(hasT('work')?1:0)-(hasT('amb')?0.5:0),0,100);
   S.pro=clamp(S.pro-0.5,0,100);S.net=clamp(S.net-0.5+(hasT('sweet')?1:0),0,100);
-  S.cash+=monthly()*12*saveRate()*(f.inc||1)*(f.id==='field'&&hasT('work')?1.1:1);
+  cashFlow(f);assetStep();
   investStep();companyStep();
   S.st.forEach(z=>z.y--);S.st.filter(z=>z.y<=0).forEach(z=>S.log.push({age:S.age+1,t:'Status ended: '+STA[z.id].n,k:'yr'}));S.st=S.st.filter(z=>z.y>0);
   S.age++;
@@ -4342,8 +4815,8 @@ function tick(){
   if(S.hp<=0)survive();
   if(f.sk&&R()<f.sk){const left=Object.keys(SK).filter(x=>!S.skills[x]);if(left.length)learn(wpick(left,x=>x===SPSK[S.sp.id]?3:1))}
   let ev=null;
-  const di=S.q.findIndex(q=>q.at<=S.age);
-  if(di>=0){ev=E.find(e=>e.id===S.q[di].id);S.q.splice(di,1);if(ev.id==='c_crunch'&&(!S.co||S.co.res>=0))ev=null;if(ev&&ROUTE_OK[ev.id]&&!ROUTE_OK[ev.id].includes(S.track)){if(/^b(ig|g_)/.test(ev.id))S.big=0;ev=null}if(ev&&/^brp_/.test(ev.id)&&S.br[S.track])ev=null;if(ev&&(ev.id==='love'||ev.id==='baby')&&!ev.when(S))ev=null;if(ev&&ev.once&&S.seen[ev.id])ev=null;if(ev&&ev.exam&&!ev.when(S))ev=null}
+  let di=S.q.findIndex(q=>q.at<=S.age&&/^ks_/.test(q.id));if(di<0)di=S.q.findIndex(q=>q.at<=S.age);const fromQ=di>=0;
+  if(di>=0){ev=E.find(e=>e.id===S.q[di].id);S.q.splice(di,1);if(ev.id==='c_crunch'&&(!S.co||S.co.res>=0))ev=null;if(ev&&ROUTE_OK[ev.id]&&!ROUTE_OK[ev.id].includes(S.track)){if(/^b(ig|g_)/.test(ev.id))S.big=0;ev=null}if(ev&&/^brp_/.test(ev.id)&&S.br[S.track])ev=null;if(ev&&(ev.id==='love'||ev.id==='baby')&&!ev.when(S))ev=null;if(ev&&ev.once&&S.seen[ev.id])ev=null;if(ev&&ev.exam&&!ev.when(S))ev=null;if(ev&&/^ks_/.test(ev.id)&&!ev.when(S))ev=null}
   else if(R()<(S.age<=30?0.75:0.6)){ev=histPick();if(!ev)ev=pickEvent()}
   let line=null,lfx=null;
   if(!ev&&R()<0.6){const m=pickMinor();if(m){const mf=growFx(m.fx);apply(mf);line=m.t;lfx=mf}}
@@ -4352,7 +4825,8 @@ function tick(){
   snap();fresh=S.log.length;
   const end=checkEnd()||(mortal()?'sick':null);
   if(end)return finish(end);
-  if(ev){EV=ev;S.vr=(!ev.br&&!ev.rv&&R()<0.6)?(LIFE.has(ev.id)?VARS.l:VARS.w)[rint(LIFE.has(ev.id)?VARS.l.length:VARS.w.length)]:null;P='event'}else newYear();
+  if(S.cash<-0.5){if(ev&&fromQ)S.q.unshift({id:ev.id,at:S.age+1});ev=E.find(e=>e.id==='gap')}
+  if(ev){EV=ev;S.vr=(!ev.br&&!ev.rv&&!ev.dt&&R()<0.6)?(LIFE.has(ev.id)?VARS.l:VARS.w)[rint(LIFE.has(ev.id)?VARS.l.length:VARS.w.length)]:null;P='event'}else newYear();
   render();
 }
 
@@ -4366,7 +4840,7 @@ function statOf(ch){
 }
 const cOf=ch=>ch.c||{k:statOf(ch)};
 function outs(ch){
-  if(ch.ok.fx.end||ch.ok.fx.brn||(EV&&EV.rv&&!ch.c))return [{n:'OK',p:100,g:'m',r:ch.ok}];
+  if(ch.ok.fx.end||ch.ok.fx.brn||(EV&&EV.dt)||(EV&&EV.rv&&!ch.c))return [{n:'OK',p:100,g:'m',r:ch.ok}];
   if(ch.c){
     const p=Math.round(pOf(ch.c));
     const rm=hasT('risk')?1.5:1,wm=hasSt('watch')?2:1;
@@ -4409,7 +4883,7 @@ function choose(i){
   if(o.g==='g'&&!LIFE.has(ev.id)&&!ev.br&&!ev.job&&!/^(brp_|fb_|s_|n_|ap_|hosp|c_|rv_|ex_)/.test(ev.id)){const w=((ev.id==='big3'||/^bg_\w+3$/.test(ev.id))?10:ev.big?6:ev.hy?5:/^fs_/.test(ev.id)?4:0)+(o.n==='Great success'?4:o.n==='Success'?2:1)+(ev.cl&&ch.ans?2:0)+((ev.brn||ev.spec)?1:0);S.cases.push({a:S.age,n:nm(ev),o:o.n,w})}
   if(ev.job)S.lj=S.age;
   S.seen[ev.id]=1;S.evc++;
-  S.log.push({age:S.age,t:nm(ev)+'|'+lbl(ch)+' ('+o.n+'). '+r.t+(flav?' '+flav:'')+(tw?' '+tw.t:''),k:o.g==='b'?'bad':'ev',fx,m:0});
+  S.log.push({age:S.age,t:nm(ev)+'|'+lbl(ch)+(O.length>1?' ('+o.n+')':'')+'. '+r.t+(flav?' '+flav:'')+(tw?' '+tw.t:''),k:o.g==='b'?'bad':'ev',fx,m:0});
   snap();fresh=S.log.length;
   RES={ev,ch,r,o,tw,flav,line,end:fx.end?'special':checkEnd()};
   RES.newCard=kn(ev)?dexAdd(knKey(ev)):false;if(RES.newCard)S.nc++;
@@ -4417,7 +4891,7 @@ function choose(i){
 }
 function cont(){
   if(RES&&RES.end)return finish(RES.end,RES.r.fx.end);
-  RES=null;EV=null;S.vr=null;P='run';newYear();render();
+  RES=null;EV=null;S.vr=null;P='run';newYear();if(S.oshop){if(!auto){shopCat=S.oshop;pickReg();yrAcc=0;paused=true;shopPz=true}S.oshop=null}render();
 }
 function score(kind){
   const avg=KEYS.reduce((t,k)=>t+S[k],0)/5;
@@ -4469,7 +4943,7 @@ function autoFocus(){
 }
 function autoChoice(){
   const idx=EV.ch.map((_,i)=>i).filter(i=>shown(EV.ch[i])&&open(EV.ch[i]));
-  return wpick(idx,j=>{const c=EV.ch[j];return (c.c?pOf(c.c):60)*(c.a===undefined?1:c.a)});
+  return wpick(idx,j=>{const c=EV.ch[j];return (c.c?pOf(c.c):60)*(c.a===undefined?1:typeof c.a==='function'?c.a(S):c.a)});
 }
 function loop(){
   clearTimeout(T);
@@ -4524,11 +4998,10 @@ function outfit(){
   if(r>=2)return {T:'#9cc3e6',A:'#22395a',W:'#ffffff',P:'#3b4a5a',helm:'#f4f4f4',bag:1};
   return {T:'#f07f1f',A:'#e9e9e2',W:'#f07f1f',P:'#3b4a5a',helm:'#f5c400',board:1};
 }
-function homeKind(){return S.home>0?(NW()>=1500?'villa':'apt'):'room'}
-function carKind(){const n=NW();return n>=1000?2:n>=150?1:0}
+function homeKind(){return S.hs?S.hs.t:'room'}
+function carKind(){return S.vh?S.vh.t:''}
 function sceneCaption(){
-  const h={room:'Rented room',apt:'Apartment',villa:'House'}[homeKind()];
-  const c=['No car','Small car','Sedan'][carKind()];
+  const h=homeName(),c=carName();
   const fam=[];
   if(S.f.married)fam.push('Spouse');if(S.kids)fam.push(S.kids+' kid(s)');if(S.fam>=75)fam.push('A dog');
   return MKT[S.mkt].n+' · '+RT().n+' · '+rankName()+' · '+h+' · '+c+(fam.length?' · '+fam.join(', '):'')+(S.f.abroad?' · Overseas posting':'');
@@ -4564,28 +5037,13 @@ function drawScene(cv){
   px(0,44,W,12,'#79b85a');px(0,44,W,1,'#5f9a45');px(0,46,W,3,'#cbbfa3');px(0,49,W,1,'#b3a68a');px(0,52,W,4,'#6aa64e');
   
   const kind=homeKind(),lit=night?'#ffe6a0':'#6a7c8c';
-  let top=24;
-  if(kind==='room'){
-    px(90,24,24,22,'#b8afa3');px(90,24,24,2,'#9c9388');
-    for(let r=0;r<3;r++)for(let k=0;k<2;k++)px(94+k*10,28+r*6,5,3,lit);
-    px(101,41,3,2,'#e6e6e6');px(106,40,4,6,'#6b4a35');
-  }else if(kind==='apt'){
-    top=12;px(88,12,28,34,'#d8c9b0');px(88,12,28,2,'#bfae92');
-    for(let r=0;r<5;r++)for(let k=0;k<4;k++)px(91+k*6,16+r*5,4,3,(night&&(r+k)%2)?'#ffe6a0':'#6a7c8c');
-    px(99,40,6,6,'#5d4636');
-  }else{
-    top=17;px(90,24,26,22,'#efe0c4');
-    for(let i=0;i<7;i++)px(88+i*2,23-i,30-i*4,1,'#b8432f');
-    px(94,28,6,5,night?'#ffe6a0':'#86b6d6');px(106,28,6,5,night?'#ffe6a0':'#86b6d6');px(92,35,22,1,'#9a8a70');px(101,37,6,9,'#7a4b2e');
-  }
+  const top=drawHome(px,kind,night,lit);
   if(S.co||(END&&END.kind==='special')){
     const sc=S.co?{own:'#f5c400',bro:'#d9a521',con:'#7fb2d6',tech:'#a98be0'}[S.co.t]:'#3f9c7a';
     px(92,top-7,22,5,sc);for(let k=0;k<5;k++)px(94+k*4,top-5,2,1,'#1b1500');px(95,top-2,1,2,'#555555');px(110,top-2,1,2,'#555555');
   }
   
-  const ck=carKind();
-  if(ck===1)spr(CAR1,4,43,{C:'#d2463c',G:'#a8d4ee',K:'#1d1d1d'});
-  if(ck===2)spr(CAR2,2,43,{C:'#2b3240',G:'#a8d4ee',K:'#111111'});
+  drawCar(spr,px);
   
   if(S.f.married)spr(SPOUSE,38,32,{H:hairAt(S.age),S:'#f1c7a1',E:'#2b2b2b',M:'#a2533f',C:'#c0507a',B:'#2a2a2a'});
   
@@ -4610,6 +5068,7 @@ function drawScene(cv){
     }
     if(S.rep>=80)px(X+2,Y+9,1,1,'#ffd23f');
     if(S.f.cert)px(X+7,Y+9,1,1,'#6fd0ff');
+    drawGear(px,X,Y);
   }
   
   const kc=['#3e9e6a','#e0a030'];
@@ -4655,6 +5114,9 @@ function arrows(fx){
   if(fx.big&&fx.big>-9)o.push(chip('Big case '+(fx.big>0?'advantage':'disadvantage'),fx.big>0?'up':'dn'));
   if(fx.sched)o.push(chip(/^big/.test(fx.sched.id)?'Big case: next stage':'Sets up a follow-up','hk'));
   if(fx.sell)o.push(chip('Sells company','hk'));
+  if(fx.edu){const q=fx.edu.split(':');o.push(chip(fill('School fees about {x} a year',{x:cur(EDU[q[0]][q[1]])}),'hk'))}
+  if(fx.gap)o.push(chip({w:'Sell the watch',c:'Sell the car',rp:'Sell the studio',h:'Sell the home',seq:'Sell assets',co:'Close the company',fr:'Cut back',loan:'Personal loan'}[fx.gap],'hk'));
+  if(fx.rp)o.push(chip('Rental studio','up'));
   if(fx.promo)o.push(chip('Promotion','up'));
   if(fx.rebrn)o.push(chip('Choose specialty again','hk'));
   if(fx.bust)o.push(chip('Company closes','dn'));
@@ -4689,6 +5151,9 @@ function fxChips(fx){
   if(fx.Vm)o.push(chip('Company value ×'+fx.Vm,fx.Vm>=1?'up':'dn'));
   if(fx.pol)o.push(chip('Strategy set to '+POL[fx.pol].n,'hk'));
   if(fx.sell)o.push(chip('Sells company','hk'));
+  if(fx.edu){const q=fx.edu.split(':');o.push(chip(fill('School fees about {x} a year',{x:cur(EDU[q[0]][q[1]])}),'hk'))}
+  if(fx.gap)o.push(chip({w:'Sell the watch',c:'Sell the car',rp:'Sell the studio',h:'Sell the home',seq:'Sell assets',co:'Close the company',fr:'Cut back',loan:'Personal loan'}[fx.gap],'hk'));
+  if(fx.rp)o.push(chip('Rental studio','up'));
   if(fx.promo)o.push(chip('Promotion','up'));
   if(fx.rebrn)o.push(chip('Choose specialty again','hk'));
   if(fx.bust)o.push(chip('Company closes','dn'));
@@ -4714,11 +5179,16 @@ function stage(){
     +'<p class="cap">'+sceneCaption()+'</p>'+(!END&&S.hp<25?'<p class="var warn">Your body is sending warning signs. '+(S.f.hosp?'You have already collapsed once. Next time you may not wake up. ':'')+'Consider switching your focus to “Family & rest”.</p>':'')+bar+life+'</section>';
 }
 function finLine(){
-  if(!detail)return '<p class="cap">Money: '+STRAT[S.strat].n+(S.home>0?' · Owns property':'')+(S.mort>0?' · Paying mortgage':'')+'</p>';
-  const p=['Cash '+cur(S.cash)+'','Investments '+cur(S.inv)+' ('+STRAT[S.strat].n+(S.inv>0?', this year '+(S.lr>=0?'+':'')+Math.round(S.lr)+'%':'')+')'];
-  if(S.home>0)p.push('Property '+cur(S.home)+''+(S.mort>0?' (mortgage '+cur(S.mort)+')':''));
-  let h='<p class="cap mono">'+p.join(' · ')+'</p>';
-  if(S.co){const c=S.co;h+='<div class="var">'+CO[c.t].n+' · Size '+c.sz.toFixed(1)+' · Last year '+(c.lp>=0?'profit +':'loss ')+cur(c.lp)+' · Company value '+cur(c.V)+' · Reserves '+cur(c.res)+' · Governance '+Math.round(c.gov)+' · Strategy: '+POL[c.pol].n+'</div>'}
+  const A=['Cash '+cur(S.cash)];
+  if(S.inv>0)A.push('Investments '+cur(S.inv)+' ('+STRAT[S.strat].n+(S.inv>0&&detail?','+fill('this year {x}%',{x:(S.lr>=0?'+':'')+Math.round(S.lr)}):'')+')');
+  if(S.hs)A.push(homeName()+' '+cur(S.hs.v)+(S.hs.ln>0?' ('+fill('mortgage {x}',{x:cur(S.hs.ln)})+')':''));
+  if(S.rp)A.push('Rental studio '+cur(S.rp.v)+(S.rp.ln>0?' ('+fill('mortgage {x}',{x:cur(S.rp.ln)})+')':''));
+  if(S.vh)A.push(carName()+' '+cur(S.vh.v)+(S.vh.ln>0?' ('+fill('car loan {x}',{x:cur(S.vh.ln)})+')':''));
+  if(S.wt&&S.wt.v>=1)A.push(WCH[S.wt.t].n+' '+cur1(S.wt.v));
+  if(S.debt>0)A.push('Personal loan '+cur(S.debt));
+  if(S.sl>0)A.push('Student loan '+cur(S.sl));
+  let h='<p class="cap mono">'+A.join(' · ')+'</p>'+cfTable();
+  if(S.co&&detail){const c=S.co;h+='<div class="var">'+CO[c.t].n+' · Size '+c.sz.toFixed(1)+' · Last year '+(c.lp>=0?'profit +':'loss ')+cur(c.lp)+' · Company value '+cur(c.V)+' · Reserves '+cur(c.res)+' · Governance '+Math.round(c.gov)+' · Strategy: '+POL[c.pol].n+'</div>'}
   return h;
 }
 function profLine(){
@@ -4735,8 +5205,7 @@ const SVG_PLAY='<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2 1L9 5L2 
 const SVG_SET='<svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 5h14M3 10h14M3 15h14"/><circle cx="7" cy="5" r="2.2" fill="var(--bg)"/><circle cx="13" cy="10" r="2.2" fill="var(--bg)"/><circle cx="8" cy="15" r="2.2" fill="var(--bg)"/></svg>';
 let moreOpen=false,gearOpen=false;
 function lifeCap(){
-  const h={room:'Rented room',apt:'Apartment',villa:'House'}[homeKind()];
-  const c=['No car','Small car','Sedan'][carKind()];
+  const h=homeName(),c=carName();
   const fam=[];
   if(S.f.married)fam.push('Spouse');if(S.kids)fam.push(S.kids+' kid(s)');if(S.fam>=75)fam.push('A dog');
   return h+' · '+c+(fam.length?' · '+fam.join(', '):'')+(S.f.abroad?' · Overseas posting':'');
@@ -4763,7 +5232,7 @@ function coLine(){
 function head(){
   const bars=KEYS.map(k=>'<div class="st"><span>'+KN[k]+'</span><i><u style="width:'+S[k]+'%;background:var(--s-'+k+')"></u></i><b class="'+(S[k]<25?'low':'')+'">'+(detail?Math.round(S[k]):(S[k]<25?'Danger':''))+'</b></div>').join('');
   const tg=[MKT[S.mkt].n,STK[S.stk].n];
-  if(S.mort>0)tg.push('Mortgage');if(S.f.rent)tg.push('Renting out');
+  if(S.hs&&S.hs.ln>0)tg.push('Mortgage');if(S.rp)tg.push('Renting out');if(S.debt>0)tg.push('Personal loan');
   if(S.f.sprint)tg.push('Sprint mode');if(S.f.semi)tg.push('Steps back');
   const pend=S.q.filter(q=>!/^b(ig|g_)/.test(q.id)).length;if(S.q.some(q=>/^b(ig|g_)/.test(q.id)))tg.push('Big case ongoing');if(pend)tg.push('Follow-ups '+pend+' pending');
   const L=a=>((a-23)/42*100).toFixed(2)+'%';
@@ -4780,7 +5249,7 @@ function head(){
    +'<div class="lscale">'+[23,35,45,55,65].map(a=>'<span style="left:'+L(a)+'">'+a+'</span>').join('')+'</div></div>'
    +'<div class="sts">'+bars+'</div>'
    +(tg.length?'<div class="tags">'+tg.map(x=>chip(x,'pr')).join('')+'</div>':'')
-   +'<details class="more"'+(moreOpen?' open':'')+'><summary>More: traits, skills, credentials and people</summary>'+finLine()+profLine()+'</details>'
+   +'<details class="more"'+(moreOpen?' open':'')+'><summary>More: money, assets, traits, skills and people</summary>'+finLine()+profLine()+'</details>'
    +'</section>';
 }
 function miniBar(){
@@ -4795,12 +5264,14 @@ function miniUpd(){
 if(typeof window!=='undefined'&&window.addEventListener)window.addEventListener('scroll',miniUpd,{passive:true});
 function playMast(){
   return '<div class="mast"><b>The Adjuster\'s Survival Guide</b><span class="code">Life code '+S.seed+'</span><button class="gear'+(gearOpen?' on':'')+'" data-a="gear" aria-expanded="'+gearOpen+'">'+SVG_SET+'<span>Settings</span></button></div>'
-   +(gearOpen?'<div class="setp"><label class="auto"><input type="checkbox" id="autoBox"'+(auto?' checked':'')+'> Auto-play (the system picks focus and choices)</label><button class="linkbtn" data-a="detail">'+(detail?'Hide detailed stats':'Show detailed stats')+'</button></div>':'');
+   +(gearOpen?'<div class="setp"><label class="auto"><input type="checkbox" id="autoBox"'+(auto?' checked':'')+'> Auto-choose (focus, events and purchases are left to the game)</label><button class="linkbtn" data-a="detail">'+(detail?'Hide detailed stats':'Show detailed stats')+'</button></div>':'');
 }
 function controls(){
   const fb=FOCUS.map(f=>'<button data-a="focus" data-v="'+f.id+'" class="'+(focus===f.id?'on':'')+'">'+fName(f)+'</button>').join('');
   return '<section class="ctrl">'
    +'<span class="lbl">Life focus (change any time)</span><div class="seg s4">'+fb+'</div>'
+   +'<span class="lbl">Purchases (the game pauses while open)</span><div class="seg s4 buyr">'+Object.keys(BUYN).map(k=>'<button data-a="shop" data-v="'+k+'" class="'+(shopCat===k?'on':'')+'"><b>'+BUYN[k]+'</b><small>'+ownShort(k)+'</small></button>').join('')+'</div>'
+   +(shopCat?shopPanel():'')
    +(S.co?'<span class="lbl">Company strategy</span><div class="seg s3">'+Object.keys(POL).map(k=>'<button data-a="pol" data-v="'+k+'" class="'+(S.co.pol===k?'on':'')+'">'+POL[k].n+'</button>').join('')+'</div>':'')
    +'</section>';
 }
@@ -4847,6 +5318,10 @@ function probHTML(){
    +'<tr><td>Big cases for every career</td><td>Insurers, broking, reinsurance, academia, consulting, broker firms and startups each have their own three-stage big case.</td></tr>'
    +'<tr><td>Performance review</td><td>Appears at random while you’re employed (ages 28 to 60), at most once in a life. Graded A/B/C on how the work events of the last five years went, plus your Expertise and Reputation; the higher the grade, the easier a raise or promotion is to win. You can also apply to switch to the technical or management track, choose a new specialty, or keep things as they are.</td></tr>'
    +'<tr><td>Early years</td><td>Events come up more often from 23 to 30, and there are events just for newcomers, such as your first paycheck, renting, student loans, testifying for the first time, and being headhunted. The opening exam, Mr. Lin and romance events are spread out.</td></tr>'
+   +'<tr><td>Purchases</td><td>Below Life focus you can buy a home (three types each in Taipei, New Taipei and Taoyuan), a car, a phone and a watch, and sell or trade them in; the game pauses while the panel is open. A home takes 20% down with a mortgage for the rest; your age plus the loan term can’t exceed 75, and annual mortgage payments can’t exceed half your income. What you own appears in the picture.</td></tr>'
+   +'<tr><td>Money in and out</td><td>Each year your salary, minus tax and insurance contributions, living costs, rent or mortgage, home upkeep, the car, the children’s upbringing and school fees, and any loan, plus company dividends and rental income, is that year’s balance. The details are under “More.”</td></tr>'
+   +'<tr><td>Cash shortfall</td><td>When cash runs short, investments are sold first; if that’s not enough, a “Cash shortfall” event lets you sell assets, close your company or take a personal loan (4% a year, repaid over 5 years). Borrowing to get by two years in a row costs Reputation and Health.</td></tr>'
+   +'<tr><td>School choice</td><td>When each child starts elementary school, junior high, high school and university, you choose public, private or abroad (an international school for elementary and junior high). Whether the choice suits the child’s personality shapes what they think of you; the ending lists each child’s path and a line from them.</td></tr>'
    +'<tr><td>Late career</td><td>After 45, events of their own appear: an independent director seat, arbitration, early retirement, children studying abroad and settling down, and how to take your pension.</td></tr>'
    +'<tr><td>Specialization</td><td>The year after joining an insurer, a broker, a reinsurer, academia, a consultancy, an adjusting firm, a brokerage or a startup, you choose a specialty (3 options each). Your specialty changes your title, pay or health cost, and unlocks its own events (weight ×2, checks +5%).</td></tr>'
    +'<tr><td>Clause readings</td><td>Judged on Expertise: the right reading +25%, a wrong one −15%. The result card always shows the correct answer and why. The Policy & Law skill applies.</td></tr>'
@@ -5090,7 +5565,7 @@ function eventCard(){
     }).join('');
     const bl=bonuses({k:'pro'}).filter(x=>!x[2]&&!['Technical expert','Professional qualifications','Youthful energy'].includes(x[0]));
     const bline=bl.length?'<p class="var">'+(detail?'Your edge: '+bl.map(x=>x[0]+(x[1]>0?' +':' ')+x[1]+'%').join(', '):(bl.some(x=>x[1]>0)?'In your favor: '+bl.filter(x=>x[1]>0).map(x=>x[0]).join(', '):'')+(bl.some(x=>x[1]<0)?(bl.some(x=>x[1]>0)?' · ':'')+'Against you: '+bl.filter(x=>x[1]<0).map(x=>x[0]).join(', '):''))+'</p>':'';
-    return '<div id="evbox"><span class="tab'+(br?' br':EV.hy?' hist':'')+'">'+S.age+' yrs old · '+(br?'Career offer':bigc?'Big case ':EV.rv?'Performance review':EV.ca?'Adjusting math':EV.cl?'Clause question':EV.hy?'Real event':'Crossroads')+'</span><div class="card '+(br?'br':'ev')+'"><h2>'+nm(EV)+'</h2>'+(EV.src?'<p class="src">Based on a real event: '+EV.src+'</p>':'')+'<p>'+glz(tx(EV))+'</p>'+(EV.cl?'<blockquote class="clause"><span class="kt">'+(EV.ca?'Case data':'Policy wording')+'</span>'+'<div>'+glz(EV.cl.x)+'</div></blockquote>':'')+vr+bline+'<div class="opts">'+opts+'</div></div></div>';
+    return '<div id="evbox"><span class="tab'+(br?' br':EV.hy?' hist':'')+'">'+S.age+' yrs old · '+(br?'Career offer':bigc?'Big case ':EV.tg?EV.tg:EV.rv?'Performance review':EV.ca?'Adjusting math':EV.cl?'Clause question':EV.hy?'Real event':'Crossroads')+'</span><div class="card '+(br?'br':'ev')+'"><h2>'+nm(EV)+'</h2>'+(EV.src?'<p class="src">Based on a real event: '+EV.src+'</p>':'')+'<p>'+glz(tx(EV))+'</p>'+(EV.cl?'<blockquote class="clause"><span class="kt">'+(EV.ca?'Case data':'Policy wording')+'</span>'+'<div>'+glz(EV.cl.x)+'</div></blockquote>':'')+vr+bline+'<div class="opts">'+opts+'</div></div></div>';
   }
   if(P==='result'){
     const K=kn(RES.ev);
@@ -5156,7 +5631,9 @@ const STY={
  special:'At {a}, they chose a different life: “{x}”.',
  collapse:'At {a}, they collapsed at work and never made it to retirement.',
  sick:'At {a}, they died of illness before they could retire.',
- banned:'At {a}, they were struck off, and everything stopped there.'
+ banned:'At {a}, they were struck off, and everything stopped there.',
+ buy:'At {a}, bought a first home: {x}.',
+ close:'At {a}, closed the company to stay afloat.'
 };
 const PERS={adj:'Adjuster',exp:'technical forensic expert',mgr:'claims team leader',ins:'insurer claims professional',brk:'broker on the client’s side',rei:'globe-trotting reinsurer',edu:'insurance professor',own:'adjusting firm owner',bro:'Brokerage owner',con:'risk consultant',tech:'claims-tech founder'};
 const PERB={ins_cl:'insurer claims specialist',ins_uw:'insurer underwriting expert',ins_ri:'insurer reinsurance strategist',brk_mar:'marine broker',brk_pro:'property & engineering broker',brk_enr:'energy & high-tech broker',rei_tr:'treaty reinsurer',rei_fac:'facultative underwriter',rei_cat:'catastrophe modeller',edu_res:'insurance researcher',edu_tch:'claims practice teacher',edu_pol:'insurance policy scholar',con_bcp:'business continuity consultant',con_erm:'enterprise risk consultant',con_esg:'climate risk consultant',own_mar:'marine adjusting firm owner',own_cat:'catastrophe adjusting firm owner',own_vol:'volume claims firm owner',bro_sme:'SME brokerage owner',bro_mnc:'multinational brokerage owner',bro_spe:'specialty brokerage owner',tech_b2b:'insurtech platform founder',tech_ai:'AI damage-assessment founder',tech_emb:'embedded insurance founder'};
@@ -5190,6 +5667,8 @@ function lifeStory(){
   const bg=ms.find(x=>x.k==='big');if(bg)tl.push([bg.a,fill(bg.g==='g'?STY.bigG:STY.bigB,{a:bg.a,x:bg.x||BIG[S.sp.id].n})]);
   const mr=ms.find(x=>x.k==='marry');if(mr)tl.push([mr.a,fill(S.kids>1?STY.marryN:S.kids===1?STY.marry1:STY.marry,{a:mr.a,n:S.kids})]);
   const dv=ms.find(x=>x.k==='div');if(dv&&mr)tl.push([dv.a,STY.div]);
+  const by=ms.find(x=>x.k==='buy');if(by)tl.push([by.a,fill(STY.buy,{a:by.a,x:by.x})]);
+  const cz=ms.find(x=>x.k==='close');if(cz)tl.push([cz.a,fill(STY.close,{a:cz.a})]);
   const hp=ms.find(x=>x.k==='hosp');if(hp)tl.push([hp.a,fill(STY.hosp,{a:hp.a})]);
   tl.sort((x,y)=>x[0]-y[0]);v.push(...tl.map(x=>x[1]));
   const hs=ms.filter(x=>x.k==='hist');if(hs.length)v.push(fill(hs.length>1?STY.hist2:STY.hist1,{x:hs[0].src,y:hs[1]&&hs[1].src}));
@@ -5312,7 +5791,7 @@ function endView(){
    +'<img class="idcard" id="idcard" alt="'+END.t+' · '+rankName()+'" width="360" height="512">'
    +'<p class="hint">You can also long-press or right-click to save the card image</p>'
    +'<p class="sum">'+lifeSummary()+'</p>'
-   +'<div class="story"><span class="kt">Life story</span><p>'+lifeStory()+'</p></div>'+worksHTML()+goalsHTML()
+   +'<div class="story"><span class="kt">Life story</span><p>'+lifeStory()+'</p></div>'+worksHTML()+goalsHTML()+familyHTML()+assetsHTML()+spendHTML()
    +'<div class="endbtns"><button class="btn" data-a="savecard">Download card</button><button class="btn sec" data-a="again">Live again</button></div>'
    +'<p class="hint">'+(S.nc?'New cards this life: '+S.nc+' · ':'')+'<button class="linkbtn inl" data-a="dex">Claims 101 collection</button></p>'
    +'</div></div>';
@@ -5350,6 +5829,11 @@ app.addEventListener('click',e=>{
   }
   else if(a==='enter'){P='run';newYear();render()}
   else if(a==='focus'){focus=v;render()}
+  else if(a==='shop'){if(shopCat===v){shopCat=null;if(shopPz&&paused&&P==='run'){paused=false;yrRes=now()}shopPz=false}else{shopCat=v;if(v==='house')pickReg();if(P==='run'&&!paused){yrAcc+=now()-yrRes;paused=true;shopPz=true}}render()}
+  else if(a==='shopx'){shopCat=null;if(shopPz&&paused&&P==='run'){paused=false;yrRes=now()}shopPz=false;render()}
+  else if(a==='sreg'){shopReg=v;render()}
+  else if(a==='buy'){const q=v.split(':');buy(q[0],q[1],q[2]);render()}
+  else if(a==='sell'){if(v==='house'){if(hNet()+liq(S)>=0)sellHouse()}else if(v==='car')sellCar();else if(v==='watch')sellWatch();fresh=S.log.length;render()}
   else if(a==='strat'){S.strat=v;render()}
   else if(a==='gear'){gearOpen=!gearOpen;render()}
   else if(a==='detail'){detail=!detail;try{localStorage.setItem('adj-detail',detail?'1':'0')}catch(e){}render()}
