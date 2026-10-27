@@ -4803,9 +4803,9 @@ const pct=(a,x)=>Math.round(x.w/sumW(a)*100);
 const money=v=>Math.round(v).toLocaleString('en-US');
 const LANG='zh';
 function cur(v){
-  if(LANG!=='en')return money(v)+' 萬';
+  if(LANG!=='en'){const b=Math.abs(v);if(b>=10000){const y=v/10000;return (+y.toFixed(b>=1e5?1:2)).toLocaleString('en-US',{maximumFractionDigits:2})+' 億'}return money(v)+' 萬'}
   const x=v*10000/32,a=Math.abs(x),sg=x<0?'−':'';
-  return sg+'US$'+(a>=1e6?(a/1e6).toFixed(1)+'M':a>=1e3?Math.round(a/1e3)+'K':Math.round(a));
+  return sg+'US$'+(a>=1e9?(a/1e9).toFixed(1)+'B':a>=1e6?(a/1e6).toFixed(1)+'M':a>=1e3?Math.round(a/1e3)+'K':Math.round(a));
 }
 const val=k=>k==='gov'?(S.co?S.co.gov:50):S[k];
 const sv=c=>c.w?Object.keys(c.w).reduce((t,k)=>t+val(k)*c.w[k],0):val(c.k);
@@ -4943,7 +4943,8 @@ function companyStep(){
   if(S.mkt==='cat'&&bx.id==='own_cat')perf+=.1;
   const profit=d.P*cp*c.sz*perf;c.lp=profit;
   if(profit>=0){c.res+=profit*.5;S.cash+=profit*.5;exAdd('inc',profit*.5);if(S.cf){S.cf.co=profit*.5;S.cf.inn+=profit*.5}}else c.res+=profit;
-  c.V=Math.max(0,c.V*(1+perf*(c.t==='tech'?1:.5))+(c.pol==='grow'&&perf>0?c.V*.1:0));
+  c.V=Math.max(0,c.V*(1+perf*(c.t==='tech'?1:.5))+(c.pol==='grow'&&perf>0?c.V*.1:0));c.V=Math.min(c.V,5*d.P*cp*c.sz*(c.t==='tech'?2:1));
+  {const rc=2*d.P*cp*c.sz;if(c.res>rc){const x=c.res-rc;c.res=rc;S.cash+=x;exAdd('inc',x);if(S.cf){S.cf.co+=x;S.cf.inn+=x}}}
   if(perf>0)c.sz+=c.pol==='grow'?.3:c.pol==='steady'?.1:0;
   if(c.pol==='lean')c.sz-=.05;
   if(perf<-.3)c.sz-=.1;
